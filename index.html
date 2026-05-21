@@ -2,12 +2,11 @@
 <html lang="pt-br">
 <head>
   <meta charset="utf-8">
-  <title>DJX</title>
+  <title>DJK</title>
   <style>
     body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #080c17; color: #fff; font-family: 'Segoe UI', system-ui, sans-serif; }
     canvas { display: block; position: absolute; top: 0; left: 0; z-index: 1; }
 
-    /* HUD Moderna base */
     .hud-panel {
       background: rgba(15, 20, 40, 0.75);
       border: 1px solid rgba(0, 255, 255, 0.25);
@@ -16,13 +15,7 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
-    /* Top Right - Score + Music Player (ENXUTO) */
-    #hud_top_right {
-      position: absolute; top: 15px; right: 15px; z-index: 10;
-      width: 300px; /* Reduzido */
-      padding: 12px;
-    }
-
+    #hud_top_right { position: absolute; top: 15px; right: 15px; z-index: 10; width: 300px; padding: 12px; }
     .score-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,0,255,0.2); padding-bottom: 5px; }
     .score-label { font-size: 12px; color: #00ffff; font-weight: bold; letter-spacing: 1px; }
     #pontos_txt { font-size: 22px; font-weight: 800; color: #ff00ff; text-shadow: 0 0 10px #ff00ff; margin: 0; }
@@ -30,10 +23,10 @@
     .music-player { background: rgba(5, 10, 20, 0.6); border-radius: 8px; padding: 8px; border: 1px solid rgba(0, 255, 255, 0.1); }
     .song-info { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .album-art { width: 40px; height: 40px; background: linear-gradient(135deg, #ff00ff, #00ffff); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; font-weight: bold; }
-    .song-title { font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;}
+    .song-title { font-weight: bold; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
     .song-artist { font-size: 11px; color: #aaa; }
 
-    #upload_mp3 { width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid #00ffff; padding: 4px; border-radius: 4px; box-sizing: border-box;}
+    #upload_mp3 { width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid #00ffff; padding: 4px; border-radius: 4px; box-sizing: border-box; }
     #btn_change_track { display: none; width: 100%; margin-bottom: 5px; font-size: 11px; background: #ff0055; color: #fff; border: none; padding: 5px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
     #btn_change_track:hover { background: #ff3377; }
     #player_audio { width: 100%; height: 25px; outline: none; margin-bottom: 5px; }
@@ -41,28 +34,21 @@
     .hud-controls-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
     #seletor_dificuldade { background: #1a2238; color: white; border: 1px solid #00ffff; border-radius: 4px; padding: 2px 4px; font-size: 11px; outline: none; }
 
-    /* Left Container (Engine + Keys) */
-    #hud_left_container {
-      position: absolute; top: 50%; left: 20px; transform: translateY(-50%); z-index: 10;
-      display: flex; flex-direction: column; gap: 15px; width: 250px;
-    }
+    #hud_left_container { position: absolute; top: 50%; left: 20px; transform: translateY(-50%); z-index: 10; display: flex; flex-direction: column; gap: 12px; width: 250px; }
 
     #hud_engine { padding: 15px; }
-    .engine-title { color: #00ffff; font-size: 13px; font-weight: 800; margin-bottom: 12px; text-align: center; border-bottom: 1px solid rgba(0,255,255,0.3); padding-bottom: 6px; letter-spacing: 1px;}
-    .slider-row { margin-bottom: 10px; }
-    .slider-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; font-weight: 600; }
+    .engine-title { color: #00ffff; font-size: 13px; font-weight: 800; margin-bottom: 10px; text-align: center; border-bottom: 1px solid rgba(0,255,255,0.3); padding-bottom: 6px; letter-spacing: 1px; }
+    .slider-row { margin-bottom: 8px; }
+    .slider-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px; font-weight: 600; }
     input[type="range"] { width: 100%; accent-color: #00ffff; height: 4px; }
 
-    /* Bottom Keys (Agora na esquerda) */
     #hud_keys { padding: 10px; display: flex; justify-content: space-around; align-items: center; }
-    .key-hint { text-align: center; display: flex; flex-direction: column; align-items: center; }
 
-    /* Inputs de Keybind */
+    .key-hint { text-align: center; display: flex; flex-direction: column; align-items: center; }
     .key-input {
       background: transparent; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
       width: 35px; height: 35px; text-align: center; font-size: 18px; font-weight: 800;
-      outline: none; cursor: pointer; transition: 0.2s; box-sizing: border-box;
-      text-transform: uppercase;
+      outline: none; cursor: pointer; transition: 0.2s; box-sizing: border-box; text-transform: uppercase;
     }
     .key-input:focus { border-color: #fff; background: rgba(255,255,255,0.1); }
     .desc { font-size: 10px; color: #aaa; margin-top: 4px; font-weight: bold; }
@@ -70,6 +56,28 @@
     .color-bass { color: #ff00ea; text-shadow: 0 0 8px #ff00ea; }
     .color-vocal { color: #00ffff; text-shadow: 0 0 8px #00ffff; }
     .color-treble { color: #ffaa00; text-shadow: 0 0 8px #ffaa00; }
+
+    #spectrum_canvas {
+      width: 100%;
+      height: 38px;
+      border-radius: 6px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(0,255,255,0.2);
+    }
+
+    #btn_reset {
+      width: 100%;
+      padding: 8px;
+      background: rgba(255, 0, 85, 0.15);
+      border: 1px solid #ff0055;
+      color: #ff6699;
+      font-weight: bold;
+      font-size: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    #btn_reset:hover { background: rgba(255, 0, 85, 0.3); }
   </style>
 </head>
 <body>
@@ -108,7 +116,6 @@
 </div>
 
 <div id="hud_left_container">
-
   <div id="hud_engine" class="hud-panel">
     <div class="engine-title">ENGINE SETTINGS</div>
 
@@ -116,27 +123,28 @@
       <div class="slider-label"><span>Note Speed (s)</span> <span id="val_speed">2.5</span></div>
       <input type="range" id="engine_speed" min="1.0" max="4.0" step="0.1" value="2.5">
     </div>
-
     <div class="slider-row">
       <div class="slider-label" style="color:#aaa;"><span>Spawn Cooldown (ms)</span> <span id="val_interval">350</span></div>
       <input type="range" id="engine_interval" min="100" max="800" step="10" value="350">
     </div>
-
     <div class="slider-row">
       <div class="slider-label" style="color:#fff;"><span>Impact Filter (Attack)</span> <span id="val_impact">5</span></div>
       <input type="range" id="engine_impact" min="1" max="30" step="1" value="5">
     </div>
 
     <div class="slider-row">
+      <div class="slider-label"><span>Pulse Intensity</span> <span id="val_pulse">0.3</span></div>
+      <input type="range" id="engine_pulse" min="0.3" max="1.0" step="0.1" value="0.3">
+    </div>
+
+    <div class="slider-row">
       <div class="slider-label" style="color:#ff00ea;"><span>Bass Threshold</span> <span id="val_bass">135</span></div>
       <input type="range" id="engine_bass" min="50" max="220" step="5" value="135">
     </div>
-
     <div class="slider-row">
       <div class="slider-label" style="color:#00ffff;"><span>Vocal Threshold</span> <span id="val_vocal">95</span></div>
       <input type="range" id="engine_vocal" min="40" max="180" step="5" value="95">
     </div>
-
     <div class="slider-row">
       <div class="slider-label" style="color:#ffaa00;"><span>Treble Threshold</span> <span id="val_treble">50</span></div>
       <input type="range" id="engine_treble" min="20" max="120" step="5" value="50">
@@ -145,27 +153,27 @@
 
   <div id="hud_keys" class="hud-panel">
     <div class="key-hint">
-      <input type="text" id="bind_bass" class="key-input color-bass" value="D" maxlength="1" autocomplete="off">
-      <div class="desc">O</div>
+      <input type="text" id="bind_bass" class="key-input color-bass" value="D" maxlength="1" autocomplete="off"><div class="desc">O</div>
     </div>
     <div class="key-hint">
-      <input type="text" id="bind_vocal" class="key-input color-vocal" value="J" maxlength="1" autocomplete="off">
-      <div class="desc">I</div>
+      <input type="text" id="bind_vocal" class="key-input color-vocal" value="J" maxlength="1" autocomplete="off"><div class="desc">I</div>
     </div>
     <div class="key-hint">
-      <input type="text" id="bind_agudo" class="key-input color-treble" value="K" maxlength="1" autocomplete="off">
-      <div class="desc">X</div>
+      <input type="text" id="bind_agudo" class="key-input color-treble" value="K" maxlength="1" autocomplete="off"><div class="desc">X</div>
     </div>
   </div>
 
+  <canvas id="spectrum_canvas" width="230" height="38"></canvas>
+  <button id="btn_reset">RESETAR PADRÃO</button>
 </div>
 
 <canvas id="tela_jogo"></canvas>
 
 <script>
-  // ==================== CONFIGURAÇÕES GERAIS E DOM ====================
   const canvas = document.getElementById('tela_jogo');
   const ctx = canvas.getContext('2d');
+  const spectrumCanvas = document.getElementById('spectrum_canvas');
+  const spectrumCtx = spectrumCanvas.getContext('2d');
 
   const pontos_txt = document.getElementById('pontos_txt');
   const bpm_txt = document.getElementById('bpm_txt');
@@ -173,38 +181,35 @@
   const player_audio = document.getElementById('player_audio');
   const upload = document.getElementById('upload_mp3');
   const btn_change_track = document.getElementById('btn_change_track');
+  const btn_reset = document.getElementById('btn_reset');
 
-  // Sliders
   const engine_speed = document.getElementById('engine_speed');
   const engine_interval = document.getElementById('engine_interval');
   const engine_impact = document.getElementById('engine_impact');
+  const engine_pulse = document.getElementById('engine_pulse');
   const engine_bass = document.getElementById('engine_bass');
   const engine_vocal = document.getElementById('engine_vocal');
   const engine_treble = document.getElementById('engine_treble');
 
-  // ==================== KEYBIND LOGIC ====================
-  let key_bass = 'd';
-  let key_vocal = 'j';
-  let key_agudo = 'k';
+  let key_bass = 'd', key_vocal = 'j', key_agudo = 'k';
 
-  // Função para configurar os inputs de tecla
   function setupKeybind(id, defaultKey, callback) {
     const el = document.getElementById(id);
-    el.addEventListener('focus', () => { el.value = ''; }); // Limpa ao clicar
+    el.addEventListener('focus', () => { el.value = ''; });
     el.addEventListener('input', (e) => {
       let val = e.target.value.toLowerCase();
-      if(val && val.trim() !== '') {
+      if (val && val.trim() !== '') {
         el.value = val.toUpperCase();
         callback(val);
-        el.blur(); // Tira o foco para não atrapalhar o jogo
+        el.blur();
       } else {
-        el.value = defaultKey.toUpperCase(); // Restaura default se vazio
+        el.value = defaultKey.toUpperCase();
         callback(defaultKey);
         el.blur();
       }
     });
     el.addEventListener('blur', () => {
-      if(el.value === '') { el.value = defaultKey.toUpperCase(); callback(defaultKey); }
+      if (el.value === '') { el.value = defaultKey.toUpperCase(); callback(defaultKey); }
     });
   }
 
@@ -212,44 +217,48 @@
   setupKeybind('bind_vocal', 'j', (val) => key_vocal = val);
   setupKeybind('bind_agudo', 'k', (val) => key_agudo = val);
 
-  // ==================== VARIÁVEIS DE JOGO E FÍSICA ====================
   let pontos = 0;
+  let combo = 0;
   const linha_acerto_x = 380;
   let tempo_aviso = 2.5;
   let pistas_y = [];
   let inimigos = [];
   let textos_feedback = [];
 
-  // Morphing suave (Amoeba clássica 0.1)
   let y_alvo = 0, y_atual = 0;
   let w_alvo = 60, w_atual = 60;
   let h_alvo = 60, h_atual = 60;
   let r_alvo = 30, r_atual = 30;
 
-  // Motor e Sincronia
   let audio_context, analyser, delay_node, data_array, audio_setup_feito = false;
   let ultimo_kick_tempo = 0, bpm_historico = [];
+  let kick_times = [];
   let ultimo_media_kick = 0, ultimo_media_vocal = 0, ultimo_media_agudo = 0;
   let ultimo_tempo_spawn = 0;
+  let last_beat_pulse = 0.18;
 
-  // Parâmetros Dinâmicos (Engine)
   let intervalo_minimo = 0.350;
   let limiar_impacto = 5;
+  let pulse_intensity = 0.3;
   let limiar_bass = 135, limiar_vocal = 95, limiar_treble = 50;
   let dificuldade = 'normal';
 
   let tecla_d_pressionada = false, tecla_j_pressionada = false, tecla_k_pressionada = false;
 
-  // ==================== ENGINE LISTENERS ====================
   function atualizarEngine() {
     tempo_aviso = parseFloat(engine_speed.value);
     document.getElementById('val_speed').innerText = tempo_aviso.toFixed(1);
-    if(delay_node) delay_node.delayTime.value = tempo_aviso;
+    if (delay_node) delay_node.delayTime.value = tempo_aviso;
 
     intervalo_minimo = parseInt(engine_interval.value) / 1000;
     document.getElementById('val_interval').innerText = engine_interval.value;
+
     limiar_impacto = parseInt(engine_impact.value);
     document.getElementById('val_impact').innerText = limiar_impacto;
+
+    pulse_intensity = parseFloat(engine_pulse.value);
+    document.getElementById('val_pulse').innerText = pulse_intensity.toFixed(1);
+
     limiar_bass = parseInt(engine_bass.value);
     document.getElementById('val_bass').innerText = limiar_bass;
     limiar_vocal = parseInt(engine_vocal.value);
@@ -261,9 +270,23 @@
   engine_speed.addEventListener('input', () => { atualizarEngine(); calcularPistas(); });
   engine_interval.addEventListener('input', atualizarEngine);
   engine_impact.addEventListener('input', atualizarEngine);
+  engine_pulse.addEventListener('input', atualizarEngine);
   engine_bass.addEventListener('input', atualizarEngine);
   engine_vocal.addEventListener('input', atualizarEngine);
   engine_treble.addEventListener('input', atualizarEngine);
+
+  btn_reset.addEventListener('click', () => {
+    engine_speed.value = 2.5;
+    engine_interval.value = 350;
+    engine_impact.value = 5;
+    engine_pulse.value = 1.2;
+    engine_bass.value = 135;
+    engine_vocal.value = 95;
+    engine_treble.value = 50;
+    seletor_dificuldade.value = 'normal';
+    dificuldade = 'normal';
+    atualizarEngine();
+  });
 
   seletor_dificuldade.addEventListener('change', (e) => {
     dificuldade = e.target.value;
@@ -273,7 +296,6 @@
     atualizarEngine();
   });
 
-  // ==================== SETUP DA TELA E TECLADO ====================
   function redimensionar() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -284,20 +306,23 @@
   function calcularPistas() {
     pistas_y = [];
     let espaco = canvas.height / 7;
-    for(let i = 1; i <= 6; i++) pistas_y.push(espaco * i);
+    for (let i = 1; i <= 6; i++) pistas_y.push(espaco * i);
     y_alvo = canvas.height / 2;
     if (y_atual === 0) y_atual = y_alvo;
   }
   redimensionar();
 
   window.addEventListener('keydown', (e) => {
-    // Ignora se o usuário estiver digitando no input de keybind
-    if(document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'text') return;
-
+    if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'text') return;
     let tecla = e.key.toLowerCase();
-    if (tecla === key_bass && !tecla_d_pressionada) { tecla_d_pressionada = true; checarAcerto('bass', '#ff00ea'); }
-    if (tecla === key_vocal && !tecla_j_pressionada) { tecla_j_pressionada = true; checarAcerto('vocal', '#00ffff'); }
-    if (tecla === key_agudo && !tecla_k_pressionada) { tecla_k_pressionada = true; checarAcerto('agudo', '#ffaa00'); }
+    let tipos_ligados = [];
+    let cor_hit = "#ffffff";
+
+    if (tecla === key_bass && !tecla_d_pressionada) { tecla_d_pressionada = true; tipos_ligados.push('bass'); cor_hit = '#ff00ea'; }
+    if (tecla === key_vocal && !tecla_j_pressionada) { tecla_j_pressionada = true; tipos_ligados.push('vocal'); cor_hit = '#00ffff'; }
+    if (tecla === key_agudo && !tecla_k_pressionada) { tecla_k_pressionada = true; tipos_ligados.push('agudo'); cor_hit = '#ffaa00'; }
+
+    if (tipos_ligados.length > 0) checarAcertoMultiplo(tipos_ligados, cor_hit);
   });
 
   window.addEventListener('keyup', (e) => {
@@ -307,7 +332,6 @@
     if (tecla === key_agudo) tecla_k_pressionada = false;
   });
 
-  // ==================== GERENCIAMENTO DE ÁUDIO ====================
   function setupAudioNodes() {
     if (audio_setup_feito) return;
     audio_context = new (window.AudioContext || window.webkitAudioContext)();
@@ -315,22 +339,22 @@
     analyser = audio_context.createAnalyser();
     analyser.fftSize = 256;
     data_array = new Uint8Array(analyser.frequencyBinCount);
-
     delay_node = audio_context.createDelay(5.0);
     delay_node.delayTime.value = tempo_aviso;
-
     source.connect(analyser);
     analyser.connect(delay_node);
     delay_node.connect(audio_context.destination);
-
     audio_setup_feito = true;
     loopGrafico();
   }
 
   function resetarJogo() {
     inimigos = []; textos_feedback = []; pontos = 0;
+    combo = 0;
     pontos_txt.innerText = pontos; ultimo_tempo_spawn = 0;
-    bpm_historico = []; bpm_txt.innerText = "0";
+    bpm_historico = []; kick_times = [];
+    last_beat_pulse = 0.18;
+    bpm_txt.innerText = "0";
   }
 
   upload.addEventListener('change', function() {
@@ -340,10 +364,8 @@
       player_audio.src = URL.createObjectURL(file);
       document.getElementById('song_title').innerText = file.name.replace('.mp3','');
       document.getElementById('song_artist').innerText = "Engine Sincronizada";
-
       upload.style.display = 'none';
       btn_change_track.style.display = 'block';
-
       if (!audio_setup_feito) setupAudioNodes();
       player_audio.play();
     }
@@ -356,7 +378,6 @@
     resetarJogo();
     document.getElementById('song_title').innerText = "Nenhuma música";
     document.getElementById('song_artist').innerText = "Selecione um arquivo";
-
     upload.value = "";
     upload.style.display = 'block';
     btn_change_track.style.display = 'none';
@@ -365,39 +386,65 @@
   player_audio.addEventListener('pause', () => { if (audio_context) audio_context.suspend(); });
   player_audio.addEventListener('play', () => { if (audio_context) audio_context.resume(); });
 
-  // ==================== LÓGICA RÍTMICA ====================
   function estimarBpm(tempo_agora) {
-    if (ultimo_kick_tempo > 0) {
-      let diff = tempo_agora - ultimo_kick_tempo;
-      let bpm_instante = 60 / diff;
-      if (bpm_instante >= 60 && bpm_instante <= 200) {
-        bpm_historico.push(bpm_instante);
-        if (bpm_historico.length > 8) bpm_historico.shift();
-        let soma = bpm_historico.reduce((a, b) => a + b, 0);
-        bpm_txt.innerText = Math.round(soma / bpm_historico.length);
+    kick_times.push(tempo_agora);
+    if (kick_times.length > 14) kick_times.shift();
+
+    if (kick_times.length >= 5) {
+      let intervals = [];
+      for (let i = 1; i < kick_times.length; i++) {
+        let diff = kick_times[i] - kick_times[i - 1];
+        if (diff > 0.25 && diff < 0.9) intervals.push(diff);
+      }
+      if (intervals.length >= 4) {
+        let avg_interval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+        let bpm_instante = 60 / avg_interval;
+        if (bpm_instante >= 70 && bpm_instante <= 200) {
+          bpm_historico.push(bpm_instante);
+          if (bpm_historico.length > 10) bpm_historico.shift();
+          bpm_txt.innerText = Math.round(bpm_historico.reduce((a, b) => a + b, 0) / bpm_historico.length);
+        }
       }
     }
     ultimo_kick_tempo = tempo_agora;
   }
 
-  function checarAcerto(tipo_tecla, cor_laser) {
+  function checarAcertoMultiplo(tipos_aceitos, cor_laser) {
     textos_feedback.push({ texto: "TIRO", x: linha_acerto_x, y: y_atual, alpha: 1, cor: cor_laser, tipo: "tiro" });
-    let inimigo_alvo = null, menor_distancia = 9999, inimigo_array_index = -1;
 
+    let inimigo_alvo = null, menor_distancia = 9999, inimigo_array_index = -1;
     for (let i = 0; i < inimigos.length; i++) {
       let dist = Math.abs(inimigos[i].x - linha_acerto_x);
       if (dist < menor_distancia) { menor_distancia = dist; inimigo_alvo = inimigos[i]; inimigo_array_index = i; }
     }
 
     if (inimigo_alvo && menor_distancia < 137) {
-      if (inimigo_alvo.tipo !== tipo_tecla) {
+      if (!tipos_aceitos.includes(inimigo_alvo.tipo)) {
         textos_feedback.push({ texto: "WRONG", x: linha_acerto_x + 50, y: pistas_y[inimigo_alvo.pista] - 25, alpha: 1, cor: "#ff0055", tipo: "acerto" });
+        combo = 0;
         pontos = Math.max(0, pontos - 20); inimigos.splice(inimigo_array_index, 1); pontos_txt.innerText = pontos; return;
       }
+
+      combo++;
+
+      // Recompensa visual a cada 75 combos
+      if (combo > 0 && combo % 75 === 0) {
+        textos_feedback.push({
+          texto: `${combo} COMBO!`,
+          x: linha_acerto_x + 95,
+          y: y_atual - 95,
+          alpha: 1.4,
+          cor: "#ffdd00",
+          tipo: "milestone"
+        });
+      }
+
       let msg = "", cor_msg = "";
-      if (menor_distancia <= 37) { msg = "PERFECT"; cor_msg = "#00ffcc"; pontos += 100; }
-      else if (menor_distancia <= 79) { msg = "NICE"; cor_msg = "#ffff00"; pontos += 50; }
-      else { msg = "OK"; cor_msg = "#ff00ea"; pontos += 10; }
+      let bonus = Math.floor(combo / 5);
+
+      if (menor_distancia <= 37) { msg = "PERFECT"; cor_msg = "#00ffcc"; pontos += 100 + bonus * 10; }
+      else if (menor_distancia <= 79) { msg = "NICE"; cor_msg = "#ffff00"; pontos += 50 + bonus * 5; }
+      else { msg = "OK"; cor_msg = "#ff00ea"; pontos += 10 + bonus * 2; }
 
       pontos_txt.innerText = pontos;
       textos_feedback.push({ texto: msg, x: linha_acerto_x + 50, y: pistas_y[inimigo_alvo.pista] - 25, alpha: 1, cor: cor_msg, tipo: "acerto" });
@@ -405,14 +452,51 @@
     }
   }
 
-  // ==================== DESENHO E LOOP PRINCIPAL ====================
-  function desenharNotaPadrao(x, y, w, h, r, cor_neon) {
-    ctx.shadowBlur = 20; ctx.shadowColor = cor_neon; ctx.strokeStyle = cor_neon; ctx.lineWidth = 3;
+  function desenharNotaPadrao(x, y, w, h, r, cor_neon, pulse = 0) {
+    ctx.save();
+
+    const effective = pulse * pulse_intensity;
+    const scale = 1 + (effective * 0.55);
+    const pw = w * scale;
+    const ph = h * scale;
+    const pr = r * scale;
+
+    ctx.shadowColor = cor_neon;
+    ctx.shadowBlur = 25 + (effective * 55);
+    ctx.strokeStyle = cor_neon;
+    ctx.lineWidth = 3.5 + (effective * 4);
+
+    let safe_r = Math.min(pr, pw/2, ph/2);
+    safe_r = Math.max(0, safe_r);
+
     ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(x - w/2, y - h/2, w, h, r);
-    else ctx.arc(x, y, w/2, 0, Math.PI * 2);
-    ctx.stroke(); ctx.fillStyle = "rgba(0, 0, 0, 0.7)"; ctx.fill();
-    ctx.fillStyle = cor_neon.replace(')', ', 0.2)').replace('rgb', 'rgba'); ctx.fill();
+    if (ctx.roundRect) ctx.roundRect(x - pw/2, y - ph/2, pw, ph, safe_r);
+    else ctx.arc(x, y, pw/2, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
+    ctx.fill();
+    ctx.fillStyle = cor_neon.replace(')', ', ' + (0.22 + (effective * 0.35)) + ')').replace('rgb', 'rgba');
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function desenharEspectro() {
+    if (!analyser || !data_array) return;
+
+    spectrumCtx.fillStyle = "rgba(5, 10, 20, 0.85)";
+    spectrumCtx.fillRect(0, 0, spectrumCanvas.width, spectrumCanvas.height);
+
+    const barWidth = (spectrumCanvas.width / data_array.length) * 1.8;
+    let x = 0;
+
+    for (let i = 0; i < data_array.length; i++) {
+      const barHeight = (data_array[i] / 255) * spectrumCanvas.height * 0.95;
+      const hue = 180 + (i * 1.5);
+      spectrumCtx.fillStyle = `hsla(${hue}, 100%, 65%, 0.85)`;
+      spectrumCtx.fillRect(x, spectrumCanvas.height - barHeight, barWidth, barHeight);
+      x += barWidth + 1;
+    }
   }
 
   function loopGrafico() {
@@ -427,9 +511,11 @@
     let tempo_atual_audio = audio_context.currentTime;
     analyser.getByteFrequencyData(data_array);
 
+    desenharEspectro();
+
     let media_kick = (data_array[1] + data_array[2] + data_array[3] + data_array[4]) / 4;
-    let soma_vocal = 0; for(let i = 10; i < 30; i++) soma_vocal += data_array[i]; let media_vocal = soma_vocal / 20;
-    let soma_agudo = 0; for(let i = 50; i < 90; i++) soma_agudo += data_array[i]; let media_agudo = soma_agudo / 40;
+    let soma_vocal = 0; for (let i = 10; i < 30; i++) soma_vocal += data_array[i]; let media_vocal = soma_vocal / 20;
+    let soma_agudo = 0; for (let i = 50; i < 90; i++) soma_agudo += data_array[i]; let media_agudo = soma_agudo / 40;
 
     let delta_kick = media_kick - ultimo_media_kick;
     let delta_vocal = media_vocal - ultimo_media_vocal;
@@ -437,7 +523,6 @@
 
     ultimo_media_kick = media_kick; ultimo_media_vocal = media_vocal; ultimo_media_agudo = media_agudo;
 
-    // SPAWN LOGIC: Tempo restante e Quantização Absoluta
     let tempo_restante = player_audio.duration - player_audio.currentTime;
     let tocando_valido = !player_audio.paused && player_audio.currentTime > 0 && !player_audio.ended;
     let pode_spawnar = tocando_valido && (isNaN(player_audio.duration) || tempo_restante > tempo_aviso);
@@ -466,7 +551,6 @@
       }
     }
 
-    // FÍSICA E ATUALIZAÇÃO
     let dist_minima = 99999; let achou_alvo = false; let tipo_alvo = null;
     for (let i = 0; i < inimigos.length; i++) {
       let tempo_decorrido = (tempo_atual_audio - inimigos[i].tempo_criacao);
@@ -485,60 +569,125 @@
     else if (tipo_alvo === 'agudo') { w_alvo = 70; h_alvo = 70; r_alvo = 15; }
     else { w_alvo = 50; h_alvo = 50; r_alvo = 25; }
 
-    // Lerp suave garantido (Amoeba)
-    y_atual += (y_alvo - y_atual) * 0.1; w_atual += (w_alvo - w_atual) * 0.1; h_atual += (h_alvo - h_atual) * 0.1; r_atual += (r_alvo - r_atual) * 0.1;
+    y_atual += (y_alvo - y_atual) * 0.25;
+    w_atual += (w_alvo - w_atual) * 0.25;
+    h_atual += (h_alvo - h_atual) * 0.25;
+    r_atual += (r_alvo - r_atual) * 0.25;
 
-    // DESENHO: Linhas de Pista
     ctx.lineWidth = 1; ctx.strokeStyle = "rgba(0, 255, 255, 0.03)";
     for (let i = 0; i < 6; i++) { ctx.beginPath(); ctx.moveTo(linha_acerto_x, pistas_y[i]); ctx.lineTo(canvas.width, pistas_y[i]); ctx.stroke(); }
 
-    // DESENHO: Notas (Por trás)
+    // PULSAÇÃO RÍTMICA
+    let bass_onset = Math.max(0, delta_kick) / 15;
+    let vocal_onset = Math.max(0, delta_vocal) / 13;
+    let treble_onset = Math.max(0, delta_agudo) / 11;
+
+    let onset = Math.max(bass_onset, vocal_onset * 0.65, treble_onset * 0.45);
+
+    last_beat_pulse = Math.max(last_beat_pulse * 0.76, onset * 1.2);
+    let beat_pulse = Math.min(1.0, Math.max(0.16, last_beat_pulse));
+
     for (let i = inimigos.length - 1; i >= 0; i--) {
       let ini = inimigos[i];
       let w_draw, h_draw, r_draw, c_draw;
+
       if (ini.tipo === 'bass') { w_draw = 70; h_draw = 70; r_draw = 35; c_draw = "rgb(255, 0, 234)"; }
       else if (ini.tipo === 'vocal') { w_draw = 20; h_draw = 100; r_draw = 10; c_draw = "rgb(0, 255, 255)"; }
       else if (ini.tipo === 'agudo') { w_draw = 50; h_draw = 50; r_draw = 8; c_draw = "rgb(255, 170, 0)"; }
 
       if (ini.x < linha_acerto_x - 55) {
         textos_feedback.push({ texto: "MISS", x: linha_acerto_x + 50, y: pistas_y[ini.pista] - 20, alpha: 1, cor: "#ff0055", tipo: "acerto" });
+        combo = 0;
         inimigos.splice(i, 1); pontos = Math.max(0, pontos - 15); pontos_txt.innerText = pontos; continue;
       }
-      desenharNotaPadrao(ini.x, pistas_y[ini.pista], w_draw, h_draw, r_draw, c_draw);
+      desenharNotaPadrao(ini.x, pistas_y[ini.pista], w_draw, h_draw, r_draw, c_draw, beat_pulse);
     }
 
-    // DESENHO: Linha e Escudo (Por Cima)
+    // ==================== COMBO VISUAL ====================
+    if (combo > 0) {
+      let comboX = linha_acerto_x + 80;
+      let comboY = y_atual - 70;
+
+      let comboColor = "#ffff00";
+      if (combo >= 30) comboColor = "#ff00ff";
+      else if (combo >= 20) comboColor = "#aa00ff";
+      else if (combo >= 10) comboColor = "#00ffff";
+
+      ctx.save();
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = comboColor;
+      ctx.fillStyle = comboColor;
+      ctx.font = `bold ${22 + Math.min(combo * 0.4, 18)}px 'Segoe UI', sans-serif`;
+      ctx.fillText(`COMBO ${combo}`, comboX, comboY);   // ← MUDANÇA: sem o "x"
+      ctx.restore();
+    }
+
+    // ESCUDO + LINHA
     let cor_alvo = "rgb(255, 0, 255)";
     if (tipo_alvo === 'bass') cor_alvo = "rgb(255, 0, 234)";
     if (tipo_alvo === 'vocal') cor_alvo = "rgb(0, 255, 255)";
     if (tipo_alvo === 'agudo') cor_alvo = "rgb(255, 170, 0)";
 
     let respiracao = Math.sin(Date.now() / 150) * 4;
-    let w_scan = w_atual + 12 + respiracao, h_scan = h_atual + 12 + respiracao, r_scan = r_atual + 6;
+    let w_scan = w_atual + 12 + respiracao;
+    let h_scan = h_atual + 12 + respiracao;
+    let r_scan = r_atual + 6;
 
-    ctx.shadowBlur = 15; ctx.shadowColor = "#ffffff"; ctx.strokeStyle = "rgba(255, 255, 255, 0.8)"; ctx.lineWidth = 4;
-    ctx.beginPath(); ctx.moveTo(linha_acerto_x, 0); ctx.lineTo(linha_acerto_x, y_atual - h_scan/2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(linha_acerto_x, y_atual + h_scan/2); ctx.lineTo(linha_acerto_x, canvas.height); ctx.stroke();
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = "#ffffff";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.95)";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(linha_acerto_x, 0);
+    ctx.lineTo(linha_acerto_x, y_atual - h_scan/2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(linha_acerto_x, y_atual + h_scan/2);
+    ctx.lineTo(linha_acerto_x, canvas.height);
+    ctx.stroke();
 
-    ctx.shadowBlur = 25; ctx.shadowColor = cor_alvo; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 4;
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = cor_alvo;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 4;
     ctx.beginPath();
     if (ctx.roundRect) ctx.roundRect(linha_acerto_x - w_scan/2, y_atual - h_scan/2, w_scan, h_scan, r_scan);
     else ctx.arc(linha_acerto_x, y_atual, w_scan/2, 0, Math.PI * 2);
     ctx.stroke();
 
-    ctx.shadowBlur = 10; ctx.strokeStyle = cor_alvo; ctx.lineWidth = 2; ctx.stroke();
+    ctx.shadowBlur = 8;
+    ctx.strokeStyle = cor_alvo;
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
-    // DESENHO: Feedbacks
+    // Feedbacks (incluindo milestone de 75 combos)
     for (let i = textos_feedback.length - 1; i >= 0; i--) {
       let t = textos_feedback[i];
-      if (t.tipo === "acerto") {
+
+      if (t.tipo === "milestone") {
+        // Recompensa visual forte a cada 75 combos
+        t.y -= 0.8;
+        t.alpha -= 0.015;
+        ctx.save();
+        ctx.shadowBlur = 25;
+        ctx.shadowColor = t.cor;
+        ctx.fillStyle = t.cor;
+        ctx.globalAlpha = Math.max(0, t.alpha);
+        ctx.font = "bold 28px 'Segoe UI', sans-serif";
+        ctx.fillText(t.texto, t.x, t.y);
+        ctx.restore();
+      }
+      else if (t.tipo === "acerto") {
         t.y -= 1.5; t.alpha -= 0.03; ctx.fillStyle = t.cor; ctx.globalAlpha = Math.max(0, t.alpha);
         ctx.font = "bold 22px 'Segoe UI', sans-serif"; ctx.fillText(t.texto, t.x + 25, t.y);
-      } else if (t.tipo === "tiro") {
+      }
+      else if (t.tipo === "tiro") {
         t.x += 60; t.alpha -= 0.08; ctx.fillStyle = t.cor; ctx.globalAlpha = Math.max(0, t.alpha);
         ctx.shadowBlur = 15; ctx.shadowColor = t.cor; ctx.fillRect(t.x, t.y - 2, 80, 4);
       }
-      ctx.globalAlpha = 1.0; if (t.alpha <= 0) textos_feedback.splice(i, 1);
+
+      ctx.globalAlpha = 1.0;
+      if (t.alpha <= 0) textos_feedback.splice(i, 1);
     }
   }
 </script>
