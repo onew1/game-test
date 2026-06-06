@@ -43,14 +43,20 @@
     }
     .hud-controls-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 5px;
     }
-    select { background: rgba(0,0,0,0.3); color: #ccc; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 2px 4px; font-size: 11px; outline: none; }
+    select { background: rgba(0,0,0,0.3); color: #ccc; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 2px 4px;
+      font-size: 11px; outline: none; }
 
-    #upload_map { display: none; width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(0,0,0,0.3); color: #ccc; border: 1px solid rgba(0,255,180,0.4); padding: 4px; border-radius: 4px; box-sizing: border-box; }
-    #btn_export_map { display: none; width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(255, 100, 100, 0.2); color: #fff; border: 1px solid rgba(255,100,100,0.4); padding: 5px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    #btn_export_map:hover { background: rgba(255, 100, 100, 0.4); }
+    #upload_map { display: none; width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(0,0,0,0.3);
+      color: #ccc; border: 1px solid rgba(0,255,180,0.4); padding: 4px; border-radius: 4px; box-sizing: border-box; }
+    #btn_export_map { display: none;
+      width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(255, 100, 100, 0.2); color: #fff; border: 1px solid rgba(255,100,100,0.4); padding: 5px;
+      border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    #btn_export_map:hover { background: rgba(255, 100, 100, 0.4);
+    }
 
     #btn_mais_opcoes { background: transparent; border: none; color: rgba(255,255,255,0.4); font-size: 14px; cursor: pointer;
-      width: 100%; padding: 4px; margin-top: 6px; transition: 0.2s; border-radius: 4px; display: flex; justify-content: center; align-items: center;
+      width: 100%; padding: 4px;
+      margin-top: 6px; transition: 0.2s; border-radius: 4px; display: flex; justify-content: center; align-items: center;
     }
     #btn_mais_opcoes:hover { background: rgba(255, 255, 255, 0.05); color: rgba(255,255,255,0.8);
     }
@@ -116,12 +122,102 @@
       opacity: 0;
       user-select: none;
     }
+
+    /* ── FEVER TIME OVERLAY ── */
+    #fever_overlay {
+      position: fixed;
+      inset: 0; z-index: 50;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    #fever_overlay.active { opacity: 1; }
+    #fever_banner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 51;
+      pointer-events: none;
+      opacity: 0;
+      font-size: 0px;
+      font-weight: 900;
+      color: #ff2244;
+      text-shadow: 0 0 40px rgba(255,0,60,0.9), 0 0 80px rgba(255,60,0,0.7);
+      letter-spacing: 4px;
+      white-space: nowrap;
+      transition: opacity 0.3s, font-size 0.25s cubic-bezier(0.15,1.4,0.5,1);
+      user-select: none;
+    }
+    #fever_banner.show { opacity: 1; font-size: 96px; }
+    #fever_hud {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 52;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+    #fever_hud.active { opacity: 1; }
+    #fever_label {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #ff2244;
+      text-shadow: 0 0 12px rgba(255,0,60,0.8);
+      animation: fever_pulse 0.6s ease-in-out infinite alternate;
+    }
+    @keyframes fever_pulse {
+      from { opacity: 0.75; text-shadow: 0 0 8px rgba(255,0,60,0.5); }
+      to   { opacity: 1.0;  text-shadow: 0 0 20px rgba(255,0,60,1.0); }
+    }
+    #fever_bar_bg {
+      width: 160px; height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(255,30,60,0.3);
+    }
+    #fever_bar_fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff2244, #ff8800);
+      border-radius: 4px;
+      transition: width 0.15s linear;
+      width: 100%;
+    }
+    #fever_erros {
+      font-size: 11px;
+      color: rgba(255,100,100,0.9);
+      letter-spacing: 1px;
+      font-weight: bold;
+    }
+    #fever_mult {
+      font-size: 11px;
+      color: #ff8800;
+      letter-spacing: 1px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
 <div id="countdown_overlay">
   <span id="countdown_num">3</span>
+</div>
+
+<!-- FEVER TIME UI -->
+<div id="fever_overlay"></div>
+<div id="fever_banner">FEVER TIME!</div>
+<div id="fever_hud">
+  <div id="fever_label">FEVER TIME</div>
+  <div id="fever_bar_bg"><div id="fever_bar_fill"></div></div>
+  <div id="fever_erros">ERROS: 0 / 3</div>
+  <div id="fever_mult">2x PONTOS</div>
 </div>
 
 <div id="hud_wrapper">
@@ -162,7 +258,8 @@
   <div id="hud_left_container">
     <div id="hud_engine" class="hud-panel">
       <div class="engine-title">ENGINE SETTINGS</div>
-      <div class="slider-row"><div class="slider-label"><span>Note Speed (s)</span> <span id="val_speed">2.5</span></div><input type="range" id="engine_speed" min="1.0" max="4.0" step="0.1" value="2.5"></div>
+      <div class="slider-row"><div class="slider-label"><span>Note Speed (s)</span> <span id="val_speed">2.5</span></div><input
+        type="range" id="engine_speed" min="1.0" max="4.0" step="0.1" value="2.5"></div>
 
       <div class="slider-row"><div class="slider-label"><span>Audio Latency (ms)</span> <span id="val_latency">0</span></div><input type="range" id="engine_latency" min="-200" max="200" step="5" value="0">
         <div id="calibration_hint">Ajuste se as notas chegam antes/depois do som</div>
@@ -170,6 +267,7 @@
       <div class="slider-row"><div class="slider-label" style="opacity:0.7;"><span>Spawn Cooldown (ms)</span> <span id="val_interval">350</span></div><input type="range" id="engine_interval" min="100" max="800" step="10" value="350"></div>
       <div class="slider-row"><div class="slider-label" style="opacity:0.9;"><span>Impact Filter</span> <span id="val_impact">5</span></div><input type="range" id="engine_impact" min="1" max="30" step="1" value="5"></div>
       <div class="slider-row"><div class="slider-label"><span>Pulse Intensity</span> <span id="val_pulse">0.3</span></div><input type="range" id="engine_pulse" min="0.3" max="1.0" step="0.1" value="0.3"></div>
+
       <div class="slider-row"><div class="slider-label color-bass"><span>Bass Threshold</span> <span id="val_bass">135</span></div><input type="range" id="engine_bass" min="50" max="220" step="5" value="135"></div>
       <div class="slider-row"><div class="slider-label color-verde"><span>Verde Threshold</span> <span id="val_verde">70</span></div><input type="range" id="engine_verde" min="30" max="150" step="5" value="70"></div>
       <div class="slider-row"><div class="slider-label color-vocal"><span>Vocal Threshold</span> <span id="val_vocal">95</span></div><input type="range" id="engine_vocal" min="40" max="180" step="5" value="95"></div>
@@ -223,11 +321,11 @@
   const ui_game_mode = document.getElementById('game_mode');
   const ui_upload_map = document.getElementById('upload_map');
   const ui_btn_export = document.getElementById('btn_export_map');
-  let gameMode = 'auto'; // 'auto', 'play_map', 'map_record'
+  let gameMode = 'auto';
   let recordedMap = [];
   let customMapData = [];
   let customMapIndex = 0;
-  let currentSongName = "custom"; // Variável para guardar o nome da música
+  let currentSongName = "custom";
 
   ui_game_mode.addEventListener('change', (e) => {
     gameMode = e.target.value;
@@ -262,10 +360,7 @@
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(recordedMap));
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
-
-    // Agora o download usa o nome da música carregada!
     downloadAnchorNode.setAttribute("download", currentSongName + "_mapa.json");
-
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
@@ -281,7 +376,90 @@
   const countdownOverlay = document.getElementById('countdown_overlay');
   const countdownNum     = document.getElementById('countdown_num');
 
-  // Sincronizador de Alta Resolução
+  // ── FEVER TIME ─────────────────────────────────────────────────────────────
+  const FEVER_COMBO_TRIGGER  = 150;   // ativa a cada N combos
+  const FEVER_DURACAO_NOTAS  = 35;    // mínimo de notas no fever
+  const FEVER_MAX_ERROS      = 3;     // erros para sair do fever
+  const FEVER_MULT_PONTOS    = 2;     // multiplicador de pontos
+
+  let feverAtivo          = false;
+  let feverComboInicio    = 0;   // combo em que o fever foi ativado
+  let feverNotasContadas  = 0;   // notas acertadas/erradas desde o início do fever
+  let feverErros          = 0;
+  let feverFlashAlpha     = 0;   // flash de borda vermelho na tela
+
+  const feverOverlay  = document.getElementById('fever_overlay');
+  const feverBanner   = document.getElementById('fever_banner');
+  const feverHud      = document.getElementById('fever_hud');
+  const feverBarFill  = document.getElementById('fever_bar_fill');
+  const feverErrosEl  = document.getElementById('fever_erros');
+
+  function ativarFever() {
+    feverAtivo         = true;
+    feverNotasContadas = 0;
+    feverErros         = 0;
+    feverFlashAlpha    = 1.0;
+
+    feverOverlay.classList.add('active');
+    feverHud.classList.add('active');
+
+    // Banner de entrada
+    feverBanner.classList.add('show');
+    setTimeout(() => { feverBanner.classList.remove('show'); }, 1800);
+
+    atualizarFeverHUD();
+    oceanPulse = Math.min(oceanPulse + 1.8, 2.4);
+  }
+
+  function desativarFever(motivo) {
+    feverAtivo = false;
+    feverOverlay.classList.remove('active');
+    feverHud.classList.remove('active');
+
+    // Mensagem de saída
+    const msg = motivo === 'erros' ? 'FEVER ENCERRADO' : 'FEVER COMPLETO!';
+    const cor  = motivo === 'erros' ? '#ff4466' : '#ffaa00';
+    textos_feedback.push({
+      texto: msg, x: linha_acerto_x + 60, y: canvas.height / 2 - 60,
+      alpha: 1.5, cor: cor, tipo: 'milestone'
+    });
+  }
+
+  function atualizarFeverHUD() {
+    const progresso = Math.max(0, 1 - feverNotasContadas / FEVER_DURACAO_NOTAS);
+    feverBarFill.style.width = (progresso * 100) + '%';
+    feverErrosEl.textContent = `ERROS: ${feverErros} / ${FEVER_MAX_ERROS}`;
+  }
+
+  function verificarAtivacaoFever() {
+    // Ativa a cada múltiplo exato de FEVER_COMBO_TRIGGER
+    if (!feverAtivo && combo > 0 && combo % FEVER_COMBO_TRIGGER === 0) {
+      ativarFever();
+    }
+  }
+
+  function registrarNotaFever(acertou) {
+    if (!feverAtivo) return;
+    feverNotasContadas++;
+
+    if (!acertou) {
+      feverErros++;
+      if (feverErros >= FEVER_MAX_ERROS) {
+        desativarFever('erros');
+        return;
+      }
+    }
+
+    // Encerra normalmente após o mínimo de notas (só se já tiver passado o mínimo)
+    if (feverNotasContadas >= FEVER_DURACAO_NOTAS) {
+      desativarFever('completo');
+      return;
+    }
+
+    atualizarFeverHUD();
+  }
+  // ───────────────────────────────────────────────────────────────────────────
+
   window.songStartTime = undefined;
 
   function iniciarCountdown(callback) {
@@ -478,7 +656,8 @@
       ultimoSpawnWave = agora;
       waveSpawnAccumulator = 0;
       let cor = "#ffffff", pow = 0.65;
-      if (oceanPulse > 1.55)      { cor = "#ff00ea"; pow = 1.85; }
+      if (feverAtivo)             { cor = "#ff2244"; pow = 2.2; } // ondas vermelhas no fever
+      else if (oceanPulse > 1.55) { cor = "#ff00ea"; pow = 1.85; }
       else if (oceanPulse > 0.85) { cor = "#00ffff"; pow = 1.25; }
       else if (oceanPulse > 0.32) { cor = "#ffaa00"; pow = 0.85; }
       spawnWave(pow, cor);
@@ -504,6 +683,23 @@
     if (zen_espectral > 0.01) {
       ctx.save(); ctx.globalAlpha = zen_espectral; desenharEfeitosEspectrais(); ctx.restore(); ctx.globalAlpha = 1;
     }
+
+    // ── FEVER: flash de borda na tela ──────────────────────────────────────
+    if (feverAtivo || feverFlashAlpha > 0.01) {
+      if (!feverAtivo) feverFlashAlpha *= 0.88;
+      else feverFlashAlpha = Math.min(1, feverFlashAlpha + 0.08);
+
+      const pulso = feverAtivo ? (0.25 + Math.abs(Math.sin(Date.now() / 200)) * 0.35) : feverFlashAlpha * 0.4;
+      const bw = 14;
+      ctx.save();
+      ctx.globalAlpha = pulso;
+      ctx.strokeStyle = '#ff2244';
+      ctx.lineWidth = bw * 2;
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+      ctx.globalAlpha = 1;
+    }
+    // ───────────────────────────────────────────────────────────────────────
 
     if (!audio_setup_feito) return;
 
@@ -532,11 +728,13 @@
       spectrumCtx.restore();
     }
 
-    let mk = 0; for (let i = 1;  i <= 5;  i++) mk += data_array_spawn[i];
+    let mk = 0;
+    for (let i = 1;  i <= 5;  i++) mk += data_array_spawn[i];
     mk /= 5;
     let sg = 0; for (let i = 14; i < 42;  i++) sg += data_array_spawn[i];
     const mg = sg / 28;
-    let sv = 0; for (let i = 10; i < 28;  i++) sv += data_array_spawn[i]; const mv = sv / 18;
+    let sv = 0;
+    for (let i = 10; i < 28;  i++) sv += data_array_spawn[i]; const mv = sv / 18;
     let sa = 0; for (let i = 48; i < 88;  i++) sa += data_array_spawn[i];
     const ma = sa / 40;
 
@@ -593,7 +791,6 @@
         while (customMapIndex < customMapData.length) {
           let note = customMapData[customMapIndex];
           if (tAudio >= note.time - tempo_aviso) {
-
             let tipoAleatorio = 'bass';
             const maxS = Math.max(dk, dg, dv, da);
             if (maxS === dg && dg > 0) tipoAleatorio = 'verde';
@@ -629,7 +826,10 @@
 
       if (ini.x < linha_acerto_x - janela.miss) {
         textos_feedback.push({ texto: "MISS", x: linha_acerto_x+48, y: getPistaY(ini.pista)-18, alpha:1, cor:"#ff0055", tipo:"acerto" });
-        combo = 0; pontos = Math.max(0, pontos - 15); pontos_txt.innerText = pontos;
+        combo = 0;
+        pontos = Math.max(0, pontos - 15);
+        pontos_txt.innerText = pontos;
+        registrarNotaFever(false);  // conta miss no fever
         inimigos.splice(i, 1); continue;
       }
       const d = Math.abs(ini.x - linha_acerto_x);
@@ -637,13 +837,19 @@
         y_alvo = getPistaY(ini.pista); tipoAlvo = ini.tipo; achou = true; }
     }
 
-    if (!achou) { y_alvo = canvas.height / 2; tipoAlvo = 'neutro'; }
+    if (!achou) { y_alvo = canvas.height / 2;
+      tipoAlvo = 'neutro'; }
 
-    if      (tipoAlvo === 'bass')  proximaNotaCor = "#ff00ea";
-    else if (tipoAlvo === 'verde') proximaNotaCor = "#00ff88";
-    else if (tipoAlvo === 'vocal') proximaNotaCor = "#00ffff";
-    else if (tipoAlvo === 'agudo') proximaNotaCor = "#ffaa00";
-    else                           proximaNotaCor = "#ffffff";
+    // Durante fever, a cor alvo é sempre vermelha
+    if (feverAtivo) {
+      proximaNotaCor = "#ff2244";
+    } else {
+      if      (tipoAlvo === 'bass')  proximaNotaCor = "#ff00ea";
+      else if (tipoAlvo === 'verde') proximaNotaCor = "#00ff88";
+      else if (tipoAlvo === 'vocal') proximaNotaCor = "#00ffff";
+      else if (tipoAlvo === 'agudo') proximaNotaCor = "#ffaa00";
+      else                           proximaNotaCor = "#ffffff";
+    }
 
     if      (tipoAlvo === 'bass')  { w_alvo=88;  h_alvo=88;  r_alvo=44; }
     else if (tipoAlvo === 'verde') { w_alvo=56;  h_alvo=56;  r_alvo=17; }
@@ -665,22 +871,38 @@
     const beatRaw = Math.min(1, Math.max(0.15, Math.max(dk/14.5, dv/12.5, da/10.5) * 1.12 * 0.74 + last_beat_pulse * 0.74));
     last_beat_pulse = beatRaw;
     const beat = 0.15 + (beatRaw - 0.15) * zen_pulse;
+
     for (let i = 0; i < inimigos.length; i++) {
       const ini = inimigos[i];
       let wd, hd, rd, rc, gc, bc, fmt = 'rect';
-      if      (ini.tipo === 'bass')  { wd=68; hd=68; rd=34; rc=255; gc=0;   bc=234; }
-      else if (ini.tipo === 'verde') { wd=46; hd=46; rd=11; rc=0;   gc=255; bc=136; fmt='triangulo'; }
-      else if (ini.tipo === 'vocal') { wd=19; hd=96; rd=9;  rc=0;   gc=255; bc=255; }
-      else if (ini.tipo === 'agudo') { wd=48; hd=48; rd=7;  rc=255; gc=170; bc=0; }
+      if (!feverAtivo) {
+        // Cores normais
+        if      (ini.tipo === 'bass')  { wd=68; hd=68; rd=34; rc=255; gc=0;   bc=234; }
+        else if (ini.tipo === 'verde') { wd=46; hd=46; rd=11; rc=0;   gc=255; bc=136; fmt='triangulo'; }
+        else if (ini.tipo === 'vocal') { wd=19; hd=96; rd=9;  rc=0;   gc=255; bc=255; }
+        else if (ini.tipo === 'agudo') { wd=48; hd=48; rd=7;  rc=255; gc=170; bc=0; }
+      } else {
+        // FEVER: tudo vermelho, mantém tamanho/formato original
+        if      (ini.tipo === 'bass')  { wd=68; hd=68; rd=34; rc=255; gc=34;  bc=68; }
+        else if (ini.tipo === 'verde') { wd=46; hd=46; rd=11; rc=255; gc=34;  bc=68; fmt='triangulo'; }
+        else if (ini.tipo === 'vocal') { wd=19; hd=96; rd=9;  rc=255; gc=34;  bc=68; }
+        else if (ini.tipo === 'agudo') { wd=48; hd=48; rd=7;  rc=255; gc=34;  bc=68; }
+      }
       desenharNotaPadraoOtimizado(ini.x, getPistaY(ini.pista), wd, hd, rd, rc, gc, bc, beat, fmt);
     }
 
+    // Combo display
     if (combo > 0) {
       const cx = linha_acerto_x + 78, cy = y_atual - 68;
-      const cc = combo >= 30 ? "#ff00ff" : combo >= 20 ? "#aa00ff" : combo >= 10 ? "#00ffff" : "#ffff00";
+      let cc;
+      if (feverAtivo)          cc = "#ff2244";
+      else if (combo >= 30)    cc = "#ff00ff";
+      else if (combo >= 20)    cc = "#aa00ff";
+      else if (combo >= 10)    cc = "#00ffff";
+      else                     cc = "#ffff00";
       ctx.shadowBlur = 15; ctx.shadowColor = cc; ctx.fillStyle = cc;
       ctx.font = `bold ${21 + Math.min(combo * 0.38, 17)}px 'Segoe UI', sans-serif`;
-      ctx.fillText(`COMBO ${combo}`, cx, cy); ctx.shadowBlur = 0;
+      ctx.fillText(`${combo}`, cx, cy); ctx.shadowBlur = 0;
     }
 
     const resp = Math.sin(Date.now() / 148) * 3.8;
@@ -724,6 +946,16 @@
       ctx.fillStyle = '#ff0055';
       ctx.font = 'bold 14px monospace';
       ctx.fillText('REC 🔴', 20, canvas.height - 20);
+      ctx.restore();
+    }
+
+    // Indicador 2x no canvas durante fever
+    if (feverAtivo) {
+      ctx.save();
+      ctx.globalAlpha = 0.75 + Math.sin(Date.now() / 130) * 0.25;
+      ctx.fillStyle = '#ff8800';
+      ctx.font = 'bold 16px monospace';
+      ctx.fillText('2x', linha_acerto_x + 14, canvas.height - 16);
       ctx.restore();
     }
 
@@ -783,9 +1015,13 @@
     for (let i = efeitosEspectrais.length - 1; i >= 0; i--) {
       const e = efeitosEspectrais[i];
       e.vida++; e.alpha = 1 - e.vida / e.vidaMax;
-      if (e.vida > e.vidaMax) { efeitosEspectrais.splice(i, 1); continue; }
+      if (e.vida > e.vidaMax) { efeitosEspectrais.splice(i, 1); continue;
+      }
       const p = e.vida / e.vidaMax, comp = 380 + p * 80;
-      const esp = [{cor:"#ff0000",ab:8},{cor:"#ff5500",ab:11},{cor:"#ffaa00",ab:14},{cor:"#ffff00",ab:17},{cor:"#00ff88",ab:20},{cor:"#00aaff",ab:24},{cor:"#aa00ff",ab:28}];
+      // Durante fever, espectral é avermelhado
+      const esp = feverAtivo
+        ? [{cor:"#ff0000",ab:8},{cor:"#ff2200",ab:11},{cor:"#ff4400",ab:14},{cor:"#ff6600",ab:17},{cor:"#ff8800",ab:20},{cor:"#ffaa00",ab:24},{cor:"#ffcc00",ab:28}]
+        : [{cor:"#ff0000",ab:8},{cor:"#ff5500",ab:11},{cor:"#ffaa00",ab:14},{cor:"#ffff00",ab:17},{cor:"#00ff88",ab:20},{cor:"#00aaff",ab:24},{cor:"#aa00ff",ab:28}];
       ctx.save(); ctx.globalAlpha = e.alpha * 0.9;
       for (const s of esp) {
         const ab = s.ab * p;
@@ -806,7 +1042,12 @@
   function criarParticula() {
     if (particulas.length > MAX_PARTICULAS_VISIVEIS) return;
     let r, g, b, speedMult=1.0, sizeBase=Math.random()*1.05+0.5, lifeMult=1.0, isStrong=false;
-    if (oceanPulse > 0.32) {
+    if (feverAtivo) {
+      // Partículas vermelhas no fever
+      isStrong=true; sizeBase += 1.2;
+      speedMult=2.2; lifeMult=0.6;
+      r=255; g=Math.floor(Math.random()*80); b=Math.floor(Math.random()*80);
+    } else if (oceanPulse > 0.32) {
       isStrong=true; sizeBase+=oceanPulse*0.7;
       speedMult=1.7+oceanPulse*0.42; lifeMult=0.68;
       if (bassEnergy>vocalEnergy*1.65&&bassEnergy>trebleEnergy*1.65){r=255;g=0;b=234;}
@@ -830,17 +1071,22 @@
       p.vida++;
       if (p.isExplosion) { p.x+=p.velX; p.y+=p.velY; p.velX*=0.84; p.velY*=0.84;
         p.tamanho*=0.92; }
-      else { p.x-=p.velX; p.y+=p.velY+Math.sin(waveTime*3+p.faseSeno)*0.32; }
-      if (p.vida >= p.vidaMaxima || p.x < -10) { p.active=false; particulas.splice(i,1); poolParticulas.push(p); continue; }
+      else { p.x-=p.velX; p.y+=p.velY+Math.sin(waveTime*3+p.faseSeno)*0.32;
+      }
+      if (p.vida >= p.vidaMaxima || p.x < -10) { p.active=false; particulas.splice(i,1); poolParticulas.push(p); continue;
+      }
       const alphaSin = Math.sin((p.vida/p.vidaMaxima)*Math.PI);
       ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alphaSin*(p.isStrong?0.8:0.4)})`;
       ctx.fillRect(p.x-p.tamanho/2, p.y-p.tamanho/2, p.tamanho, p.tamanho);
     }
   }
 
-  function getBassFrequency()  { if (!data_array_visual) return 0; let s=0; for(let i=1;i<=5;i++) s+=data_array_visual[i]; return s/(5*255); }
-  function getMidFrequency()   { if (!data_array_visual) return 0; let s=0; for(let i=10;i<28;i++) s+=data_array_visual[i]; return s/(18*255); }
-  function getHighFrequency()  { if (!data_array_visual) return 0; let s=0; for(let i=48;i<88;i++) s+=data_array_visual[i]; return s/(40*255); }
+  function getBassFrequency()  { if (!data_array_visual) return 0; let s=0; for(let i=1;i<=5;i++) s+=data_array_visual[i]; return s/(5*255);
+  }
+  function getMidFrequency()   { if (!data_array_visual) return 0; let s=0; for(let i=10;i<28;i++) s+=data_array_visual[i]; return s/(18*255);
+  }
+  function getHighFrequency()  { if (!data_array_visual) return 0; let s=0; for(let i=48;i<88;i++) s+=data_array_visual[i]; return s/(40*255);
+  }
 
   function updateAudioReactive() {
     bassEnergy   = getBassFrequency() * 33;
@@ -856,9 +1102,12 @@
 
   function drawWaveReativo() {
     const numWaves=11, spacing=172, speed=76;
-    const m = proximaNotaCor.match(/\w\w/g);
     let r=100, g=180, b=255;
-    if (m) { r=parseInt(m[0],16); g=parseInt(m[1],16); b=parseInt(m[2],16); }
+    if (feverAtivo) { r=255; g=34; b=68; } // ondas vermelhas no fever
+    else {
+      const m = proximaNotaCor.match(/\w\w/g);
+      if (m) { r=parseInt(m[0],16); g=parseInt(m[1],16); b=parseInt(m[2],16); }
+    }
     for (let i=numWaves; i>=0; i--) {
       let off = ((i*spacing)-(waveTime*speed)) % (numWaves*spacing);
       if (off < 0) off += numWaves*spacing;
@@ -961,10 +1210,8 @@
 
   window.addEventListener('keydown', e => {
     if (document.activeElement.tagName==='INPUT' && document.activeElement.type==='text') return;
-    if (e.repeat) return; // Ignora o botão sendo segurado
-
-    // Ignora teclas de sistema/navegador para não bugar F5/F12 etc
-    if (e.key.startsWith('F') || e.ctrlKey || e.altKey || e.metaKey) return;
+    if (e.repeat) return;
+    if (/^F\d+$/.test(e.key) || e.ctrlKey || e.altKey || e.metaKey) return;
 
     if (gameMode === 'map_record') {
       if (audio_setup_feito && !spawn_bloqueado && player_audio.currentTime > 0) {
@@ -973,7 +1220,7 @@
         textos_feedback.push({ texto:"REC", x:linha_acerto_x, y:y_atual - 20 + Math.random()*40, alpha:1, cor:"#ff0055", tipo:"acerto" });
         oceanPulse = Math.min(oceanPulse + 0.4, 2.4);
       }
-      return; // Trava aqui, não envia input pro jogo normal
+      return;
     }
 
     const t = e.key.toLowerCase();
@@ -1028,13 +1275,20 @@
   function resetarJogo() {
     inimigos=[]; textos_feedback=[]; pontos=0; combo=0; pontos_txt.innerText=pontos;
     ultimo_tempo_spawn=0; bpm_historico=[]; kick_times=[]; last_beat_pulse=0.18;
-    bpm_txt.innerText="0"; breakingWaves=[]; oceanPulse=0; waveSpawnAccumulator=0;
+    bpm_txt.innerText="0"; breakingWaves=[]; oceanPulse=0;
+    waveSpawnAccumulator=0;
     particulas=[]; poolParticulas=[]; efeitosEspectrais=[];
     ultimo_media_kick=0; ultimo_media_vocal=0; ultimo_media_agudo=0; ultimo_media_green=0;
     proximaNotaCor="#ffffff";
     energia_media=0; em_drop=false; drop_saiu_em=-Infinity;
     recordedMap = [];
     customMapIndex = 0;
+    // Reset fever
+    feverAtivo = false; feverComboInicio = 0; feverNotasContadas = 0;
+    feverErros = 0; feverFlashAlpha = 0;
+    feverOverlay.classList.remove('active');
+    feverHud.classList.remove('active');
+    feverBanner.classList.remove('show');
   }
 
   function pararMusicaImediatamente() {
@@ -1050,16 +1304,11 @@
   upload.addEventListener('change', function() {
     const file = this.files[0];
     if (!file) return;
-
-    // GUARDA O NOME DA MÚSICA AQUI
     currentSongName = file.name.replace(/\.[^/.]+$/, '');
-
     pararMusicaImediatamente();
     resetarJogo();
     currentObjectURL = URL.createObjectURL(file);
     player_audio.src = currentObjectURL;
-
-    // ATUALIZA A UI COM O NOME DA MÚSICA
     document.getElementById('song_title').innerText = currentSongName;
     document.getElementById('song_artist').innerText = "Preparando...";
     upload.style.display = 'none';
@@ -1084,7 +1333,7 @@
     resetarJogo();
     countdownOverlay.classList.remove('visible');
     spawn_bloqueado = false; countdown_ativo = false;
-    currentSongName = "custom"; // Reseta o nome ao trocar
+    currentSongName = "custom";
     document.getElementById('song_title').innerText  = "Nenhuma música";
     document.getElementById('song_artist').innerText = "Selecione um arquivo";
     upload.value = "";
@@ -1124,20 +1373,39 @@
     if (alvo && distMin <= janela.ok) {
       if (!tipos_aceitos.includes(alvo.tipo)) {
         textos_feedback.push({ texto:"WRONG", x:linha_acerto_x+48, y:getPistaY(alvo.pista)-24, alpha:1, cor:"#ff0055", tipo:"acerto" });
-        combo=0; pontos=Math.max(0,pontos-20); inimigos.splice(idx,1); pontos_txt.innerText=pontos; return;
+        combo=0;
+        pontos=Math.max(0,pontos-20);
+        inimigos.splice(idx,1);
+        pontos_txt.innerText=pontos;
+        registrarNotaFever(false); // WRONG conta como erro no fever
+        return;
       }
 
       combo++;
+      verificarAtivacaoFever(); // Checa se ativou fever neste combo
+
       if (combo>0 && combo%75===0)
         textos_feedback.push({ texto:`${combo} COMBO!`, x:linha_acerto_x+92, y:y_atual-92, alpha:1.3, cor:"#ffdd00", tipo:"milestone" });
+
       const bonus = Math.floor(combo/5);
-      let msg, corMsg;
-      if      (distMin <= janela.perfect) { msg="PERFECT"; corMsg="#00ffcc"; pontos+=100+bonus*10; }
-      else if (distMin <= janela.nice)    { msg="NICE";    corMsg="#ffff00"; pontos+=50+bonus*5; }
-      else                                { msg="OK";      corMsg="#ff00ea"; pontos+=10+bonus*2; }
+      let pontoBase, msg, corMsg;
+      if      (distMin <= janela.perfect) { msg="PERFECT"; corMsg="#00ffcc"; pontoBase=100+bonus*10; }
+      else if (distMin <= janela.nice)    { msg="NICE";    corMsg="#ffff00"; pontoBase=50+bonus*5;   }
+      else                                { msg="OK";      corMsg="#ff00ea"; pontoBase=10+bonus*2;   }
+
+      // Multiplicador de fever
+      const mult = feverAtivo ? FEVER_MULT_PONTOS : 1;
+      pontos += pontoBase * mult;
+
+      if (feverAtivo) {
+        // Mostra o valor multiplicado em laranja
+        textos_feedback.push({ texto:`+${pontoBase * mult}`, x:linha_acerto_x+48, y:getPistaY(alvo.pista)-50, alpha:1.2, cor:"#ff8800", tipo:"acerto" });
+        corMsg = "#ff6644"; // feedback em laranja-vermelho no fever
+        registrarNotaFever(true);
+      }
 
       pontos_txt.innerText = pontos;
-      textos_feedback.push({ texto:msg, x:linha_acerto_x+48, y:getPistaY(alvo.pista)-24, alpha:1, cor:corMsg, tipo:"acerto" });
+      textos_feedback.push({ texto: feverAtivo ? `🔥${msg}` : msg, x:linha_acerto_x+48, y:getPistaY(alvo.pista)-24, alpha:1, cor:corMsg, tipo:"acerto" });
       criarEfeitoEspectral(linha_acerto_x, getPistaY(alvo.pista));
       inimigos.splice(idx, 1);
     }
@@ -1149,7 +1417,8 @@
     const bw=(spectrumCanvas.width/data_array_visual.length)*1.7; let xx=0;
     for (let i=0; i<data_array_visual.length; i++) {
       const bh=(data_array_visual[i]/255)*spectrumCanvas.height*0.9;
-      spectrumCtx.fillStyle=`hsla(${180+i*1.35},100%,63%,0.8)`;
+      const hue = feverAtivo ? (0 + i * 0.4) : (180+i*1.35); // espectro vermelho no fever
+      spectrumCtx.fillStyle=`hsla(${hue},100%,63%,0.8)`;
       spectrumCtx.fillRect(xx, spectrumCanvas.height-bh, bw, bh); xx+=bw+1;
     }
   }
