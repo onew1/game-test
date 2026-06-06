@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="utf-8">
-  <title>DJK</title>
+  <title>DFJK</title>
   <style>
     body, html { margin: 0; padding: 0;
       width: 100%; height: 100%; overflow: hidden; background: #080c17; color: #fff; font-family: 'Segoe UI', system-ui, sans-serif;
@@ -181,10 +181,10 @@
     </div>
 
     <div id="hud_keys" class="hud-panel">
-      <div class="key-hint"><input type="text" id="bind_bass" class="key-input color-bass" value="D" maxlength="1" autocomplete="off"><div class="desc">O</div></div>
-      <div class="key-hint"><input type="text" id="bind_verde" class="key-input color-verde" value="F" maxlength="1" autocomplete="off"><div class="desc">V</div></div>
-      <div class="key-hint"><input type="text" id="bind_vocal" class="key-input color-vocal" value="J" maxlength="1" autocomplete="off"><div class="desc">I</div></div>
-      <div class="key-hint"><input type="text" id="bind_agudo" class="key-input color-treble" value="K" maxlength="1" autocomplete="off"><div class="desc">X</div></div>
+      <div class="key-hint"><input type="text" id="bind_bass" class="key-input color-bass" value="D" maxlength="1" autocomplete="off"><div class="desc">D</div></div>
+      <div class="key-hint"><input type="text" id="bind_verde" class="key-input color-verde" value="F" maxlength="1" autocomplete="off"><div class="desc">F</div></div>
+      <div class="key-hint"><input type="text" id="bind_vocal" class="key-input color-vocal" value="J" maxlength="1" autocomplete="off"><div class="desc">J</div></div>
+      <div class="key-hint"><input type="text" id="bind_agudo" class="key-input color-treble" value="K" maxlength="1" autocomplete="off"><div class="desc">K</div></div>
     </div>
 
     <canvas id="spectrum_canvas" width="300" height="38"></canvas>
@@ -227,6 +227,7 @@
   let recordedMap = [];
   let customMapData = [];
   let customMapIndex = 0;
+  let currentSongName = "custom"; // Variável para guardar o nome da música
 
   ui_game_mode.addEventListener('change', (e) => {
     gameMode = e.target.value;
@@ -261,7 +262,10 @@
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(recordedMap));
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "meu_mapa.json");
+
+    // Agora o download usa o nome da música carregada!
+    downloadAnchorNode.setAttribute("download", currentSongName + "_mapa.json");
+
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
@@ -367,7 +371,6 @@
     return { perfect: pps * 0.035, nice: pps * 0.070, ok: pps * 0.120, miss: pps * 0.180 };
   }
 
-  // NOVA LÓGICA DE CÁLCULO BASEADA NO ALVO
   function notaXEmTempo(ini, tAtual) {
     const tempoFaltando = ini.tAlvo - tAtual;
     const progresso = 1.0 - (tempoFaltando / tempo_aviso);
@@ -504,7 +507,6 @@
 
     if (!audio_setup_feito) return;
 
-    // Sincronizador de Alta Resolução da Linha do Tempo
     const tocando = !player_audio.paused && player_audio.currentTime > 0 && !player_audio.ended;
     let tAudio = 0;
     if (tocando) {
@@ -548,7 +550,6 @@
 
     const pode = tocando && (isNaN(player_audio.duration) || (player_audio.duration - player_audio.currentTime > 2.5));
 
-    // LÓGICA DE SPAWN BASEADA NO MODO DE JOGO
     if (gameMode === 'auto') {
       let energia_total_espectro = 0;
       for(let i = 0; i < data_array_spawn.length; i++) energia_total_espectro += data_array_spawn[i];
@@ -593,7 +594,6 @@
           let note = customMapData[customMapIndex];
           if (tAudio >= note.time - tempo_aviso) {
 
-            // A engine escuta o áudio AGORA para vestir a nota
             let tipoAleatorio = 'bass';
             const maxS = Math.max(dk, dg, dv, da);
             if (maxS === dg && dg > 0) tipoAleatorio = 'verde';
@@ -1050,11 +1050,17 @@
   upload.addEventListener('change', function() {
     const file = this.files[0];
     if (!file) return;
+
+    // GUARDA O NOME DA MÚSICA AQUI
+    currentSongName = file.name.replace(/\.[^/.]+$/, '');
+
     pararMusicaImediatamente();
     resetarJogo();
     currentObjectURL = URL.createObjectURL(file);
     player_audio.src = currentObjectURL;
-    document.getElementById('song_title').innerText  = file.name.replace(/\.[^/.]+$/, '');
+
+    // ATUALIZA A UI COM O NOME DA MÚSICA
+    document.getElementById('song_title').innerText = currentSongName;
     document.getElementById('song_artist').innerText = "Preparando...";
     upload.style.display = 'none';
     btn_change_track.style.display = 'block';
@@ -1078,6 +1084,7 @@
     resetarJogo();
     countdownOverlay.classList.remove('visible');
     spawn_bloqueado = false; countdown_ativo = false;
+    currentSongName = "custom"; // Reseta o nome ao trocar
     document.getElementById('song_title').innerText  = "Nenhuma música";
     document.getElementById('song_artist').innerText = "Selecione um arquivo";
     upload.value = "";
