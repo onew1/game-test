@@ -4,62 +4,157 @@
   <meta charset="utf-8">
   <title>DJK</title>
   <style>
-    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #080c17; color: #fff; font-family: 'Segoe UI', system-ui, sans-serif; }
-    canvas { display: block; position: absolute; top: 0; left: 0; z-index: 1; }
-    #hud_wrapper { position: absolute; top: 15px; left: 15px; z-index: 10; width: 300px; display: flex; flex-direction: column; gap: 8px; }
-    .hud-panel { background: rgba(10, 15, 25, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; backdrop-filter: blur(6px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); box-sizing: border-box; }
+    body, html { margin: 0; padding: 0;
+      width: 100%; height: 100%; overflow: hidden; background: #080c17; color: #fff; font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    canvas { display: block; position: absolute; top: 0; left: 0; z-index: 1;
+    }
+    #hud_wrapper { position: absolute; top: 15px; left: 15px; z-index: 10; width: 300px; display: flex; flex-direction: column;
+      gap: 8px; }
+    .hud-panel { background: rgba(10, 15, 25, 0.35); border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px; backdrop-filter: blur(6px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); box-sizing: border-box;
+    }
     #hud_top_right { width: 100%; padding: 12px; }
-    .score-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px; }
-    .score-label { font-size: 12px; color: rgba(255, 255, 255, 0.6); font-weight: bold; letter-spacing: 1px; }
-    #pontos_txt { font-size: 22px; font-weight: 800; color: #ff66ea; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-    .music-player { background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 8px; border: 1px solid rgba(255, 255, 255, 0.05); }
-    .song-info { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-    .album-art { width: 40px; height: 40px; background: linear-gradient(135deg, rgba(255,0,255,0.5), rgba(0,255,255,0.5)); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: rgba(255,255,255,0.8); font-weight: bold; }
-    .song-title { font-weight: bold; font-size: 13px; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .score-box { display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px; }
+    .score-label { font-size: 12px;
+      color: rgba(255, 255, 255, 0.6); font-weight: bold; letter-spacing: 1px; }
+    #pontos_txt { font-size: 22px; font-weight: 800;
+      color: #ff66ea; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    .music-player { background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px; padding: 8px; border: 1px solid rgba(255, 255, 255, 0.05); }
+    .song-info { display: flex;
+      align-items: center; gap: 10px; margin-bottom: 8px; }
+    .album-art { width: 40px; height: 40px; background: linear-gradient(135deg, rgba(255,0,255,0.5), rgba(0,255,255,0.5));
+      border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: rgba(255,255,255,0.8); font-weight: bold;
+    }
+    .song-title { font-weight: bold; font-size: 13px; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;
+    }
     .song-artist { font-size: 11px; color: rgba(255,255,255,0.5); }
-    #upload_mp3 { width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(0,0,0,0.3); color: #ccc; border: 1px solid rgba(255,255,255,0.1); padding: 4px; border-radius: 4px; box-sizing: border-box; }
-    #btn_change_track { display: none; width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(255, 255, 255, 0.1); color: #ddd; border: 1px solid rgba(255,255,255,0.15); padding: 5px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    #btn_change_track:hover { background: rgba(255, 255, 255, 0.2); color: #fff; }
-    #player_audio { width: 100%; height: 25px; outline: none; margin-bottom: 5px; opacity: 0.8; }
-    .hud-controls-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: rgba(255,255,255,0.7); }
-    #seletor_dificuldade { background: rgba(0,0,0,0.3); color: #ccc; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 2px 4px; font-size: 11px; outline: none; }
-    #btn_mais_opcoes { background: transparent; border: none; color: rgba(255,255,255,0.4); font-size: 14px; cursor: pointer; width: 100%; padding: 4px; margin-top: 6px; transition: 0.2s; border-radius: 4px; display: flex; justify-content: center; align-items: center; }
-    #btn_mais_opcoes:hover { background: rgba(255, 255, 255, 0.05); color: rgba(255,255,255,0.8); }
-    #hud_left_container { width: 100%; display: flex; flex-direction: column; gap: 8px; max-height: 0; opacity: 0; overflow: hidden; pointer-events: none; transition: max-height 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease; }
-    #hud_left_container.open { max-height: 780px; opacity: 1; pointer-events: all; }
+    #upload_mp3 { width: 100%; margin-bottom: 5px;
+      font-size: 11px; background: rgba(0,0,0,0.3); color: #ccc; border: 1px solid rgba(255,255,255,0.1); padding: 4px; border-radius: 4px; box-sizing: border-box;
+    }
+    #btn_change_track { display: none; width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(255, 255, 255, 0.1);
+      color: #ddd; border: 1px solid rgba(255,255,255,0.15); padding: 5px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;
+    }
+    #btn_change_track:hover { background: rgba(255, 255, 255, 0.2); color: #fff;
+    }
+    #player_audio { width: 100%; height: 25px; outline: none; margin-bottom: 5px; opacity: 0.8;
+    }
+    .hud-controls-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 5px;
+    }
+    select { background: rgba(0,0,0,0.3); color: #ccc; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 2px 4px; font-size: 11px; outline: none; }
+
+    #upload_map { display: none; width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(0,0,0,0.3); color: #ccc; border: 1px solid rgba(0,255,180,0.4); padding: 4px; border-radius: 4px; box-sizing: border-box; }
+    #btn_export_map { display: none; width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(255, 100, 100, 0.2); color: #fff; border: 1px solid rgba(255,100,100,0.4); padding: 5px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    #btn_export_map:hover { background: rgba(255, 100, 100, 0.4); }
+
+    #btn_mais_opcoes { background: transparent; border: none; color: rgba(255,255,255,0.4); font-size: 14px; cursor: pointer;
+      width: 100%; padding: 4px; margin-top: 6px; transition: 0.2s; border-radius: 4px; display: flex; justify-content: center; align-items: center;
+    }
+    #btn_mais_opcoes:hover { background: rgba(255, 255, 255, 0.05); color: rgba(255,255,255,0.8);
+    }
+    #hud_left_container { width: 100%; display: flex; flex-direction: column; gap: 8px; max-height: 0; opacity: 0; overflow: hidden;
+      pointer-events: none; transition: max-height 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease; }
+    #hud_left_container.open { max-height: 820px;
+      opacity: 1; pointer-events: all; }
     #hud_engine { padding: 15px; }
-    .engine-title { color: rgba(255,255,255,0.8); font-size: 12px; font-weight: 800; margin-bottom: 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; letter-spacing: 1px; }
+    .engine-title { color: rgba(255,255,255,0.8);
+      font-size: 12px; font-weight: 800; margin-bottom: 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; letter-spacing: 1px;
+    }
     .slider-row { margin-bottom: 8px; }
-    .slider-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px; font-weight: 600; color: rgba(255,255,255,0.75); }
-    input[type="range"] { width: 100%; accent-color: rgba(255,255,255,0.5); height: 3px; opacity: 0.8; }
-    #hud_keys { padding: 10px; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 4px; }
-    .key-hint { text-align: center; display: flex; flex-direction: column; align-items: center; }
-    .key-input { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; width: 34px; height: 34px; text-align: center; font-size: 15px; font-weight: 800; outline: none; cursor: pointer; transition: 0.2s; box-sizing: border-box; text-transform: uppercase; }
+    .slider-label { display: flex; justify-content: space-between; font-size: 11px;
+      margin-bottom: 2px; font-weight: 600; color: rgba(255,255,255,0.75); }
+    input[type="range"] { width: 100%; accent-color: rgba(255,255,255,0.5); height: 3px; opacity: 0.8;
+    }
+    #hud_keys { padding: 10px; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 4px;
+    }
+    .key-hint { text-align: center; display: flex; flex-direction: column; align-items: center;
+    }
+    .key-input { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; width: 34px; height: 34px; text-align: center;
+      font-size: 15px; font-weight: 800; outline: none; cursor: pointer; transition: 0.2s; box-sizing: border-box; text-transform: uppercase;
+    }
     .key-input:focus { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.1); }
-    .desc { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 3px; font-weight: bold; }
-    .color-bass { color: #e666d9; } .color-vocal { color: #66e6e6; } .color-treble { color: #e6b866; } .color-verde { color: #00ff88; }
-    #spectrum_canvas { width: 100%; height: 38px; border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); box-sizing: border-box; }
-    #btn_reset { width: 100%; padding: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.6); font-weight: bold; font-size: 11px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-    #btn_reset:hover { background: rgba(255, 255, 255, 0.15); color: #fff; }
-    .toggle-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #ccc; margin-top: 6px; }
+    .desc { font-size: 10px; color: rgba(255,255,255,0.4);
+      margin-top: 3px; font-weight: bold; }
+    .color-bass { color: #e666d9; } .color-vocal { color: #66e6e6;
+                                    } .color-treble { color: #e6b866; } .color-verde { color: #00ff88; }
+    #spectrum_canvas { width: 100%; height: 38px;
+      border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); box-sizing: border-box; }
+    #btn_reset { width: 100%; padding: 8px;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.6); font-weight: bold;
+      font-size: 11px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+    #btn_reset:hover { background: rgba(255, 255, 255, 0.15);
+      color: #fff; }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #ccc; margin-top: 6px;
+    }
+    #calibration_hint { font-size: 10px; color: rgba(255,200,100,0.7); text-align: center; margin-top: 4px; font-style: italic;
+    }
+    #btn_zen { width: 100%; margin-top: 6px; padding: 7px; font-size: 12px; font-weight: 800; letter-spacing: 1.5px; border-radius: 6px;
+      cursor: pointer; transition: background 0.4s, color 0.4s, border-color 0.4s; border: 1px solid rgba(0,255,180,0.4); background: rgba(0,255,180,0.08); color: rgba(0,255,180,0.9);
+    }
+    #btn_zen.chaos { border-color: rgba(255,0,200,0.4); background: rgba(255,0,200,0.08); color: rgba(255,80,220,0.9); }
+    #zen_desc { font-size: 10px;
+      color: rgba(255,255,255,0.35); text-align: center; margin-top: 3px; font-style: italic; }
+
+    /* ── COUNTDOWN OVERLAY ── */
+    #countdown_overlay {
+      position: fixed;
+      inset: 0; z-index: 999;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none; opacity: 0;
+      transition: opacity 0.25s;
+    }
+    #countdown_overlay.visible { opacity: 1; }
+    #countdown_num {
+      font-size: 0px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 60px rgba(255,255,255,0.9), 0 0 120px rgba(0,200,255,0.6);
+      letter-spacing: -2px;
+      transition: font-size 0.08s ease-out, opacity 0.18s ease-in, color 0.3s;
+      opacity: 0;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
+
+<div id="countdown_overlay">
+  <span id="countdown_num">3</span>
+</div>
 
 <div id="hud_wrapper">
   <div id="hud_top_right" class="hud-panel">
     <div class="score-box"><span class="score-label">SCORE</span><span id="pontos_txt">0</span></div>
     <div class="music-player">
       <div class="song-info"><div class="album-art">♪</div><div class="song-details"><div class="song-title" id="song_title">Nenhuma música</div><div class="song-artist" id="song_artist">Selecione um arquivo MP3</div></div></div>
+
+      <div class="hud-controls-row">
+        <div><span style="font-weight: bold;">MODO:</span>
+          <select id="game_mode">
+            <option value="auto" selected>Auto-Geração</option>
+            <option value="play_map">Jogar Mapa Importado</option>
+            <option value="map_record">Criar Mapa (Gravar)</option>
+          </select>
+        </div>
+      </div>
+
+      <input type="file" id="upload_map" accept=".json,.txt">
+      <button id="btn_export_map">EXPORTAR MAPA GRAVADO</button>
+
       <input type="file" id="upload_mp3" accept="audio/*">
       <button id="btn_change_track">TROCAR MÚSICA</button>
       <audio id="player_audio" controls></audio>
+
       <div class="hud-controls-row">
         <div><span style="font-weight: bold;">DIFF:</span>
           <select id="seletor_dificuldade"><option value="easy">Easy</option><option value="normal" selected>Normal</option><option value="hard">Hard</option></select>
         </div>
         <div><span style="font-weight: bold;">BPM:</span> <span id="bpm_txt" style="font-weight: bold;">0</span></div>
       </div>
+      <button id="btn_zen" class="chaos">⚡ CHAOS</button>
+      <div id="zen_desc">modo atual: caótico</div>
       <button id="btn_mais_opcoes">▼</button>
     </div>
   </div>
@@ -68,7 +163,10 @@
     <div id="hud_engine" class="hud-panel">
       <div class="engine-title">ENGINE SETTINGS</div>
       <div class="slider-row"><div class="slider-label"><span>Note Speed (s)</span> <span id="val_speed">2.5</span></div><input type="range" id="engine_speed" min="1.0" max="4.0" step="0.1" value="2.5"></div>
-      <div class="slider-row"><div class="slider-label"><span>Spawn Offset (s)</span> <span id="val_offset">0.10</span></div><input type="range" id="engine_offset" min="0.00" max="0.30" step="0.01" value="0.10"></div>
+
+      <div class="slider-row"><div class="slider-label"><span>Audio Latency (ms)</span> <span id="val_latency">0</span></div><input type="range" id="engine_latency" min="-200" max="200" step="5" value="0">
+        <div id="calibration_hint">Ajuste se as notas chegam antes/depois do som</div>
+      </div>
       <div class="slider-row"><div class="slider-label" style="opacity:0.7;"><span>Spawn Cooldown (ms)</span> <span id="val_interval">350</span></div><input type="range" id="engine_interval" min="100" max="800" step="10" value="350"></div>
       <div class="slider-row"><div class="slider-label" style="opacity:0.9;"><span>Impact Filter</span> <span id="val_impact">5</span></div><input type="range" id="engine_impact" min="1" max="30" step="1" value="5"></div>
       <div class="slider-row"><div class="slider-label"><span>Pulse Intensity</span> <span id="val_pulse">0.3</span></div><input type="range" id="engine_pulse" min="0.3" max="1.0" step="0.1" value="0.3"></div>
@@ -76,7 +174,6 @@
       <div class="slider-row"><div class="slider-label color-verde"><span>Verde Threshold</span> <span id="val_verde">70</span></div><input type="range" id="engine_verde" min="30" max="150" step="5" value="70"></div>
       <div class="slider-row"><div class="slider-label color-vocal"><span>Vocal Threshold</span> <span id="val_vocal">95</span></div><input type="range" id="engine_vocal" min="40" max="180" step="5" value="95"></div>
       <div class="slider-row"><div class="slider-label color-treble"><span>Treble Threshold</span> <span id="val_treble">50</span></div><input type="range" id="engine_treble" min="20" max="120" step="5" value="50"></div>
-
       <div class="toggle-row">
         <span>Dispersão Espectral (Realista)</span>
         <input type="checkbox" id="espectral_toggle" checked>
@@ -102,54 +199,196 @@
   const ctx = canvas.getContext('2d', { alpha: true });
   const spectrumCanvas = document.getElementById('spectrum_canvas');
   const spectrumCtx = spectrumCanvas.getContext('2d');
-
-  const pontos_txt = document.getElementById('pontos_txt');
-  const bpm_txt = document.getElementById('bpm_txt');
+  const pontos_txt    = document.getElementById('pontos_txt');
+  const bpm_txt       = document.getElementById('bpm_txt');
   const seletor_dificuldade = document.getElementById('seletor_dificuldade');
-  const player_audio = document.getElementById('player_audio');
-  const upload = document.getElementById('upload_mp3');
+  const player_audio  = document.getElementById('player_audio');
+  const upload        = document.getElementById('upload_mp3');
   const btn_change_track = document.getElementById('btn_change_track');
-  const btn_reset = document.getElementById('btn_reset');
+  const btn_reset     = document.getElementById('btn_reset');
   const btnMaisOpcoes = document.getElementById('btn_mais_opcoes');
-  const hudLeft = document.getElementById('hud_left_container');
+  const hudLeft       = document.getElementById('hud_left_container');
   const espectralToggle = document.getElementById('espectral_toggle');
-
-  const engine_speed = document.getElementById('engine_speed');
-  const engine_offset = document.getElementById('engine_offset');
+  const engine_speed    = document.getElementById('engine_speed');
+  const engine_latency  = document.getElementById('engine_latency');
   const engine_interval = document.getElementById('engine_interval');
-  const engine_impact = document.getElementById('engine_impact');
-  const engine_pulse = document.getElementById('engine_pulse');
-  const engine_bass = document.getElementById('engine_bass');
-  const engine_verde = document.getElementById('engine_verde');
-  const engine_vocal = document.getElementById('engine_vocal');
-  const engine_treble = document.getElementById('engine_treble');
+  const engine_impact   = document.getElementById('engine_impact');
+  const engine_pulse    = document.getElementById('engine_pulse');
+  const engine_bass     = document.getElementById('engine_bass');
+  const engine_verde    = document.getElementById('engine_verde');
+  const engine_vocal    = document.getElementById('engine_vocal');
+  const engine_treble   = document.getElementById('engine_treble');
+
+  // Variáveis Mapeamento e Modo de Jogo
+  const ui_game_mode = document.getElementById('game_mode');
+  const ui_upload_map = document.getElementById('upload_map');
+  const ui_btn_export = document.getElementById('btn_export_map');
+  let gameMode = 'auto'; // 'auto', 'play_map', 'map_record'
+  let recordedMap = [];
+  let customMapData = [];
+  let customMapIndex = 0;
+
+  ui_game_mode.addEventListener('change', (e) => {
+    gameMode = e.target.value;
+    ui_upload_map.style.display = (gameMode === 'play_map') ? 'block' : 'none';
+    ui_btn_export.style.display = (gameMode === 'map_record') ? 'block' : 'none';
+    resetarJogo();
+  });
+
+  ui_upload_map.addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        customMapData = JSON.parse(e.target.result);
+        customMapData.sort((a,b) => a.time - b.time);
+        customMapIndex = 0;
+        alert("Mapa carregado com sucesso! " + customMapData.length + " notas.\nAgora carregue a música.");
+      } catch(err) {
+        alert("Erro ao ler o arquivo de mapa. Certifique-se que é um JSON válido.");
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  ui_btn_export.addEventListener('click', () => {
+    if (recordedMap.length === 0) {
+      alert("Nenhuma nota gravada! Jogue a música e aperte qualquer tecla no ritmo para gravar.");
+      return;
+    }
+    recordedMap.sort((a,b) => a.time - b.time);
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(recordedMap));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "meu_mapa.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  });
 
   let key_bass = 'd', key_verde = 'f', key_vocal = 'j', key_agudo = 'k';
-  let tecla_d_pressionada = false, tecla_f_pressionada = false, tecla_j_pressionada = false, tecla_k_pressionada = false;
-
+  let tecla_d_pressionada = false, tecla_f_pressionada = false,
+    tecla_j_pressionada = false, tecla_k_pressionada = false;
   let pontos = 0, combo = 0;
   const linha_acerto_x = 380;
+  let spawn_bloqueado = false;
+  let countdown_ativo = false;
+  const countdownOverlay = document.getElementById('countdown_overlay');
+  const countdownNum     = document.getElementById('countdown_num');
+
+  // Sincronizador de Alta Resolução
+  window.songStartTime = undefined;
+
+  function iniciarCountdown(callback) {
+    spawn_bloqueado = true;
+    countdown_ativo = true;
+    countdownOverlay.classList.add('visible');
+    const passos = [
+      { texto: '3', cor: '#ff4466', sombra: 'rgba(255,40,80,0.85)'  },
+      { texto: '2', cor: '#ffaa00', sombra: 'rgba(255,160,0,0.85)'  },
+      { texto: '1', cor: '#00ffcc', sombra: 'rgba(0,255,180,0.85)'  },
+      { texto: 'GO!', cor: '#ffffff', sombra: 'rgba(100,200,255,0.9)' },
+    ];
+    let idx = 0;
+
+    function mostrarPasso() {
+      if (idx >= passos.length) {
+        countdownOverlay.classList.remove('visible');
+        setTimeout(() => {
+          spawn_bloqueado = false;
+          countdown_ativo = false;
+          countdownNum.style.fontSize = '0px';
+          if (callback) callback();
+        }, 260);
+        return;
+      }
+      const p = passos[idx++];
+      countdownNum.style.color      = p.cor;
+      countdownNum.style.textShadow = `0 0 60px ${p.sombra}, 0 0 120px ${p.sombra}`;
+      countdownNum.textContent      = p.texto;
+      countdownNum.style.opacity  = '0';
+      countdownNum.style.fontSize = '40px';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          countdownNum.style.transition = 'font-size 0.22s cubic-bezier(0.15,1.4,0.5,1), opacity 0.14s ease-out';
+          countdownNum.style.fontSize   = p.texto === 'GO!' ? '130px' : '180px';
+          countdownNum.style.opacity    = '1';
+        });
+      });
+      const dur = p.texto === 'GO!' ? 700 : 900;
+      setTimeout(() => {
+        countdownNum.style.transition = 'opacity 0.28s ease-in, font-size 0.28s ease-in';
+        countdownNum.style.opacity    = '0';
+        countdownNum.style.fontSize   = p.texto === 'GO!' ? '200px' : '240px';
+        setTimeout(mostrarPasso, 300);
+      }, dur);
+    }
+    mostrarPasso();
+  }
+
+  const DROP_RATIO       = 0.18;
+  const DROP_RECOVERY_MS = 240;
+  const DROP_LERP_UP     = 0.012;
+  const DROP_LERP_DOWN   = 0.045;
+  let energia_media = 0;
+  let em_drop       = false;
+  let drop_saiu_em  = -Infinity;
+
+  function calcularEnergiaRMS(arr) {
+    let sum = 0;
+    for (let i = 0; i < arr.length; i++) sum += (arr[i] / 255) * (arr[i] / 255);
+    return Math.sqrt(sum / arr.length);
+  }
+
+  function atualizarDropDetector(agora) {
+    if (!data_array_spawn) return;
+    const e = calcularEnergiaRMS(data_array_spawn);
+    if (e > energia_media) { energia_media += (e - energia_media) * DROP_LERP_UP; }
+    else { energia_media += (e - energia_media) * DROP_LERP_DOWN; }
+    energia_media = Math.max(energia_media, 0.04);
+    const era_drop = em_drop;
+    em_drop = (e < energia_media * DROP_RATIO);
+    if (era_drop && !em_drop) drop_saiu_em = agora;
+  }
+
+  function spawnPermitido(agora) {
+    if (spawn_bloqueado) return false;
+    if (em_drop) return false;
+    if (agora - drop_saiu_em < DROP_RECOVERY_MS) return false;
+    return true;
+  }
+
   let tempo_aviso = 2.5;
-  let spawn_offset = 0.10;
-  let pistas_y = [];
-  let inimigos = [];
-  let textos_feedback = [];
-  let efeitosEspectrais = [];
+  let latencia_ms = 0;
+  function janelaAcertoPx() {
+    const dist = canvas.width - linha_acerto_x;
+    const pps  = dist / tempo_aviso;
+    return { perfect: pps * 0.035, nice: pps * 0.070, ok: pps * 0.120, miss: pps * 0.180 };
+  }
 
+  // NOVA LÓGICA DE CÁLCULO BASEADA NO ALVO
+  function notaXEmTempo(ini, tAtual) {
+    const tempoFaltando = ini.tAlvo - tAtual;
+    const progresso = 1.0 - (tempoFaltando / tempo_aviso);
+    return ini.x_inicial + (linha_acerto_x - ini.x_inicial) * progresso;
+  }
+
+  let pistas_y = [], pistas_zen_y = [];
+  let inimigos = [], textos_feedback = [], efeitosEspectrais = [];
   let y_alvo = 0, y_atual = 0;
-  let w_alvo = 60, w_atual = 60;
-  let h_alvo = 60, h_atual = 60;
-  let r_alvo = 30, r_atual = 30;
-
-  let audio_context, analyser, analyser_visual, delay_node, data_array, data_array_visual, audio_setup_feito = false;
-  let ultimo_kick_tempo = 0, bpm_historico = [], kick_times = [];
+  let w_alvo = 60, w_atual = 60, h_alvo = 60, h_atual = 60, r_alvo = 30, r_atual = 30;
+  let audio_context, analyser_spawn, analyser_visual;
+  let data_array_spawn, data_array_visual;
+  let audio_setup_feito = false;
+  let bpm_historico = [], kick_times = [], ultimo_kick_tempo = 0;
   let ultimo_media_kick = 0, ultimo_media_vocal = 0, ultimo_media_agudo = 0, ultimo_media_green = 0;
   let ultimo_tempo_spawn = 0;
   let last_beat_pulse = 0.18;
 
-  let intervalo_minimo = 0.350;
-  let limiar_impacto = 5;
-  let pulse_intensity = 0.3;
+  let intervalo_minimo  = 0.350;
+  let limiar_impacto    = 5;
+  let pulse_intensity   = 0.3;
   let limiar_bass = 135, limiar_verde = 70, limiar_vocal = 95, limiar_treble = 50;
   let dificuldade = 'normal';
   let dispersaoEspectralEnabled = true;
@@ -157,22 +396,38 @@
   let waveTime = 0, bassEnergy = 0, vocalEnergy = 0, trebleEnergy = 0;
   let ultimoSpawnWave = 0, oceanPulse = 0, waveSpawnAccumulator = 0;
   let breakingWaves = [];
-
-  let particulas = [];
-  let poolParticulas = [];
+  let particulas = [], poolParticulas = [];
   const MAX_PARTICULAS_VISIVEIS = 180;
 
   let currentObjectURL = null;
   let proximaNotaCor = "#ffffff";
+  let modoZen = false;
+  let zen_particulas = 1.0, zen_ondas = 1.0, zen_espectral = 1.0, zen_pulse = 1.0, zen_breakwaves = 1.0;
+  const ZEN_LERP = 0.04;
+  const NUM_PISTAS_ZEN = 3, NUM_PISTAS_CHAOS = 6;
+  let num_pistas_alvo = NUM_PISTAS_CHAOS, num_pistas_atual = NUM_PISTAS_CHAOS;
+  const btnZen  = document.getElementById('btn_zen');
+  const zenDesc = document.getElementById('zen_desc');
+
+  btnZen.addEventListener('click', () => {
+    modoZen = !modoZen;
+    if (modoZen) {
+      btnZen.textContent = '🌿 ZEN'; btnZen.classList.remove('chaos');
+      zenDesc.textContent = 'modo atual: zen (limpo)';
+      num_pistas_alvo = NUM_PISTAS_ZEN;
+    } else {
+      btnZen.textContent = '⚡ CHAOS'; btnZen.classList.add('chaos');
+      zenDesc.textContent = 'modo atual: caótico';
+      num_pistas_alvo = NUM_PISTAS_CHAOS;
+    }
+  });
 
   btnMaisOpcoes.addEventListener('click', () => {
     hudLeft.classList.toggle('open');
     btnMaisOpcoes.innerText = hudLeft.classList.contains('open') ? '▲' : '▼';
   });
 
-  espectralToggle.addEventListener('change', () => {
-    dispersaoEspectralEnabled = espectralToggle.checked;
-  });
+  espectralToggle.addEventListener('change', () => { dispersaoEspectralEnabled = espectralToggle.checked; });
 
   function setupKeybind(id, defaultKey, callback) {
     const el = document.getElementById(id);
@@ -185,16 +440,29 @@
     el.addEventListener('blur', () => { if (el.value === '') { el.value = defaultKey.toUpperCase(); callback(defaultKey); } });
   }
 
-  setupKeybind('bind_bass', 'd', (val) => key_bass = val);
-  setupKeybind('bind_verde', 'f', (val) => key_verde = val);
-  setupKeybind('bind_vocal', 'j', (val) => key_vocal = val);
-  setupKeybind('bind_agudo', 'k', (val) => key_agudo = val);
+  setupKeybind('bind_bass',  'd', v => key_bass  = v);
+  setupKeybind('bind_verde', 'f', v => key_verde  = v);
+  setupKeybind('bind_vocal', 'j', v => key_vocal  = v);
+  setupKeybind('bind_agudo', 'k', v => key_agudo  = v);
+
+  function getPistaY(idx) {
+    const yZ = pistas_zen_y[idx] !== undefined ? pistas_zen_y[idx] : pistas_y[idx];
+    return yZ + (pistas_y[idx] - yZ) * zen_ondas;
+  }
 
   function loopGrafico() {
     requestAnimationFrame(loopGrafico);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     waveTime += 0.016;
 
+    const zen_alvo = modoZen ? 0.0 : 1.0;
+    zen_particulas += (zen_alvo - zen_particulas) * ZEN_LERP;
+    zen_ondas      += (zen_alvo - zen_ondas)      * ZEN_LERP;
+    zen_espectral  += (zen_alvo - zen_espectral)  * ZEN_LERP;
+    zen_pulse      += (zen_alvo - zen_pulse)       * ZEN_LERP;
+    zen_breakwaves += (zen_alvo - zen_breakwaves)  * ZEN_LERP;
+    num_pistas_atual += (num_pistas_alvo - num_pistas_atual) * ZEN_LERP;
+    const num_pistas = Math.round(num_pistas_atual);
     oceanPulse *= 0.985;
     waveSpawnAccumulator += 0.02 + oceanPulse * 0.0025;
     waveSpawnAccumulator = Math.min(waveSpawnAccumulator, 1.5);
@@ -202,12 +470,12 @@
     const agora = performance.now();
     const ultima = breakingWaves[breakingWaves.length - 1];
     const distOk = !ultima || ultima.progress > (155 + Math.random() * 115);
-    const cdOk = agora - ultimoSpawnWave > 880;
-
-    if (waveSpawnAccumulator >= 1 && cdOk && distOk && breakingWaves.length < 13) {
-      ultimoSpawnWave = agora; waveSpawnAccumulator = 0;
+    const cdOk   = agora - ultimoSpawnWave > (880 + (1 - zen_breakwaves) * 8000);
+    if (waveSpawnAccumulator >= 1 && cdOk && distOk && breakingWaves.length < Math.ceil(13 * zen_breakwaves + 1)) {
+      ultimoSpawnWave = agora;
+      waveSpawnAccumulator = 0;
       let cor = "#ffffff", pow = 0.65;
-      if (oceanPulse > 1.55) { cor = "#ff00ea"; pow = 1.85; }
+      if (oceanPulse > 1.55)      { cor = "#ff00ea"; pow = 1.85; }
       else if (oceanPulse > 0.85) { cor = "#00ffff"; pow = 1.25; }
       else if (oceanPulse > 0.32) { cor = "#ffaa00"; pow = 0.85; }
       spawnWave(pow, cor);
@@ -216,510 +484,427 @@
     if (audio_setup_feito) {
       analyser_visual.getByteFrequencyData(data_array_visual);
       updateAudioReactive();
-      if (Math.random() < 0.16 + oceanPulse * 0.35) criarParticula();
-      if (oceanPulse > 0.6 && Math.random() < 0.28) criarParticula();
+      const lim = Math.ceil(MAX_PARTICULAS_VISIVEIS * zen_particulas);
+      if (particulas.length < lim && Math.random() < (0.16 + oceanPulse * 0.35) * zen_particulas) criarParticula();
+      if (oceanPulse > 0.6 && Math.random() < 0.28 * zen_particulas) criarParticula();
     }
 
     drawSand();
-    drawWaveReativo();
+    ctx.save();
+    ctx.globalAlpha = 0.15 + zen_ondas * 0.85; drawWaveReativo(); ctx.restore(); ctx.globalAlpha = 1;
     drawFoam();
-
     if (particulas.length > 0) {
-      ctx.save();
-      ctx.globalCompositeOperation = "screen";
-      desenharParticulas();
-      ctx.restore();
+      ctx.save(); ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = zen_particulas;
+      desenharParticulas(); ctx.restore();
     }
-    ctx.globalCompositeOperation = 'source-over';
-
-    desenharEfeitosEspectrais();
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    if (zen_espectral > 0.01) {
+      ctx.save(); ctx.globalAlpha = zen_espectral; desenharEfeitosEspectrais(); ctx.restore(); ctx.globalAlpha = 1;
+    }
 
     if (!audio_setup_feito) return;
 
-    const tAudio = audio_context.currentTime;
-    analyser.getByteFrequencyData(data_array);
+    // Sincronizador de Alta Resolução da Linha do Tempo
+    const tocando = !player_audio.paused && player_audio.currentTime > 0 && !player_audio.ended;
+    let tAudio = 0;
+    if (tocando) {
+      if (window.songStartTime === undefined || Math.abs((audio_context.currentTime - window.songStartTime) - player_audio.currentTime) > 0.1) {
+        window.songStartTime = audio_context.currentTime - player_audio.currentTime;
+      }
+      tAudio = audio_context.currentTime - window.songStartTime;
+    } else {
+      window.songStartTime = undefined;
+    }
+
+    analyser_spawn.getByteFrequencyData(data_array_spawn);
+    atualizarDropDetector(agora);
     desenharEspectro();
 
-    let mk = 0; for (let i = 1; i <= 5; i++) mk += data_array[i]; mk /= 5;
-    let sg = 0; for (let i = 14; i < 42; i++) sg += data_array[i]; const mg = sg / 28;
-    let sv = 0; for (let i = 10; i < 28; i++) sv += data_array[i]; const mv = sv / 18;
-    let sa = 0; for (let i = 48; i < 88; i++) sa += data_array[i]; const ma = sa / 40;
+    if (em_drop && gameMode === 'auto') {
+      spectrumCtx.save();
+      spectrumCtx.fillStyle = 'rgba(255,30,60,0.18)';
+      spectrumCtx.fillRect(0, 0, spectrumCanvas.width, spectrumCanvas.height);
+      spectrumCtx.fillStyle = 'rgba(255,80,80,0.75)';
+      spectrumCtx.font = 'bold 10px monospace';
+      spectrumCtx.fillText('DROP', 6, 13);
+      spectrumCtx.restore();
+    }
+
+    let mk = 0; for (let i = 1;  i <= 5;  i++) mk += data_array_spawn[i];
+    mk /= 5;
+    let sg = 0; for (let i = 14; i < 42;  i++) sg += data_array_spawn[i];
+    const mg = sg / 28;
+    let sv = 0; for (let i = 10; i < 28;  i++) sv += data_array_spawn[i]; const mv = sv / 18;
+    let sa = 0; for (let i = 48; i < 88;  i++) sa += data_array_spawn[i];
+    const ma = sa / 40;
 
     const dk = mk - ultimo_media_kick;
     const dv = mv - ultimo_media_vocal;
     const da = ma - ultimo_media_agudo;
     const dg = mg - ultimo_media_green;
 
-    ultimo_media_kick = mk; ultimo_media_vocal = mv;
-    ultimo_media_agudo = ma; ultimo_media_green = mg;
+    ultimo_media_kick  = mk; ultimo_media_vocal  = mv;
+    ultimo_media_agudo = ma; ultimo_media_green   = mg;
 
-    const tocando = !player_audio.paused && player_audio.currentTime > 0 && !player_audio.ended;
-    const pode = tocando && (isNaN(player_audio.duration) || (player_audio.duration - player_audio.currentTime > tempo_aviso));
+    const pode = tocando && (isNaN(player_audio.duration) || (player_audio.duration - player_audio.currentTime > 2.5));
 
-    if (pode && tAudio - ultimo_tempo_spawn > intervalo_minimo) {
-      const qb = (mk > limiar_bass && dk > limiar_impacto);
-      const qv = (mg > limiar_verde && dg > limiar_impacto * 0.82);
-      const ql = (mv > limiar_vocal && dv > limiar_impacto);
-      const qa = (ma > limiar_treble && da > limiar_impacto && dificuldade !== 'easy');
+    // LÓGICA DE SPAWN BASEADA NO MODO DE JOGO
+    if (gameMode === 'auto') {
+      let energia_total_espectro = 0;
+      for(let i = 0; i < data_array_spawn.length; i++) energia_total_espectro += data_array_spawn[i];
+      const volume_medio = energia_total_espectro / data_array_spawn.length;
+      const silencio_absoluto = volume_medio < 3.5;
 
-      if (qb || qv || ql || qa) {
-        const maxS = Math.max(qb ? dk : -1, qv ? dg : -1, ql ? dv : -1, qa ? da : -1);
-        let tipo = null;
-        if (maxS === (qb ? dk : -1)) tipo = 'bass';
-        else if (maxS === (qv ? dg : -1)) tipo = 'verde';
-        else if (maxS === (ql ? dv : -1)) tipo = 'vocal';
-        else if (maxS === (qa ? da : -1)) tipo = 'agudo';
+      if (pode && spawnPermitido(agora) && !silencio_absoluto && tAudio - ultimo_tempo_spawn > intervalo_minimo) {
+        const qb = mk > limiar_bass  && dk > limiar_impacto;
+        const qv = mg > limiar_verde && dg > limiar_impacto * 0.82;
+        const ql = mv > limiar_vocal && dv > limiar_impacto;
+        const qa = ma > limiar_treble && da > limiar_impacto && dificuldade !== 'easy';
 
-        if (tipo) {
-          if (tipo === 'bass') oceanPulse += 0.42;
-          else if (tipo === 'verde') oceanPulse += 0.19;
-          else if (tipo === 'vocal') oceanPulse += 0.21;
-          else oceanPulse += 0.11;
-          oceanPulse = Math.min(oceanPulse, 2.4);
-          if (tipo === 'bass') estimarBpm(tAudio);
+        if (qb || qv || ql || qa) {
+          const maxS = Math.max(qb?dk:-1, qv?dg:-1, ql?dv:-1, qa?da:-1);
+          let tipo = null;
+          if      (maxS === (qb?dk:-1)) tipo = 'bass';
+          else if (maxS === (qv?dg:-1)) tipo = 'verde';
+          else if (maxS === (ql?dv:-1)) tipo = 'vocal';
+          else if (maxS === (qa?da:-1)) tipo = 'agudo';
 
-          inimigos.push({
-            tipo,
-            pista: Math.floor(Math.random() * 6),
-            x_inicial: canvas.width + 45,
-            tempo_criacao: tAudio - spawn_offset
-          });
-          ultimo_tempo_spawn = tAudio;
+          if (tipo) {
+            if      (tipo === 'bass')  oceanPulse += 0.42;
+            else if (tipo === 'verde') oceanPulse += 0.19;
+            else if (tipo === 'vocal') oceanPulse += 0.21;
+            else                       oceanPulse += 0.11;
+            oceanPulse = Math.min(oceanPulse, 2.4);
+            if (tipo === 'bass') estimarBpm(tAudio);
+
+            inimigos.push({
+              tipo,
+              pista: Math.floor(Math.random() * num_pistas),
+              x_inicial: canvas.width + 45,
+              tAlvo: tAudio + tempo_aviso
+            });
+            ultimo_tempo_spawn = tAudio;
+          }
+        }
+      }
+    } else if (gameMode === 'play_map') {
+      if (pode && !spawn_bloqueado && customMapData) {
+        while (customMapIndex < customMapData.length) {
+          let note = customMapData[customMapIndex];
+          if (tAudio >= note.time - tempo_aviso) {
+
+            // A engine escuta o áudio AGORA para vestir a nota
+            let tipoAleatorio = 'bass';
+            const maxS = Math.max(dk, dg, dv, da);
+            if (maxS === dg && dg > 0) tipoAleatorio = 'verde';
+            else if (maxS === dv && dv > 0) tipoAleatorio = 'vocal';
+            else if (maxS === da && da > 0) tipoAleatorio = 'agudo';
+
+            inimigos.push({
+              tipo: tipoAleatorio,
+              pista: Math.floor(Math.random() * num_pistas),
+              x_inicial: canvas.width + 45,
+              tAlvo: note.time
+            });
+
+            if      (tipoAleatorio === 'bass')  oceanPulse += 0.42;
+            else if (tipoAleatorio === 'verde') oceanPulse += 0.19;
+            else if (tipoAleatorio === 'vocal') oceanPulse += 0.21;
+            else                                oceanPulse += 0.11;
+            oceanPulse = Math.min(oceanPulse, 2.4);
+
+            customMapIndex++;
+          } else {
+            break;
+          }
         }
       }
     }
 
+    const janela = janelaAcertoPx();
     let distMin = 99999, achou = false, tipoAlvo = null;
     for (let i = inimigos.length - 1; i >= 0; i--) {
       const ini = inimigos[i];
-      const prog = (tAudio - ini.tempo_criacao) / tempo_aviso;
-      ini.x = ini.x_inicial - (ini.x_inicial - linha_acerto_x) * prog;
+      ini.x = notaXEmTempo(ini, tAudio);
 
-      if (ini.x < linha_acerto_x - 52) {
-        textos_feedback.push({ texto: "MISS", x: linha_acerto_x + 48, y: pistas_y[ini.pista] - 18, alpha: 1, cor: "#ff0055", tipo: "acerto" });
+      if (ini.x < linha_acerto_x - janela.miss) {
+        textos_feedback.push({ texto: "MISS", x: linha_acerto_x+48, y: getPistaY(ini.pista)-18, alpha:1, cor:"#ff0055", tipo:"acerto" });
         combo = 0; pontos = Math.max(0, pontos - 15); pontos_txt.innerText = pontos;
-        inimigos.splice(i, 1);
-        continue;
+        inimigos.splice(i, 1); continue;
       }
-      if (ini.x > linha_acerto_x - 28) {
-        const d = ini.x - linha_acerto_x;
-        if (d < distMin) { distMin = d; y_alvo = pistas_y[ini.pista]; tipoAlvo = ini.tipo; achou = true; }
-      }
+      const d = Math.abs(ini.x - linha_acerto_x);
+      if (d < distMin) { distMin = d;
+        y_alvo = getPistaY(ini.pista); tipoAlvo = ini.tipo; achou = true; }
     }
 
     if (!achou) { y_alvo = canvas.height / 2; tipoAlvo = 'neutro'; }
 
-    if (tipoAlvo === 'bass') proximaNotaCor = "#ff00ea";
+    if      (tipoAlvo === 'bass')  proximaNotaCor = "#ff00ea";
     else if (tipoAlvo === 'verde') proximaNotaCor = "#00ff88";
     else if (tipoAlvo === 'vocal') proximaNotaCor = "#00ffff";
     else if (tipoAlvo === 'agudo') proximaNotaCor = "#ffaa00";
-    else proximaNotaCor = "#ffffff";
+    else                           proximaNotaCor = "#ffffff";
 
-    if (tipoAlvo === 'bass') { w_alvo = 88; h_alvo = 88; r_alvo = 44; }
-    else if (tipoAlvo === 'verde') { w_alvo = 56; h_alvo = 56; r_alvo = 17; }
-    else if (tipoAlvo === 'vocal') { w_alvo = 34; h_alvo = 148; r_alvo = 16; }
-    else if (tipoAlvo === 'agudo') { w_alvo = 68; h_alvo = 68; r_alvo = 14; }
-    else { w_alvo = 48; h_alvo = 48; r_alvo = 24; }
+    if      (tipoAlvo === 'bass')  { w_alvo=88;  h_alvo=88;  r_alvo=44; }
+    else if (tipoAlvo === 'verde') { w_alvo=56;  h_alvo=56;  r_alvo=17; }
+    else if (tipoAlvo === 'vocal') { w_alvo=34;  h_alvo=148; r_alvo=16; }
+    else if (tipoAlvo === 'agudo') { w_alvo=68;  h_alvo=68;  r_alvo=14; }
+    else                           { w_alvo=48;  h_alvo=48;  r_alvo=24; }
 
-    const lerpPos = 0.35;
-    const lerpSize = 0.31;
-    y_atual += (y_alvo - y_atual) * lerpPos;
-    w_atual += (w_alvo - w_atual) * lerpSize;
-    h_atual += (h_alvo - h_atual) * lerpSize;
-    r_atual += (r_alvo - r_atual) * lerpSize;
+    y_atual += (y_alvo - y_atual) * 0.35;
+    w_atual += (w_alvo - w_atual) * 0.31;
+    h_atual += (h_alvo - h_atual) * 0.31;
+    r_atual += (r_alvo - r_atual) * 0.31;
 
-    ctx.strokeStyle = "rgba(0,255,255,0.026)";
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 6; i++) {
-      ctx.beginPath();
-      ctx.moveTo(linha_acerto_x, pistas_y[i]);
-      ctx.lineTo(canvas.width, pistas_y[i]);
+    ctx.strokeStyle = `rgba(0,255,255,${modoZen ? 0.018 : 0.026})`; ctx.lineWidth = 1;
+    for (let i = 0; i < num_pistas; i++) {
+      ctx.beginPath(); ctx.moveTo(linha_acerto_x, getPistaY(i)); ctx.lineTo(canvas.width, getPistaY(i));
       ctx.stroke();
     }
 
-    const beat = Math.min(1, Math.max(0.15, Math.max(dk / 14.5, dv / 12.5, da / 10.5) * 1.12 * 0.74 + last_beat_pulse * 0.74));
-    last_beat_pulse = beat;
-
+    const beatRaw = Math.min(1, Math.max(0.15, Math.max(dk/14.5, dv/12.5, da/10.5) * 1.12 * 0.74 + last_beat_pulse * 0.74));
+    last_beat_pulse = beatRaw;
+    const beat = 0.15 + (beatRaw - 0.15) * zen_pulse;
     for (let i = 0; i < inimigos.length; i++) {
       const ini = inimigos[i];
       let wd, hd, rd, rc, gc, bc, fmt = 'rect';
-      if (ini.tipo === 'bass') { wd = 68; hd = 68; rd = 34; rc = 255; gc = 0; bc = 234; }
-      else if (ini.tipo === 'verde') { wd = 46; hd = 46; rd = 11; rc = 0; gc = 255; bc = 136; fmt = 'triangulo'; }
-      else if (ini.tipo === 'vocal') { wd = 19; hd = 96; rd = 9; rc = 0; gc = 255; bc = 255; }
-      else if (ini.tipo === 'agudo') { wd = 48; hd = 48; rd = 7; rc = 255; gc = 170; bc = 0; }
-
-      desenharNotaPadraoOtimizado(ini.x, pistas_y[ini.pista], wd, hd, rd, rc, gc, bc, beat, fmt);
+      if      (ini.tipo === 'bass')  { wd=68; hd=68; rd=34; rc=255; gc=0;   bc=234; }
+      else if (ini.tipo === 'verde') { wd=46; hd=46; rd=11; rc=0;   gc=255; bc=136; fmt='triangulo'; }
+      else if (ini.tipo === 'vocal') { wd=19; hd=96; rd=9;  rc=0;   gc=255; bc=255; }
+      else if (ini.tipo === 'agudo') { wd=48; hd=48; rd=7;  rc=255; gc=170; bc=0; }
+      desenharNotaPadraoOtimizado(ini.x, getPistaY(ini.pista), wd, hd, rd, rc, gc, bc, beat, fmt);
     }
 
     if (combo > 0) {
-      const cx = linha_acerto_x + 78;
-      const cy = y_atual - 68;
-      let cc = combo >= 30 ? "#ff00ff" : combo >= 20 ? "#aa00ff" : combo >= 10 ? "#00ffff" : "#ffff00";
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = cc;
-      ctx.fillStyle = cc;
+      const cx = linha_acerto_x + 78, cy = y_atual - 68;
+      const cc = combo >= 30 ? "#ff00ff" : combo >= 20 ? "#aa00ff" : combo >= 10 ? "#00ffff" : "#ffff00";
+      ctx.shadowBlur = 15; ctx.shadowColor = cc; ctx.fillStyle = cc;
       ctx.font = `bold ${21 + Math.min(combo * 0.38, 17)}px 'Segoe UI', sans-serif`;
-      ctx.fillText(`COMBO ${combo}`, cx, cy);
-      ctx.shadowBlur = 0;
+      ctx.fillText(`COMBO ${combo}`, cx, cy); ctx.shadowBlur = 0;
     }
 
-    let corAlvo = proximaNotaCor;
-
     const resp = Math.sin(Date.now() / 148) * 3.8;
-    const ws = w_atual + 11 + resp;
-    const hs = h_atual + 11 + resp;
+    const ws = w_atual + 11 + resp, hs = h_atual + 11 + resp;
 
     ctx.strokeStyle = "rgba(255,255,255,0.9)";
     ctx.lineWidth = 4.5;
-    ctx.shadowBlur = 4;
-    ctx.shadowColor = "#ffffff";
+    ctx.shadowBlur = 4; ctx.shadowColor = "#ffffff";
+    ctx.beginPath(); ctx.moveTo(linha_acerto_x, 0); ctx.lineTo(linha_acerto_x, y_atual - hs/2); ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(linha_acerto_x, 0);
-    ctx.lineTo(linha_acerto_x, y_atual - hs / 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(linha_acerto_x, y_atual + hs / 2);
-    ctx.lineTo(linha_acerto_x, canvas.height);
-    ctx.stroke();
+    ctx.moveTo(linha_acerto_x, y_atual + hs/2); ctx.lineTo(linha_acerto_x, canvas.height); ctx.stroke();
 
-    ctx.shadowBlur = 12;
-    ctx.shadowColor = corAlvo;
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 3.5;
-
-    if (tipoAlvo === 'verde') {
-      ctx.lineJoin = "miter";
-      desenharTrianguloArredondado(ctx, linha_acerto_x, y_atual, ws);
-      ctx.stroke();
-    } else {
-      ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(linha_acerto_x - ws / 2, y_atual - hs / 2, ws, hs, r_atual + 5);
-      else ctx.arc(linha_acerto_x, y_atual, ws / 2, 0, Math.PI * 2);
-      ctx.stroke();
+    ctx.shadowBlur = 12; ctx.shadowColor = proximaNotaCor; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3.5;
+    if (tipoAlvo === 'verde') { ctx.lineJoin="miter"; desenharTrianguloArredondado(ctx, linha_acerto_x, y_atual, ws); ctx.stroke(); }
+    else { ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(linha_acerto_x-ws/2, y_atual-hs/2, ws, hs, r_atual+5); else ctx.arc(linha_acerto_x, y_atual, ws/2, 0, Math.PI*2); ctx.stroke();
     }
 
-    ctx.shadowBlur = 5;
-    ctx.strokeStyle = corAlvo;
-    ctx.lineWidth = 1.8;
-
-    if (tipoAlvo === 'verde') {
-      ctx.lineJoin = "miter";
-      desenharTrianguloArredondado(ctx, linha_acerto_x, y_atual, ws);
-      ctx.stroke();
-    } else {
-      ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(linha_acerto_x - ws / 2, y_atual - hs / 2, ws, hs, r_atual + 5);
-      else ctx.arc(linha_acerto_x, y_atual, ws / 2, 0, Math.PI * 2);
-      ctx.stroke();
-    }
+    ctx.shadowBlur = 5; ctx.strokeStyle = proximaNotaCor; ctx.lineWidth = 1.8;
+    if (tipoAlvo === 'verde') { ctx.lineJoin="miter";
+      desenharTrianguloArredondado(ctx, linha_acerto_x, y_atual, ws); ctx.stroke(); }
+    else { ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(linha_acerto_x-ws/2, y_atual-hs/2, ws, hs, r_atual+5);
+    else ctx.arc(linha_acerto_x, y_atual, ws/2, 0, Math.PI*2); ctx.stroke(); }
     ctx.shadowBlur = 0;
+
+    if (em_drop && gameMode === 'auto') {
+      ctx.save();
+      ctx.globalAlpha = 0.22;
+      ctx.fillStyle = '#ff0033';
+      ctx.fillRect(linha_acerto_x + 10, canvas.height - 30, 80, 18);
+      ctx.globalAlpha = 0.8;
+      ctx.fillStyle = '#ff6688';
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText('⬇ DROP', linha_acerto_x + 14, canvas.height - 16);
+      ctx.restore();
+    }
+
+    if (gameMode === 'map_record') {
+      ctx.save();
+      ctx.globalAlpha = 0.8;
+      ctx.fillStyle = '#ff0055';
+      ctx.font = 'bold 14px monospace';
+      ctx.fillText('REC 🔴', 20, canvas.height - 20);
+      ctx.restore();
+    }
 
     for (let i = textos_feedback.length - 1; i >= 0; i--) {
       const t = textos_feedback[i];
       if (t.tipo === "milestone") {
         t.y -= 0.75; t.alpha -= 0.014;
-        ctx.shadowBlur = 16;
-        ctx.shadowColor = t.cor;
-        ctx.fillStyle = t.cor;
-        ctx.globalAlpha = Math.max(0, t.alpha);
-        ctx.font = "bold 25px 'Segoe UI', sans-serif";
-        ctx.fillText(t.texto, t.x, t.y);
+        ctx.shadowBlur=16; ctx.shadowColor=t.cor;
+        ctx.fillStyle=t.cor; ctx.globalAlpha=Math.max(0,t.alpha);
+        ctx.font="bold 25px 'Segoe UI', sans-serif"; ctx.fillText(t.texto, t.x, t.y);
       } else if (t.tipo === "acerto") {
         t.y -= 1.4; t.alpha -= 0.028;
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = t.cor;
-        ctx.globalAlpha = Math.max(0, t.alpha);
-        ctx.font = "bold 19px 'Segoe UI', sans-serif";
-        ctx.fillText(t.texto, t.x + 24, t.y);
+        ctx.shadowBlur=0; ctx.fillStyle=t.cor; ctx.globalAlpha=Math.max(0,t.alpha);
+        ctx.font="bold 19px 'Segoe UI', sans-serif"; ctx.fillText(t.texto, t.x+24, t.y);
       } else if (t.tipo === "tiro") {
         t.x += 52; t.alpha -= 0.085;
-        ctx.shadowBlur = 9;
-        ctx.shadowColor = t.cor;
-        ctx.fillStyle = t.cor;
-        ctx.globalAlpha = Math.max(0, t.alpha);
-        ctx.fillRect(t.x, t.y - 1.8, 65, 3.2);
+        ctx.shadowBlur=9; ctx.shadowColor=t.cor; ctx.fillStyle=t.cor; ctx.globalAlpha=Math.max(0,t.alpha);
+        ctx.fillRect(t.x, t.y-1.8, 65, 3.2);
       }
-      ctx.globalAlpha = 1;
-      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1; ctx.shadowBlur = 0;
       if (t.alpha <= 0) textos_feedback.splice(i, 1);
     }
   }
 
   function desenharTrianguloArredondado(ctx, cx, cy, size) {
     const h = size * 0.866;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy - h / 2);
-    ctx.lineTo(cx + size / 2, cy + h / 2);
-    ctx.lineTo(cx - size / 2, cy + h / 2);
-    ctx.closePath();
+    ctx.beginPath(); ctx.moveTo(cx, cy - h/2); ctx.lineTo(cx + size/2, cy + h/2); ctx.lineTo(cx - size/2, cy + h/2); ctx.closePath();
   }
 
-  function desenharNotaPadraoOtimizado(x, y, w, h, radius, r, g, b, pulse = 0, formato = 'rect') {
-    const eff = pulse * pulse_intensity;
-    const scale = 1 + eff * 0.48;
-    const pw = w * scale;
-    const ph = h * scale;
-    const corNeon = `rgb(${r},${g},${b})`;
-
-    ctx.shadowColor = corNeon;
-    ctx.shadowBlur = 16 + eff * 20;
-    ctx.strokeStyle = corNeon;
-    ctx.lineWidth = 3 + eff * 3;
-
+  function desenharNotaPadraoOtimizado(x, y, w, h, radius, r, g, b, pulse=0, formato='rect') {
+    const eff = pulse * pulse_intensity, scale = 1 + eff * 0.48;
+    const pw = w * scale, ph = h * scale;
+    const cor = `rgb(${r},${g},${b})`;
+    ctx.shadowColor = cor;
+    ctx.shadowBlur = 16 + eff * 20; ctx.strokeStyle = cor; ctx.lineWidth = 3 + eff * 3;
     if (formato === 'triangulo') {
-      ctx.lineJoin = "round";
-      desenharTrianguloArredondado(ctx, x, y, Math.max(pw, ph) * 0.88);
+      ctx.lineJoin = "round"; desenharTrianguloArredondado(ctx, x, y, Math.max(pw,ph) * 0.88);
       ctx.stroke();
-      ctx.fillStyle = "rgba(0,0,0,0.62)";
-      ctx.fill();
-      ctx.fillStyle = `rgba(${r},${g},${b},${0.24 + eff * 0.32})`;
-      ctx.fill();
+      ctx.fillStyle = "rgba(0,0,0,0.62)"; ctx.fill();
+      ctx.fillStyle = `rgba(${r},${g},${b},${0.24 + eff * 0.32})`; ctx.fill();
     } else {
       ctx.beginPath();
-      const sr = Math.min(radius * scale, pw / 2, ph / 2);
-      if (ctx.roundRect) ctx.roundRect(x - pw / 2, y - ph / 2, pw, ph, Math.max(0, sr));
-      else ctx.arc(x, y, pw / 2, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.fillStyle = "rgba(0,0,0,0.58)";
-      ctx.fill();
-      ctx.fillStyle = `rgba(${r},${g},${b},${0.18 + eff * 0.28})`;
-      ctx.fill();
+      const sr = Math.min(radius*scale, pw/2, ph/2);
+      if (ctx.roundRect) ctx.roundRect(x-pw/2, y-ph/2, pw, ph, Math.max(0,sr)); else ctx.arc(x, y, pw/2, 0, Math.PI*2);
+      ctx.stroke(); ctx.fillStyle = "rgba(0,0,0,0.58)"; ctx.fill();
+      ctx.fillStyle = `rgba(${r},${g},${b},${0.18 + eff * 0.28})`; ctx.fill();
     }
     ctx.shadowBlur = 0;
   }
 
-  // ==================== DISPERSÃO ESPECTRAL REALISTA ====================
   function criarEfeitoEspectral(x, y) {
     if (!dispersaoEspectralEnabled) return;
-
-    efeitosEspectrais.push({
-      x: x,
-      y: y,
-      alpha: 1.0,
-      vida: 0,
-      vidaMax: 28
-    });
+    efeitosEspectrais.push({ x, y, alpha: 1.0, vida: 0, vidaMax: 28 });
   }
 
   function desenharEfeitosEspectrais() {
     for (let i = efeitosEspectrais.length - 1; i >= 0; i--) {
       const e = efeitosEspectrais[i];
-      e.vida++;
-      e.alpha = 1 - (e.vida / e.vidaMax);
-
-      if (e.vida > e.vidaMax) {
-        efeitosEspectrais.splice(i, 1);
-        continue;
+      e.vida++; e.alpha = 1 - e.vida / e.vidaMax;
+      if (e.vida > e.vidaMax) { efeitosEspectrais.splice(i, 1); continue; }
+      const p = e.vida / e.vidaMax, comp = 380 + p * 80;
+      const esp = [{cor:"#ff0000",ab:8},{cor:"#ff5500",ab:11},{cor:"#ffaa00",ab:14},{cor:"#ffff00",ab:17},{cor:"#00ff88",ab:20},{cor:"#00aaff",ab:24},{cor:"#aa00ff",ab:28}];
+      ctx.save(); ctx.globalAlpha = e.alpha * 0.9;
+      for (const s of esp) {
+        const ab = s.ab * p;
+        const gr = ctx.createLinearGradient(e.x, e.y, e.x - comp, e.y);
+        gr.addColorStop(0, s.cor); gr.addColorStop(0.25, s.cor); gr.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = gr; ctx.beginPath();
+        ctx.moveTo(e.x, e.y);
+        ctx.lineTo(e.x-comp, e.y-ab); ctx.lineTo(e.x-comp, e.y+ab); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle=s.cor; ctx.lineWidth=1.8; ctx.shadowBlur=16; ctx.shadowColor=s.cor;
+        ctx.beginPath(); ctx.moveTo(e.x,e.y); ctx.lineTo(e.x-comp, e.y-ab); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(e.x,e.y);
+        ctx.lineTo(e.x-comp, e.y+ab); ctx.stroke();
       }
-
-      const progress = e.vida / e.vidaMax;
-      const comprimento = 380 + (progress * 80);
-
-      // Cores do espectro (vermelho → violeta)
-      const espectro = [
-        { cor: "#ff0000", abertura: 8 },   // Vermelho (menos dispersão)
-        { cor: "#ff5500", abertura: 11 },
-        { cor: "#ffaa00", abertura: 14 },
-        { cor: "#ffff00", abertura: 17 },
-        { cor: "#00ff88", abertura: 20 },
-        { cor: "#00aaff", abertura: 24 },
-        { cor: "#aa00ff", abertura: 28 }   // Violeta (mais dispersão)
-      ];
-
-      ctx.save();
-      ctx.globalAlpha = e.alpha * 0.9;
-
-      for (let s = 0; s < espectro.length; s++) {
-        const item = espectro[s];
-        const abertura = item.abertura * progress;
-
-        // Gradiente para cada cor do espectro
-        const grad = ctx.createLinearGradient(e.x, e.y, e.x - comprimento, e.y);
-        grad.addColorStop(0, item.cor);
-        grad.addColorStop(0.25, item.cor);
-        grad.addColorStop(1, "rgba(255,255,255,0)");
-
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.moveTo(e.x, e.y);
-        ctx.lineTo(e.x - comprimento, e.y - abertura);
-        ctx.lineTo(e.x - comprimento, e.y + abertura);
-        ctx.closePath();
-        ctx.fill();
-
-        // Borda brilhante
-        ctx.strokeStyle = item.cor;
-        ctx.lineWidth = 1.8;
-        ctx.shadowBlur = 16;
-        ctx.shadowColor = item.cor;
-        ctx.beginPath();
-        ctx.moveTo(e.x, e.y);
-        ctx.lineTo(e.x - comprimento, e.y - abertura);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(e.x, e.y);
-        ctx.lineTo(e.x - comprimento, e.y + abertura);
-        ctx.stroke();
-      }
-
       ctx.restore();
     }
   }
 
   function criarParticula() {
     if (particulas.length > MAX_PARTICULAS_VISIVEIS) return;
-    let r, g, b, speedMult = 1.0, sizeBase = Math.random() * 1.05 + 0.5, lifeMult = 1.0, isStrong = false;
-
+    let r, g, b, speedMult=1.0, sizeBase=Math.random()*1.05+0.5, lifeMult=1.0, isStrong=false;
     if (oceanPulse > 0.32) {
-      isStrong = true;
-      sizeBase += oceanPulse * 0.7;
-      speedMult = 1.7 + oceanPulse * 0.42;
-      lifeMult = 0.68;
-      if (bassEnergy > vocalEnergy * 1.65 && bassEnergy > trebleEnergy * 1.65) { r = 255; g = 0; b = 234; }
-      else if (vocalEnergy > trebleEnergy * 1.0) { r = 0; g = 255; b = 255; }
-      else { r = 255; g = 170; b = 0; }
-    } else {
-      r = 170; g = 220; b = 255; sizeBase *= 0.78; speedMult = 0.58;
-    }
-
+      isStrong=true; sizeBase+=oceanPulse*0.7;
+      speedMult=1.7+oceanPulse*0.42; lifeMult=0.68;
+      if (bassEnergy>vocalEnergy*1.65&&bassEnergy>trebleEnergy*1.65){r=255;g=0;b=234;}
+      else if (vocalEnergy>trebleEnergy*1.0){r=0;g=255;b=255;}
+      else{r=255;g=170;b=0;}
+    } else { r=170;g=220;b=255;
+      sizeBase*=0.78; speedMult=0.58; }
     let p = poolParticulas.length > 0 ? poolParticulas.pop() : {};
-    p.active = true;
-    p.x = canvas.width + 6;
-    p.y = Math.random() * canvas.height;
-    p.tamanho = sizeBase;
-    p.velX = (Math.random() * 1.25 + 0.48) * speedMult;
-    p.velY = (Math.random() - 0.5) * 0.75;
-    p.vida = 0;
-    p.vidaMaxima = (110 + Math.random() * 150) * lifeMult;
-    p.faseSeno = Math.random() * Math.PI * 2;
-    p.r = r; p.g = g; p.b = b;
-    p.isStrong = isStrong;
-    p.isExplosion = false;
+    p.active=true; p.x=canvas.width+6; p.y=Math.random()*canvas.height;
+    p.tamanho=sizeBase;
+    p.velX=(Math.random()*1.25+0.48)*speedMult; p.velY=(Math.random()-0.5)*0.75;
+    p.vida=0; p.vidaMaxima=(110+Math.random()*150)*lifeMult; p.faseSeno=Math.random()*Math.PI*2;
+    p.r=r; p.g=g; p.b=b; p.isStrong=isStrong; p.isExplosion=false;
     particulas.push(p);
   }
 
   function desenharParticulas() {
     for (let i = particulas.length - 1; i >= 0; i--) {
-      let p = particulas[i];
-      if (!p.active) { particulas.splice(i, 1); poolParticulas.push(p); continue; }
+      const p = particulas[i];
+      if (!p.active) { particulas.splice(i,1); poolParticulas.push(p); continue; }
       p.vida++;
-      if (p.isExplosion) {
-        p.x += p.velX; p.y += p.velY;
-        p.velX *= 0.84; p.velY *= 0.84;
-        p.tamanho *= 0.92;
-      } else {
-        p.x -= p.velX;
-        p.y += p.velY + Math.sin(waveTime * 3 + p.faseSeno) * 0.32;
-      }
-      const progresso = p.vida / p.vidaMaxima;
-      const alphaSin = Math.sin(progresso * Math.PI);
-      if (p.vida >= p.vidaMaxima || p.x < -10) {
-        p.active = false;
-        particulas.splice(i, 1);
-        poolParticulas.push(p);
-        continue;
-      }
-      ctx.fillStyle = `rgba(${p.r}, ${p.g}, ${p.b}, ${alphaSin * (p.isStrong ? 0.8 : 0.4)})`;
-      ctx.fillRect(p.x - p.tamanho / 2, p.y - p.tamanho / 2, p.tamanho, p.tamanho);
+      if (p.isExplosion) { p.x+=p.velX; p.y+=p.velY; p.velX*=0.84; p.velY*=0.84;
+        p.tamanho*=0.92; }
+      else { p.x-=p.velX; p.y+=p.velY+Math.sin(waveTime*3+p.faseSeno)*0.32; }
+      if (p.vida >= p.vidaMaxima || p.x < -10) { p.active=false; particulas.splice(i,1); poolParticulas.push(p); continue; }
+      const alphaSin = Math.sin((p.vida/p.vidaMaxima)*Math.PI);
+      ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alphaSin*(p.isStrong?0.8:0.4)})`;
+      ctx.fillRect(p.x-p.tamanho/2, p.y-p.tamanho/2, p.tamanho, p.tamanho);
     }
   }
 
-  function getBassFrequency() { if (!data_array_visual) return 0; let s = 0; for (let i = 1; i <= 5; i++) s += data_array_visual[i]; return s / (5 * 255); }
-  function getMidFrequency() { if (!data_array_visual) return 0; let s = 0; for (let i = 10; i < 28; i++) s += data_array_visual[i]; return s / (18 * 255); }
-  function getHighFrequency() { if (!data_array_visual) return 0; let s = 0; for (let i = 48; i < 88; i++) s += data_array_visual[i]; return s / (40 * 255); }
+  function getBassFrequency()  { if (!data_array_visual) return 0; let s=0; for(let i=1;i<=5;i++) s+=data_array_visual[i]; return s/(5*255); }
+  function getMidFrequency()   { if (!data_array_visual) return 0; let s=0; for(let i=10;i<28;i++) s+=data_array_visual[i]; return s/(18*255); }
+  function getHighFrequency()  { if (!data_array_visual) return 0; let s=0; for(let i=48;i<88;i++) s+=data_array_visual[i]; return s/(40*255); }
 
   function updateAudioReactive() {
-    bassEnergy = getBassFrequency() * 33;
-    vocalEnergy = getMidFrequency() * 7.2;
+    bassEnergy   = getBassFrequency() * 33;
+    vocalEnergy  = getMidFrequency()  * 7.2;
     trebleEnergy = getHighFrequency() * 2.6;
   }
 
   function drawSand() {
-    const grad = ctx.createLinearGradient(0, 0, canvas.width, 0);
-    grad.addColorStop(0, "#020202");
-    grad.addColorStop(0.4, "#050505");
-    grad.addColorStop(0.7, "#0a0a0a");
-    grad.addColorStop(1, "#10131a");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const gr = ctx.createLinearGradient(0,0,canvas.width,0);
+    gr.addColorStop(0,"#020202"); gr.addColorStop(0.4,"#050505"); gr.addColorStop(0.7,"#0a0a0a"); gr.addColorStop(1,"#10131a");
+    ctx.fillStyle=gr; ctx.fillRect(0,0,canvas.width,canvas.height);
   }
 
   function drawWaveReativo() {
-    const numWaves = 11;
-    const spacing = 172;
-    const speed = 76;
-
-    const match = proximaNotaCor.match(/\w\w/g);
-    let r = 100, g = 180, b = 255;
-    if (match) {
-      r = parseInt(match[0], 16);
-      g = parseInt(match[1], 16);
-      b = parseInt(match[2], 16);
-    }
-
-    for (let i = numWaves; i >= 0; i--) {
-      let offsetX = ((i * spacing) - (waveTime * speed)) % (numWaves * spacing);
-      if (offsetX < 0) offsetX += (numWaves * spacing);
-      const progress = offsetX / (numWaves * spacing);
-      const alpha = Math.sin(progress * Math.PI) * 0.17;
-      if (alpha <= 0.01) continue;
-
-      ctx.beginPath();
-      ctx.moveTo(canvas.width, -16);
-      for (let y = -22; y <= canvas.height + 22; y += 9) {
-        const base = (canvas.width * 0.35) + Math.sin(y * 0.0022) * 112;
-        const d1 = Math.sin((y * 0.003) + (i * 2.3) + (waveTime * 0.27)) * 46;
-        const d2 = Math.cos((y * 0.01) - (i * 1.1) + (waveTime * 0.52)) * 17;
-        const audio = Math.sin(y * 0.01 + i) * (bassEnergy * 1.2 + vocalEnergy * 0.38);
-        ctx.lineTo(base + offsetX + d1 + d2 + audio, y);
+    const numWaves=11, spacing=172, speed=76;
+    const m = proximaNotaCor.match(/\w\w/g);
+    let r=100, g=180, b=255;
+    if (m) { r=parseInt(m[0],16); g=parseInt(m[1],16); b=parseInt(m[2],16); }
+    for (let i=numWaves; i>=0; i--) {
+      let off = ((i*spacing)-(waveTime*speed)) % (numWaves*spacing);
+      if (off < 0) off += numWaves*spacing;
+      const prog=off/(numWaves*spacing), alpha=Math.sin(prog*Math.PI)*0.17;
+      if (alpha<=0.01) continue;
+      ctx.beginPath(); ctx.moveTo(canvas.width,-16);
+      for (let y=-22; y<=canvas.height+22; y+=9) {
+        const base=(canvas.width*0.35)+Math.sin(y*0.0022)*112;
+        const d1=Math.sin((y*0.003)+(i*2.3)+(waveTime*0.27))*46;
+        const d2=Math.cos((y*0.01)-(i*1.1)+(waveTime*0.52))*17;
+        const au=Math.sin(y*0.01+i)*(bassEnergy*1.2+vocalEnergy*0.38);
+        ctx.lineTo(base+off+d1+d2+au, y);
       }
-      ctx.lineTo(canvas.width, canvas.height);
-      ctx.closePath();
-
-      const grad = ctx.createLinearGradient(canvas.width * 0.2, 0, canvas.width, 0);
-      grad.addColorStop(0, "rgba(0,0,0,0)");
-      grad.addColorStop(0.3, `rgba(${Math.floor(r*0.35)}, ${Math.floor(g*0.45)}, ${Math.floor(b*0.7)}, ${alpha * 0.18})`);
-      grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, ${alpha * 0.85})`);
-
-      ctx.fillStyle = grad;
-      ctx.fill();
+      ctx.lineTo(canvas.width,canvas.height); ctx.closePath();
+      const gr=ctx.createLinearGradient(canvas.width*0.2,0,canvas.width,0);
+      gr.addColorStop(0,"rgba(0,0,0,0)");
+      gr.addColorStop(0.3,`rgba(${Math.floor(r*0.35)},${Math.floor(g*0.45)},${Math.floor(b*0.7)},${alpha*0.18})`);
+      gr.addColorStop(1,`rgba(${r},${g},${b},${alpha*0.85})`);
+      ctx.fillStyle=gr; ctx.fill();
     }
-    ctx.globalAlpha = 0.96;
+    ctx.globalAlpha=0.96;
   }
 
-  function spawnWave(power = 1, color = "#fff") {
-    breakingWaves.push({
-      x: canvas.width + 85,
-      speed: 2.35 + Math.random() * 1.35,
-      amplitude: 36 + Math.random() * 52 + power * 20,
-      life: 0,
-      maxLife: 5.2 + Math.random() * 3.3,
-      timeOffset: 0,
-      alpha: 1,
-      progress: 0,
-      color
-    });
+  function spawnWave(power=1, color="#fff") {
+    breakingWaves.push({ x:canvas.width+85, speed:2.35+Math.random()*1.35, amplitude:36+Math.random()*52+power*20, life:0, maxLife:5.2+Math.random()*3.3, timeOffset:0, alpha:1, progress:0, color });
   }
 
   function drawFoam() {
-    for (let i = breakingWaves.length - 1; i >= 0; i--) {
-      const w = breakingWaves[i];
-      w.timeOffset += 0.019 * w.speed;
-      w.life += 0.028;
-      w.x -= w.speed;
-      w.alpha *= 0.993;
-      w.progress = (canvas.width + 85) - w.x;
-      if (w.life >= w.maxLife || w.alpha <= 0.016) breakingWaves.splice(i, 1);
+    for (let i=breakingWaves.length-1; i>=0; i--) {
+      const w=breakingWaves[i];
+      w.timeOffset+=0.019*w.speed; w.life+=0.028; w.x-=w.speed; w.alpha*=0.993;
+      w.progress=(canvas.width+85)-w.x;
+      if (w.life>=w.maxLife||w.alpha<=0.016) breakingWaves.splice(i,1);
     }
   }
 
   function atualizarEngine() {
     tempo_aviso = parseFloat(engine_speed.value);
     document.getElementById('val_speed').innerText = tempo_aviso.toFixed(1);
-    if (delay_node) delay_node.delayTime.value = tempo_aviso;
+    latencia_ms = parseInt(engine_latency.value);
+    document.getElementById('val_latency').innerText = latencia_ms;
 
-    spawn_offset = parseFloat(engine_offset.value);
-    document.getElementById('val_offset').innerText = spawn_offset.toFixed(2);
+    if (window.audio_delay_node) {
+      let delayTotal = tempo_aviso + (latencia_ms / 1000);
+      window.audio_delay_node.delayTime.value = Math.max(0, delayTotal);
+    }
 
     intervalo_minimo = parseInt(engine_interval.value) / 1000;
     document.getElementById('val_interval').innerText = engine_interval.value;
@@ -727,202 +912,244 @@
     document.getElementById('val_impact').innerText = limiar_impacto;
     pulse_intensity = parseFloat(engine_pulse.value);
     document.getElementById('val_pulse').innerText = pulse_intensity.toFixed(1);
-    limiar_bass = parseInt(engine_bass.value); document.getElementById('val_bass').innerText = limiar_bass;
-    limiar_verde = parseInt(engine_verde.value); document.getElementById('val_verde').innerText = limiar_verde;
-    limiar_vocal = parseInt(engine_vocal.value); document.getElementById('val_vocal').innerText = limiar_vocal;
-    limiar_treble = parseInt(engine_treble.value); document.getElementById('val_treble').innerText = limiar_treble;
+    limiar_bass   = parseInt(engine_bass.value);   document.getElementById('val_bass').innerText   = limiar_bass;
+    limiar_verde  = parseInt(engine_verde.value);  document.getElementById('val_verde').innerText  = limiar_verde;
+    limiar_vocal  = parseInt(engine_vocal.value);  document.getElementById('val_vocal').innerText  = limiar_vocal;
+    limiar_treble = parseInt(engine_treble.value);
+    document.getElementById('val_treble').innerText = limiar_treble;
   }
 
-  engine_speed.addEventListener('input', () => { atualizarEngine(); calcularPistas(); });
-  engine_offset.addEventListener('input', atualizarEngine);
+  engine_speed.addEventListener('input',    () => { atualizarEngine(); calcularPistas(); });
+  engine_latency.addEventListener('input',  atualizarEngine);
   engine_interval.addEventListener('input', atualizarEngine);
-  engine_impact.addEventListener('input', atualizarEngine);
-  engine_pulse.addEventListener('input', atualizarEngine);
-  engine_bass.addEventListener('input', atualizarEngine);
-  engine_verde.addEventListener('input', atualizarEngine);
-  engine_vocal.addEventListener('input', atualizarEngine);
-  engine_treble.addEventListener('input', atualizarEngine);
+  engine_impact.addEventListener('input',   atualizarEngine);
+  engine_pulse.addEventListener('input',    atualizarEngine);
+  engine_bass.addEventListener('input',     atualizarEngine);
+  engine_verde.addEventListener('input',    atualizarEngine);
+  engine_vocal.addEventListener('input',    atualizarEngine);
+  engine_treble.addEventListener('input',   atualizarEngine);
 
   btn_reset.addEventListener('click', () => {
-    engine_speed.value = 2.5;
-    engine_offset.value = 0.10;
-    engine_interval.value = 350;
-    engine_impact.value = 5;
-    engine_pulse.value = 0.3;
-    engine_bass.value = 135;
-    engine_verde.value = 70;
-    engine_vocal.value = 95;
-    engine_treble.value = 50;
-    seletor_dificuldade.value = 'normal';
-    dificuldade = 'normal';
-    espectralToggle.checked = true;
-    dispersaoEspectralEnabled = true;
+    engine_speed.value=2.5; engine_latency.value=0; engine_interval.value=350;
+    engine_impact.value=5; engine_pulse.value=0.3; engine_bass.value=135;
+    engine_verde.value=70; engine_vocal.value=95; engine_treble.value=50;
+    seletor_dificuldade.value='normal'; dificuldade='normal';
+    espectralToggle.checked=true; dispersaoEspectralEnabled=true;
     atualizarEngine();
   });
 
   seletor_dificuldade.addEventListener('change', e => {
     dificuldade = e.target.value;
-    if (dificuldade === 'easy') { engine_interval.value = 500; engine_impact.value = 8; }
-    if (dificuldade === 'normal') { engine_interval.value = 350; engine_impact.value = 5; }
-    if (dificuldade === 'hard') { engine_interval.value = 200; engine_impact.value = 3; }
+    if (dificuldade==='easy')   { engine_interval.value=500; engine_impact.value=8; }
+    if (dificuldade==='normal') { engine_interval.value=350; engine_impact.value=5; }
+    if (dificuldade==='hard')   { engine_interval.value=200; engine_impact.value=3; }
     atualizarEngine();
   });
 
-  function redimensionar() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; calcularPistas(); }
+  function redimensionar() { canvas.width=window.innerWidth; canvas.height=window.innerHeight; calcularPistas(); }
   window.addEventListener('resize', redimensionar);
 
   function calcularPistas() {
-    pistas_y = []; let espaco = canvas.height / 7;
-    for (let i = 1; i <= 6; i++) pistas_y.push(espaco * i);
-    y_alvo = canvas.height / 2; if (y_atual === 0) y_atual = y_alvo;
+    pistas_y=[];
+    for (let i=1; i<=6; i++) pistas_y.push((canvas.height/7)*i);
+    pistas_zen_y=[];
+    for (let i=1; i<=3; i++) pistas_zen_y.push((canvas.height/4)*i);
+    y_alvo=canvas.height/2;
+    if (y_atual===0) y_atual=y_alvo;
   }
   redimensionar();
 
   window.addEventListener('keydown', e => {
-    if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'text') return;
-    let tecla = e.key.toLowerCase();
-    let tipos = [];
-    if (tecla === key_bass && !tecla_d_pressionada) { tecla_d_pressionada = true; tipos.push('bass'); }
-    if (tecla === key_verde && !tecla_f_pressionada) { tecla_f_pressionada = true; tipos.push('verde'); }
-    if (tecla === key_vocal && !tecla_j_pressionada) { tecla_j_pressionada = true; tipos.push('vocal'); }
-    if (tecla === key_agudo && !tecla_k_pressionada) { tecla_k_pressionada = true; tipos.push('agudo'); }
-    if (tipos.length > 0) checarAcertoMultiplo(tipos, "#ffffff");
+    if (document.activeElement.tagName==='INPUT' && document.activeElement.type==='text') return;
+    if (e.repeat) return; // Ignora o botão sendo segurado
+
+    // Ignora teclas de sistema/navegador para não bugar F5/F12 etc
+    if (e.key.startsWith('F') || e.ctrlKey || e.altKey || e.metaKey) return;
+
+    if (gameMode === 'map_record') {
+      if (audio_setup_feito && !spawn_bloqueado && player_audio.currentTime > 0) {
+        const tAtual = window.songStartTime !== undefined ? (audio_context.currentTime - window.songStartTime) : player_audio.currentTime;
+        recordedMap.push({ time: tAtual });
+        textos_feedback.push({ texto:"REC", x:linha_acerto_x, y:y_atual - 20 + Math.random()*40, alpha:1, cor:"#ff0055", tipo:"acerto" });
+        oceanPulse = Math.min(oceanPulse + 0.4, 2.4);
+      }
+      return; // Trava aqui, não envia input pro jogo normal
+    }
+
+    const t = e.key.toLowerCase();
+    const tipos = [];
+    if (t===key_bass  && !tecla_d_pressionada) { tecla_d_pressionada=true; tipos.push('bass'); }
+    if (t===key_verde && !tecla_f_pressionada) { tecla_f_pressionada=true; tipos.push('verde'); }
+    if (t===key_vocal && !tecla_j_pressionada) { tecla_j_pressionada=true; tipos.push('vocal'); }
+    if (t===key_agudo && !tecla_k_pressionada) { tecla_k_pressionada=true; tipos.push('agudo'); }
+
+    if (tipos.length > 0) {
+      checarAcertoMultiplo(tipos);
+    }
   });
 
   window.addEventListener('keyup', e => {
-    let t = e.key.toLowerCase();
-    if (t === key_bass) tecla_d_pressionada = false;
-    if (t === key_verde) tecla_f_pressionada = false;
-    if (t === key_vocal) tecla_j_pressionada = false;
-    if (t === key_agudo) tecla_k_pressionada = false;
+    const t = e.key.toLowerCase();
+    if (t===key_bass)  tecla_d_pressionada=false;
+    if (t===key_verde) tecla_f_pressionada=false;
+    if (t===key_vocal) tecla_j_pressionada=false;
+    if (t===key_agudo) tecla_k_pressionada=false;
   });
 
   function setupAudioNodes() {
     if (audio_setup_feito) return;
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    audio_context = new AudioContextClass({ latencyHint: 'interactive' });
+    const AC = window.AudioContext || window.webkitAudioContext;
+    audio_context = new AC({ latencyHint: 'interactive' });
 
     const source = audio_context.createMediaElementSource(player_audio);
-    analyser = audio_context.createAnalyser(); analyser.fftSize = 256; analyser.smoothingTimeConstant = 0.72;
-    data_array = new Uint8Array(analyser.frequencyBinCount);
-    analyser_visual = audio_context.createAnalyser(); analyser_visual.fftSize = 256; analyser_visual.smoothingTimeConstant = 0.65;
-    data_array_visual = new Uint8Array(analyser_visual.frequencyBinCount);
-    delay_node = audio_context.createDelay(5.0); delay_node.delayTime.value = tempo_aviso;
 
-    source.connect(analyser);
-    analyser.connect(delay_node);
+    analyser_spawn = audio_context.createAnalyser();
+    analyser_spawn.fftSize = 256;
+    analyser_spawn.smoothingTimeConstant = 0.40;
+    data_array_spawn = new Uint8Array(analyser_spawn.frequencyBinCount);
+
+    const delay_node = audio_context.createDelay(10.0);
+    delay_node.delayTime.value = parseFloat(engine_speed.value) + (parseInt(engine_latency.value) / 1000);
+    window.audio_delay_node = delay_node;
+
+    analyser_visual = audio_context.createAnalyser();
+    analyser_visual.fftSize = 256;
+    analyser_visual.smoothingTimeConstant = 0.65;
+    data_array_visual = new Uint8Array(analyser_visual.frequencyBinCount);
+
+    source.connect(analyser_spawn);
+    source.connect(delay_node);
     delay_node.connect(analyser_visual);
     analyser_visual.connect(audio_context.destination);
+
     audio_setup_feito = true;
   }
 
   function resetarJogo() {
-    inimigos = []; textos_feedback = []; pontos = 0; combo = 0; pontos_txt.innerText = pontos;
-    ultimo_tempo_spawn = 0; bpm_historico = []; kick_times = []; last_beat_pulse = 0.18;
-    bpm_txt.innerText = "0"; breakingWaves = []; oceanPulse = 0; waveSpawnAccumulator = 0;
-    particulas = []; poolParticulas = []; efeitosEspectrais = [];
-    ultimo_media_kick = 0; ultimo_media_vocal = 0; ultimo_media_agudo = 0; ultimo_media_green = 0;
-    proximaNotaCor = "#ffffff";
+    inimigos=[]; textos_feedback=[]; pontos=0; combo=0; pontos_txt.innerText=pontos;
+    ultimo_tempo_spawn=0; bpm_historico=[]; kick_times=[]; last_beat_pulse=0.18;
+    bpm_txt.innerText="0"; breakingWaves=[]; oceanPulse=0; waveSpawnAccumulator=0;
+    particulas=[]; poolParticulas=[]; efeitosEspectrais=[];
+    ultimo_media_kick=0; ultimo_media_vocal=0; ultimo_media_agudo=0; ultimo_media_green=0;
+    proximaNotaCor="#ffffff";
+    energia_media=0; em_drop=false; drop_saiu_em=-Infinity;
+    recordedMap = [];
+    customMapIndex = 0;
   }
 
-  function limparMusicaAnterior() {
-    if (currentObjectURL) { URL.revokeObjectURL(currentObjectURL); currentObjectURL = null; }
+  function pararMusicaImediatamente() {
     player_audio.pause();
     player_audio.removeAttribute('src');
     player_audio.load();
+    if (currentObjectURL) {
+      URL.revokeObjectURL(currentObjectURL);
+      currentObjectURL = null;
+    }
   }
 
   upload.addEventListener('change', function() {
     const file = this.files[0];
     if (!file) return;
-    limparMusicaAnterior();
+    pararMusicaImediatamente();
     resetarJogo();
     currentObjectURL = URL.createObjectURL(file);
     player_audio.src = currentObjectURL;
-    document.getElementById('song_title').innerText = file.name.replace('.mp3', '');
-    document.getElementById('song_artist').innerText = "Engine Sincronizada";
+    document.getElementById('song_title').innerText  = file.name.replace(/\.[^/.]+$/, '');
+    document.getElementById('song_artist').innerText = "Preparando...";
     upload.style.display = 'none';
     btn_change_track.style.display = 'block';
+
     if (!audio_setup_feito) setupAudioNodes();
     if (audio_context && audio_context.state === 'suspended') audio_context.resume();
-    player_audio.play().catch(() => {});
+
+    iniciarCountdown(() => {
+      document.getElementById('song_artist').innerText = (gameMode === 'map_record') ? "GRAVANDO..." : "Engine Sincronizada";
+      player_audio.play().then(() => {
+        window.songStartTime = audio_context.currentTime - player_audio.currentTime;
+      }).catch(() => {});
+    });
   });
 
+  player_audio.addEventListener('pause', () => { if (audio_context) audio_context.suspend(); });
+  player_audio.addEventListener('play',  () => { if (audio_context) audio_context.resume(); });
+
   btn_change_track.addEventListener('click', function() {
-    limparMusicaAnterior();
+    pararMusicaImediatamente();
     resetarJogo();
-    document.getElementById('song_title').innerText = "Nenhuma música";
+    countdownOverlay.classList.remove('visible');
+    spawn_bloqueado = false; countdown_ativo = false;
+    document.getElementById('song_title').innerText  = "Nenhuma música";
     document.getElementById('song_artist').innerText = "Selecione um arquivo";
     upload.value = "";
     upload.style.display = 'block';
     btn_change_track.style.display = 'none';
   });
 
-  player_audio.addEventListener('pause', () => { if (audio_context) audio_context.suspend(); });
-  player_audio.addEventListener('play', () => { if (audio_context) audio_context.resume(); });
-
   function estimarBpm(t) {
     kick_times.push(t); if (kick_times.length > 14) kick_times.shift();
     if (kick_times.length >= 5) {
       let ints = [];
-      for (let i = 1; i < kick_times.length; i++) { let d = kick_times[i] - kick_times[i - 1]; if (d > 0.25 && d < 0.9) ints.push(d); }
+      for (let i=1; i<kick_times.length; i++) { const d=kick_times[i]-kick_times[i-1]; if (d>0.25&&d<0.9) ints.push(d); }
       if (ints.length >= 4) {
-        let avg = ints.reduce((a, b) => a + b, 0) / ints.length;
-        let bpm = 60 / avg;
-        if (bpm >= 70 && bpm <= 200) {
-          bpm_historico.push(bpm); if (bpm_historico.length > 10) bpm_historico.shift();
-          bpm_txt.innerText = Math.round(bpm_historico.reduce((a, b) => a + b, 0) / bpm_historico.length);
+        const avg = ints.reduce((a,b)=>a+b,0)/ints.length, bpm=60/avg;
+        if (bpm>=70&&bpm<=200) {
+          bpm_historico.push(bpm); if (bpm_historico.length>10) bpm_historico.shift();
+          bpm_txt.innerText = Math.round(bpm_historico.reduce((a,b)=>a+b,0)/bpm_historico.length);
         }
       }
     }
     ultimo_kick_tempo = t;
   }
 
-  function checarAcertoMultiplo(tipos_aceitos, cor_laser) {
-    textos_feedback.push({ texto: "TIRO", x: linha_acerto_x, y: y_atual, alpha: 1, cor: cor_laser, tipo: "tiro" });
-    let alvo = null, distMin = 9999, idx = -1;
-    for (let i = 0; i < inimigos.length; i++) {
-      let d = Math.abs(inimigos[i].x - linha_acerto_x);
-      if (d < distMin) { distMin = d; alvo = inimigos[i]; idx = i; }
+  function checarAcertoMultiplo(tipos_aceitos) {
+    textos_feedback.push({ texto:"TIRO", x:linha_acerto_x, y:y_atual, alpha:1, cor:"#ffffff", tipo:"tiro" });
+    if (!audio_setup_feito) return;
+    const tInput = (window.songStartTime !== undefined ? (audio_context.currentTime - window.songStartTime) : player_audio.currentTime) + (latencia_ms / 1000);
+    const janela  = janelaAcertoPx();
+
+    let alvo=null, distMin=9999, idx=-1;
+    for (let i=0; i<inimigos.length; i++) {
+      const xReal = notaXEmTempo(inimigos[i], tInput);
+      const d = Math.abs(xReal - linha_acerto_x);
+      if (d < distMin) { distMin=d; alvo=inimigos[i]; idx=i; }
     }
-    if (alvo && distMin < 135) {
+
+    if (alvo && distMin <= janela.ok) {
       if (!tipos_aceitos.includes(alvo.tipo)) {
-        textos_feedback.push({ texto: "WRONG", x: linha_acerto_x + 48, y: pistas_y[alvo.pista] - 24, alpha: 1, cor: "#ff0055", tipo: "acerto" });
-        combo = 0; pontos = Math.max(0, pontos - 20); inimigos.splice(idx, 1); pontos_txt.innerText = pontos; return;
+        textos_feedback.push({ texto:"WRONG", x:linha_acerto_x+48, y:getPistaY(alvo.pista)-24, alpha:1, cor:"#ff0055", tipo:"acerto" });
+        combo=0; pontos=Math.max(0,pontos-20); inimigos.splice(idx,1); pontos_txt.innerText=pontos; return;
       }
+
       combo++;
-      if (combo > 0 && combo % 75 === 0) textos_feedback.push({ texto: `${combo} COMBO!`, x: linha_acerto_x + 92, y: y_atual - 92, alpha: 1.3, cor: "#ffdd00", tipo: "milestone" });
-      let msg = "", corMsg = "", bonus = Math.floor(combo / 5);
-      if (distMin <= 36) { msg = "PERFECT"; corMsg = "#00ffcc"; pontos += 100 + bonus * 10; }
-      else if (distMin <= 77) { msg = "NICE"; corMsg = "#ffff00"; pontos += 50 + bonus * 5; }
-      else { msg = "OK"; corMsg = "#ff00ea"; pontos += 10 + bonus * 2; }
+      if (combo>0 && combo%75===0)
+        textos_feedback.push({ texto:`${combo} COMBO!`, x:linha_acerto_x+92, y:y_atual-92, alpha:1.3, cor:"#ffdd00", tipo:"milestone" });
+      const bonus = Math.floor(combo/5);
+      let msg, corMsg;
+      if      (distMin <= janela.perfect) { msg="PERFECT"; corMsg="#00ffcc"; pontos+=100+bonus*10; }
+      else if (distMin <= janela.nice)    { msg="NICE";    corMsg="#ffff00"; pontos+=50+bonus*5; }
+      else                                { msg="OK";      corMsg="#ff00ea"; pontos+=10+bonus*2; }
+
       pontos_txt.innerText = pontos;
-      textos_feedback.push({ texto: msg, x: linha_acerto_x + 48, y: pistas_y[alvo.pista] - 24, alpha: 1, cor: corMsg, tipo: "acerto" });
-
-      // === DISPERSÃO ESPECTRAL REALISTA ===
-      criarEfeitoEspectral(linha_acerto_x, pistas_y[alvo.pista]);
-
+      textos_feedback.push({ texto:msg, x:linha_acerto_x+48, y:getPistaY(alvo.pista)-24, alpha:1, cor:corMsg, tipo:"acerto" });
+      criarEfeitoEspectral(linha_acerto_x, getPistaY(alvo.pista));
       inimigos.splice(idx, 1);
     }
   }
 
   function desenharEspectro() {
-    if (!analyser_visual || !data_array_visual || !hudLeft.classList.contains('open')) return;
-    spectrumCtx.fillStyle = "rgba(5,10,20,0.8)";
-    spectrumCtx.fillRect(0, 0, spectrumCanvas.width, spectrumCanvas.height);
-    const bw = (spectrumCanvas.width / data_array_visual.length) * 1.7;
-    let xx = 0;
-    for (let i = 0; i < data_array_visual.length; i++) {
-      const bh = (data_array_visual[i] / 255) * spectrumCanvas.height * 0.9;
-      spectrumCtx.fillStyle = `hsla(${180 + i * 1.35}, 100%, 63%, 0.8)`;
-      spectrumCtx.fillRect(xx, spectrumCanvas.height - bh, bw, bh);
-      xx += bw + 1;
+    if (!analyser_visual||!data_array_visual||!hudLeft.classList.contains('open')) return;
+    spectrumCtx.fillStyle="rgba(5,10,20,0.8)"; spectrumCtx.fillRect(0,0,spectrumCanvas.width,spectrumCanvas.height);
+    const bw=(spectrumCanvas.width/data_array_visual.length)*1.7; let xx=0;
+    for (let i=0; i<data_array_visual.length; i++) {
+      const bh=(data_array_visual[i]/255)*spectrumCanvas.height*0.9;
+      spectrumCtx.fillStyle=`hsla(${180+i*1.35},100%,63%,0.8)`;
+      spectrumCtx.fillRect(xx, spectrumCanvas.height-bh, bw, bh); xx+=bw+1;
     }
   }
 
   function initEverything() {
     calcularPistas();
-    document.getElementById('val_offset').innerText = spawn_offset.toFixed(2);
+    document.getElementById('val_latency').innerText = "0";
     loopGrafico();
   }
   initEverything();
