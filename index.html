@@ -3,310 +3,629 @@
 <head>
   <meta charset="utf-8">
   <title>DFJK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
-    body, html { margin: 0; padding: 0;
-      width: 100%; height: 100%; overflow: hidden; background: #080c17; color: #fff; font-family: 'Segoe UI', system-ui, sans-serif;
+    :root {
+      --chaos: #ff00ea;
+      --chaos2: #ff4466;
+      --zen: #00ffaa;
+      --zen2: #00ccff;
+      --bg: #06080f;
+      --panel: rgba(10,15,28,0.72);
+      --border: rgba(255,255,255,0.08);
     }
-    canvas { display: block; position: absolute; top: 0; left: 0; z-index: 1;
-    }
-    #hud_wrapper { position: absolute; top: 15px; left: 15px; z-index: 10; width: 300px; display: flex; flex-direction: column;
-      gap: 8px; }
-    .hud-panel { background: rgba(10, 15, 25, 0.35); border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px; backdrop-filter: blur(6px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); box-sizing: border-box;
-    }
-    #hud_top_right { width: 100%; padding: 12px; }
-    .score-box { display: flex; justify-content: space-between;
-      align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px; }
-    .score-label { font-size: 12px;
-      color: rgba(255, 255, 255, 0.6); font-weight: bold; letter-spacing: 1px; }
-    #pontos_txt { font-size: 22px; font-weight: 800;
-      color: #ff66ea; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-    .music-player { background: rgba(0, 0, 0, 0.2);
-      border-radius: 8px; padding: 8px; border: 1px solid rgba(255, 255, 255, 0.05); }
-    .song-info { display: flex;
-      align-items: center; gap: 10px; margin-bottom: 8px; }
-    .album-art { width: 40px; height: 40px; background: linear-gradient(135deg, rgba(255,0,255,0.5), rgba(0,255,255,0.5));
-      border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: rgba(255,255,255,0.8); font-weight: bold;
-    }
-    .song-title { font-weight: bold; font-size: 13px; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;
-    }
-    .song-artist { font-size: 11px; color: rgba(255,255,255,0.5); }
-    #upload_mp3 { width: 100%; margin-bottom: 5px;
-      font-size: 11px; background: rgba(0,0,0,0.3); color: #ccc; border: 1px solid rgba(255,255,255,0.1); padding: 4px; border-radius: 4px; box-sizing: border-box;
-    }
-    #btn_change_track { display: none; width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(255, 255, 255, 0.1);
-      color: #ddd; border: 1px solid rgba(255,255,255,0.15); padding: 5px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;
-    }
-    #btn_change_track:hover { background: rgba(255, 255, 255, 0.2); color: #fff;
-    }
-    #player_audio { width: 100%; height: 25px; outline: none; margin-bottom: 5px; opacity: 0.8;
-    }
-    .hud-controls-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 5px;
-    }
-    select { background: rgba(0,0,0,0.3); color: #ccc; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 2px 4px;
-      font-size: 11px; outline: none; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: #fff; font-family: 'DM Sans', system-ui, sans-serif; }
+    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; }
 
-    #upload_map { display: none; width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(0,0,0,0.3);
-      color: #ccc; border: 1px solid rgba(0,255,180,0.4); padding: 4px; border-radius: 4px; box-sizing: border-box; }
-    #btn_export_map { display: none;
-      width: 100%; margin-bottom: 5px; font-size: 11px; background: rgba(255, 100, 100, 0.2); color: #fff; border: 1px solid rgba(255,100,100,0.4); padding: 5px;
-      border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    #btn_export_map:hover { background: rgba(255, 100, 100, 0.4);
+    /* ══════════════ HOME SCREEN ══════════════ */
+    #home_screen {
+      position: fixed; inset: 0; z-index: 50;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0;
+      background: linear-gradient(160deg, #040610 0%, #080d1a 50%, #040610 100%);
+    }
+    #home_screen.fade-out { animation: fadeOut 0.45s ease forwards; }
+    @keyframes fadeOut { to { opacity: 0; pointer-events: none; } }
+
+    /* animated bg grid */
+    #home_screen::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridPan 18s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes gridPan { from { background-position: 0 0; } to { background-position: 60px 60px; } }
+
+    .home-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(80px, 14vw, 160px);
+      letter-spacing: 0.12em;
+      line-height: 0.85;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 0 40px rgba(255,255,255,0.12));
+      animation: logoIn 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes logoIn { from { opacity:0; transform: translateY(-24px) scale(0.94); } to { opacity:1; transform: none; } }
+
+    .home-tagline {
+      font-size: 13px; letter-spacing: 3px; font-weight: 500;
+      color: rgba(255,255,255,0.3); text-transform: uppercase;
+      margin-bottom: 52px; position: relative; z-index: 2;
+      animation: logoIn 0.8s 0.1s cubic-bezier(0.16,1,0.3,1) both;
     }
 
-    #btn_mais_opcoes { background: transparent; border: none; color: rgba(255,255,255,0.4); font-size: 14px; cursor: pointer;
-      width: 100%; padding: 4px;
-      margin-top: 6px; transition: 0.2s; border-radius: 4px; display: flex; justify-content: center; align-items: center;
+    /* Step indicator */
+    .step-dots {
+      display: flex; gap: 8px; margin-bottom: 36px;
+      position: relative; z-index: 2;
+      animation: logoIn 0.5s 0.2s both;
     }
-    #btn_mais_opcoes:hover { background: rgba(255, 255, 255, 0.05); color: rgba(255,255,255,0.8);
+    .step-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      transition: all 0.4s ease;
     }
-    #hud_left_container { width: 100%; display: flex; flex-direction: column; gap: 8px; max-height: 0; opacity: 0; overflow: hidden;
-      pointer-events: none; transition: max-height 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease; }
-    #hud_left_container.open { max-height: 820px;
-      opacity: 1; pointer-events: all; }
-    #hud_engine { padding: 15px; }
-    .engine-title { color: rgba(255,255,255,0.8);
-      font-size: 12px; font-weight: 800; margin-bottom: 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; letter-spacing: 1px;
+    .step-dot.active { background: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.6); width: 20px; border-radius: 3px; }
+
+    /* Step panels */
+    .home-step {
+      position: relative; z-index: 2;
+      width: min(560px, 92vw);
+      animation: stepIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
     }
-    .slider-row { margin-bottom: 8px; }
-    .slider-label { display: flex; justify-content: space-between; font-size: 11px;
-      margin-bottom: 2px; font-weight: 600; color: rgba(255,255,255,0.75); }
-    input[type="range"] { width: 100%; accent-color: rgba(255,255,255,0.5); height: 3px; opacity: 0.8;
+    @keyframes stepIn { from { opacity:0; transform: translateY(18px); } to { opacity:1; transform: none; } }
+    .home-step.step-out { animation: stepOut 0.3s ease forwards; }
+    @keyframes stepOut { to { opacity:0; transform: translateY(-12px); } }
+
+    .step-title {
+      font-size: 11px; letter-spacing: 3px; font-weight: 700;
+      color: rgba(255,255,255,0.35); text-transform: uppercase;
+      margin-bottom: 16px; text-align: center;
     }
-    #hud_keys { padding: 10px; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 4px;
+
+    /* Mode cards */
+    .mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .mode-card {
+      position: relative; overflow: hidden;
+      border-radius: 16px; cursor: pointer;
+      padding: 28px 22px 24px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(10,14,24,0.8);
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+      text-align: left;
     }
-    .key-hint { text-align: center; display: flex; flex-direction: column; align-items: center;
+    .mode-card::before {
+      content: ''; position: absolute; inset: 0;
+      opacity: 0; transition: opacity 0.3s;
+      border-radius: inherit;
     }
-    .key-input { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; width: 34px; height: 34px; text-align: center;
-      font-size: 15px; font-weight: 800; outline: none; cursor: pointer; transition: 0.2s; box-sizing: border-box; text-transform: uppercase;
+    .mode-card:hover { transform: translateY(-3px); }
+    .mode-card:active { transform: translateY(0) scale(0.98); }
+
+    .mode-card.chaos { border-color: rgba(255,0,234,0.25); }
+    .mode-card.chaos::before { background: radial-gradient(ellipse at 30% 0%, rgba(255,0,234,0.18) 0%, transparent 70%); }
+    .mode-card.chaos:hover { border-color: rgba(255,0,234,0.55); box-shadow: 0 0 40px rgba(255,0,234,0.15), inset 0 0 40px rgba(255,0,234,0.04); }
+    .mode-card.chaos:hover::before { opacity: 1; }
+
+    .mode-card.zen { border-color: rgba(0,255,170,0.2); }
+    .mode-card.zen::before { background: radial-gradient(ellipse at 30% 0%, rgba(0,255,170,0.15) 0%, transparent 70%); }
+    .mode-card.zen:hover { border-color: rgba(0,255,170,0.5); box-shadow: 0 0 40px rgba(0,255,170,0.12), inset 0 0 40px rgba(0,255,170,0.03); }
+    .mode-card.zen:hover::before { opacity: 1; }
+
+    .card-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px; letter-spacing: 0.06em;
+      line-height: 1; margin-bottom: 8px;
+    }
+    .mode-card.chaos .card-name { color: var(--chaos); text-shadow: 0 0 30px rgba(255,0,234,0.5); }
+    .mode-card.zen   .card-name { color: var(--zen);   text-shadow: 0 0 30px rgba(0,255,170,0.4); }
+    .card-desc { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.5; font-weight: 400; }
+
+    /* Map type cards */
+    .map-cards { display: flex; flex-direction: column; gap: 10px; }
+    .map-card {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 20px; border-radius: 12px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(10,14,24,0.8);
+      transition: all 0.2s ease;
+    }
+    .map-card:hover { border-color: rgba(255,255,255,0.22); background: rgba(18,24,38,0.9); transform: translateX(4px); }
+    .map-card:active { transform: translateX(2px) scale(0.99); }
+    .map-card-icon { font-size: 16px; flex-shrink: 0; width: 32px; text-align: center; color: rgba(255,255,255,0.3); font-weight: 900; letter-spacing: 0; }
+    .map-card-text {}
+    .map-card-name { font-weight: 700; font-size: 15px; margin-bottom: 2px; color: #eee; }
+    .map-card-desc { font-size: 11px; color: rgba(255,255,255,0.38); }
+
+    /* File upload step */
+    .upload-area {
+      border: 2px dashed rgba(255,255,255,0.12);
+      border-radius: 14px; padding: 32px 24px;
+      text-align: center; cursor: pointer;
+      transition: all 0.25s ease;
+      background: rgba(10,14,24,0.6);
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .upload-area:hover, .upload-area.drag-over {
+      border-color: rgba(255,255,255,0.35);
+      background: rgba(20,28,48,0.8);
+    }
+    .upload-area input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon { font-size: 28px; margin-bottom: 10px; }
+    .upload-label { font-size: 14px; font-weight: 600; color: #ddd; margin-bottom: 4px; }
+    .upload-hint { font-size: 11px; color: rgba(255,255,255,0.3); }
+    .upload-area.done { border-color: rgba(0,255,170,0.45); background: rgba(0,40,25,0.35); }
+    .upload-area.done .upload-icon::after { content: ' ✓'; }
+    .file-name { font-size: 12px; color: var(--zen); margin-top: 6px; font-weight: 600; word-break: break-all; }
+
+    /* Back button */
+    .btn-back {
+      background: transparent; border: none; color: rgba(255,255,255,0.3);
+      font-size: 12px; font-weight: 600; letter-spacing: 1px;
+      cursor: pointer; padding: 8px 12px; border-radius: 6px;
+      display: flex; align-items: center; gap: 6px;
+      transition: color 0.2s; font-family: inherit; margin-bottom: 16px;
+    }
+    .btn-back:hover { color: rgba(255,255,255,0.7); }
+
+    /* Play button */
+    .btn-play {
+      width: 100%; padding: 16px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px; letter-spacing: 0.12em;
+      border-radius: 12px; border: none; cursor: pointer;
+      position: relative; overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      margin-top: 14px;
+    }
+    .btn-play:hover { transform: translateY(-2px); }
+    .btn-play:active { transform: translateY(0) scale(0.99); }
+    .btn-play:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+    .btn-play.chaos-btn {
+      background: linear-gradient(135deg, #c800b8 0%, #ff004a 100%);
+      color: #fff; box-shadow: 0 4px 30px rgba(255,0,100,0.3);
+    }
+    .btn-play.chaos-btn:hover { box-shadow: 0 8px 40px rgba(255,0,100,0.5); }
+    .btn-play.zen-btn {
+      background: linear-gradient(135deg, #00aa70 0%, #00ccaa 100%);
+      color: #fff; box-shadow: 0 4px 30px rgba(0,200,140,0.3);
+    }
+    .btn-play.zen-btn:hover { box-shadow: 0 8px 40px rgba(0,200,140,0.5); }
+
+    /* Diff selector inline */
+    .inline-options { display: flex; gap: 8px; margin-top: 14px; }
+    .inline-opt {
+      flex: 1; padding: 10px 6px; border-radius: 8px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.1); background: rgba(10,14,24,0.8);
+      text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.45);
+      transition: all 0.18s;
+      letter-spacing: 1px;
+    }
+    .inline-opt.selected { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.35); color: #fff; }
+
+    /* ══════════════ HUD IN-GAME ══════════════ */
+    #game_hud {
+      position: fixed; top: 0; left: 0; z-index: 10;
+      display: none;
+      pointer-events: none;
+    }
+    #game_hud.active { display: block; }
+
+    /* Score pill */
+    #score_pill {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      background: rgba(8,12,22,0.75); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50px; padding: 8px 24px;
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; gap: 16px;
+      pointer-events: none;
+    }
+    .score-label { font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.4); font-weight: 700; }
+    #pontos_txt { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: #ff66ea; letter-spacing: 0.05em; line-height: 1; }
+    #bpm_display { font-size: 10px; color: rgba(255,255,255,0.35); font-weight: 500; }
+    #bpm_txt { color: rgba(255,255,255,0.6); font-weight: 700; }
+
+    /* Song info strip */
+    #song_strip {
+      position: fixed; top: 16px; left: 16px;
+      background: rgba(8,12,22,0.75); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 10px 14px;
+      backdrop-filter: blur(8px);
+      pointer-events: all;
+      width: 280px;
+    }
+    #song_strip_title { font-size: 12px; font-weight: 700; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Settings panel toggle */
+    #btn_settings_toggle {
+      position: fixed; top: 16px; right: 16px;
+      background: rgba(8,12,22,0.75); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 8px 14px;
+      backdrop-filter: blur(8px); cursor: pointer; color: rgba(255,255,255,0.45);
+      font-size: 18px; font-weight: 400; letter-spacing: 0; transition: color 0.2s, border-color 0.2s;
+      pointer-events: all; z-index: 20;
+    }
+    #btn_settings_toggle:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
+
+    /* Back to home button */
+    #btn_home {
+      position: fixed; bottom: 20px; right: 20px;
+      background: rgba(8,12,22,0.8); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; padding: 8px 14px;
+      color: rgba(255,255,255,0.4); font-size: 11px; font-weight: 700;
+      letter-spacing: 1px; cursor: pointer; font-family: inherit;
+      transition: all 0.2s; pointer-events: all; z-index: 20;
+    }
+    #btn_home:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
+
+    /* Settings panel */
+    #settings_panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 300px; z-index: 21;
+      background: rgba(6,9,18,0.95); border-left: 1px solid rgba(255,255,255,0.07);
+      backdrop-filter: blur(12px);
+      transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+      overflow-y: auto; padding: 70px 18px 20px;
+      pointer-events: all;
+    }
+    #settings_panel.open { transform: translateX(0); }
+    #settings_panel::-webkit-scrollbar { width: 4px; }
+    #settings_panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+    #btn_settings_close {
+      position: absolute; top: 16px; right: 16px;
+      background: transparent; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px; padding: 6px 12px;
+      color: rgba(255,255,255,0.4); font-size: 11px; font-weight: 700;
+      letter-spacing: 1px; cursor: pointer; font-family: inherit;
+      transition: all 0.18s; z-index: 21;
+    }
+    #btn_settings_close:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+
+    .settings-section { margin-bottom: 22px; }
+    .settings-section-title {
+      font-size: 10px; letter-spacing: 2.5px; font-weight: 700;
+      color: rgba(255,255,255,0.3); text-transform: uppercase;
+      margin-bottom: 12px; padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .slider-row { margin-bottom: 10px; }
+    .slider-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; font-weight: 600; color: rgba(255,255,255,0.65); }
+    input[type="range"] { width: 100%; accent-color: rgba(255,255,255,0.5); height: 3px; opacity: 0.8; cursor: pointer; }
+
+    .keybind-row { display: flex; justify-content: space-around; gap: 6px; }
+    .key-hint { text-align: center; }
+    .key-input {
+      background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px; width: 38px; height: 38px; text-align: center;
+      font-size: 16px; font-weight: 800; outline: none; cursor: pointer;
+      transition: 0.2s; box-sizing: border-box; text-transform: uppercase;
+      color: #fff; font-family: inherit;
     }
     .key-input:focus { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.1); }
-    .desc { font-size: 10px; color: rgba(255,255,255,0.4);
-      margin-top: 3px; font-weight: bold; }
-    .color-bass { color: #e666d9; } .color-vocal { color: #66e6e6;
-                                    } .color-treble { color: #e6b866; } .color-verde { color: #00ff88; }
-    #spectrum_canvas { width: 100%; height: 38px;
-      border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); box-sizing: border-box; }
-    #btn_reset { width: 100%; padding: 8px;
-      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.6); font-weight: bold;
-      font-size: 11px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-    #btn_reset:hover { background: rgba(255, 255, 255, 0.15);
-      color: #fff; }
-    .toggle-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #ccc; margin-top: 6px;
-    }
-    #calibration_hint { font-size: 10px; color: rgba(255,200,100,0.7); text-align: center; margin-top: 4px; font-style: italic;
-    }
-    #btn_zen { width: 100%; margin-top: 6px; padding: 7px; font-size: 12px; font-weight: 800; letter-spacing: 1.5px; border-radius: 6px;
-      cursor: pointer; transition: background 0.4s, color 0.4s, border-color 0.4s; border: 1px solid rgba(0,255,180,0.4); background: rgba(0,255,180,0.08); color: rgba(0,255,180,0.9);
-    }
-    #btn_zen.chaos { border-color: rgba(255,0,200,0.4); background: rgba(255,0,200,0.08); color: rgba(255,80,220,0.9); }
-    #zen_desc { font-size: 10px;
-      color: rgba(255,255,255,0.35); text-align: center; margin-top: 3px; font-style: italic; }
+    .key-desc { font-size: 9px; color: rgba(255,255,255,0.3); margin-top: 4px; font-weight: 700; letter-spacing: 1px; }
+    .color-bass { color: #e666d9; } .color-vocal { color: #66e6e6; }
+    .color-treble { color: #e6b866; } .color-verde { color: #00ff88; }
 
-    /* ── COUNTDOWN OVERLAY ── */
-    #countdown_overlay {
-      position: fixed;
-      inset: 0; z-index: 999;
-      display: flex; align-items: center; justify-content: center;
-      pointer-events: none; opacity: 0;
-      transition: opacity 0.25s;
+    #spectrum_canvas { width: 100%; height: 38px; border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 8px; }
+
+    .settings-btn {
+      width: 100%; padding: 9px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);
+      font-weight: 700; font-size: 11px; border-radius: 8px; cursor: pointer;
+      transition: 0.2s; letter-spacing: 1px; font-family: inherit;
+      margin-top: 4px;
     }
+    .settings-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .settings-btn.export-btn { border-color: rgba(255,100,100,0.3); color: rgba(255,150,150,0.7); }
+    .settings-btn.export-btn:hover { background: rgba(255,60,60,0.15); color: #ff8888; }
+
+    #calibration_hint { font-size: 10px; color: rgba(255,200,100,0.55); text-align: center; margin-top: 3px; font-style: italic; }
+
+    /* Audio player */
+    #player_audio { width: 100%; height: 24px; outline: none; opacity: 0.7; margin-top: 6px; }
+
+    /* Mode badge in-game */
+    #mode_badge {
+      position: fixed; bottom: 20px; left: 20px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 14px; letter-spacing: 2px;
+      padding: 6px 14px; border-radius: 6px;
+      pointer-events: none; z-index: 20;
+    }
+    #mode_badge.chaos { background: rgba(255,0,234,0.12); border: 1px solid rgba(255,0,234,0.3); color: rgba(255,0,234,0.8); }
+    #mode_badge.zen   { background: rgba(0,255,170,0.1);  border: 1px solid rgba(0,255,170,0.25); color: rgba(0,255,170,0.8); }
+
+    /* Countdown */
+    #countdown_overlay { position: fixed; inset: 0; z-index: 999; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.25s; }
     #countdown_overlay.visible { opacity: 1; }
-    #countdown_num {
-      font-size: 0px;
-      font-weight: 900;
-      color: #ffffff;
-      text-shadow: 0 0 60px rgba(255,255,255,0.9), 0 0 120px rgba(0,200,255,0.6);
-      letter-spacing: -2px;
-      transition: font-size 0.08s ease-out, opacity 0.18s ease-in, color 0.3s;
-      opacity: 0;
-      user-select: none;
-    }
+    #countdown_num { font-family: 'Bebas Neue', sans-serif; font-size: 0px; color: #ffffff; text-shadow: 0 0 60px rgba(255,255,255,0.9), 0 0 120px rgba(0,200,255,0.6); letter-spacing: -2px; transition: font-size 0.08s ease-out, opacity 0.18s ease-in, color 0.3s; opacity: 0; user-select: none; }
 
-    /* ── FEVER TIME OVERLAY ── */
-    #fever_overlay {
-      position: fixed;
-      inset: 0; z-index: 50;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.4s;
+    /* Lyrics overlay */
+    #lyrics_canvas_overlay { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; pointer-events: none; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 32px; }
+    #lyrics_canvas_line {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 26px; font-weight: 700; color: rgba(255,255,255,0.85);
+      text-align: center;
+      text-shadow: 0 0 30px rgba(255,255,255,0.4), 0 2px 12px rgba(0,0,0,0.95), 0 4px 32px rgba(0,0,0,0.7);
+      max-width: 75vw; transition: opacity 0.15s ease, transform 0.2s ease;
+      opacity: 0; transform: translateY(8px); line-height: 1.3;
     }
-    #fever_overlay.active { opacity: 1; }
-    #fever_banner {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 51;
-      pointer-events: none;
-      opacity: 0;
-      font-size: 0px;
-      font-weight: 900;
-      color: #ff2244;
-      text-shadow: 0 0 40px rgba(255,0,60,0.9), 0 0 80px rgba(255,60,0,0.7);
-      letter-spacing: 4px;
-      white-space: nowrap;
-      transition: opacity 0.3s, font-size 0.25s cubic-bezier(0.15,1.4,0.5,1);
-      user-select: none;
+    #lyrics_canvas_line.show { opacity: 1; transform: translateY(0); }
+
+    /* Lyrics HUD panel */
+    #btn_toggle_lyrics {
+      display: none; width: 100%;
+      font-size: 11px; background: rgba(0,255,255,0.08); color: #00ffff;
+      border: 1px solid rgba(0,255,255,0.2); padding: 7px; border-radius: 6px;
+      font-weight: 700; cursor: pointer; transition: 0.2s; letter-spacing: 1px;
+      font-family: inherit; margin-bottom: 6px;
     }
-    #fever_banner.show { opacity: 1; font-size: 96px; }
-    #fever_hud {
-      position: fixed;
-      top: 18px;
-      right: 18px;
-      z-index: 52;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.4s;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
-    }
-    #fever_hud.active { opacity: 1; }
-    #fever_label {
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: 3px;
-      color: #ff2244;
-      text-shadow: 0 0 12px rgba(255,0,60,0.8);
-      animation: fever_pulse 0.6s ease-in-out infinite alternate;
-    }
-    @keyframes fever_pulse {
-      from { opacity: 0.75; text-shadow: 0 0 8px rgba(255,0,60,0.5); }
-      to   { opacity: 1.0;  text-shadow: 0 0 20px rgba(255,0,60,1.0); }
-    }
-    #fever_bar_bg {
-      width: 160px; height: 8px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 4px;
-      overflow: hidden;
-      border: 1px solid rgba(255,30,60,0.3);
-    }
-    #fever_bar_fill {
-      height: 100%;
-      background: linear-gradient(90deg, #ff2244, #ff8800);
-      border-radius: 4px;
-      transition: width 0.15s linear;
-      width: 100%;
-    }
-    #fever_erros {
-      font-size: 11px;
-      color: rgba(255,100,100,0.9);
-      letter-spacing: 1px;
-      font-weight: bold;
-    }
-    #fever_mult {
-      font-size: 11px;
-      color: #ff8800;
-      letter-spacing: 1px;
-      font-weight: bold;
-    }
+    #btn_toggle_lyrics:hover { background: rgba(0,255,255,0.15); }
+    #lyrics_panel { display: none; max-height: 200px; overflow-y: auto; font-size: 12px; }
+    #lyrics_panel::-webkit-scrollbar { width: 4px; }
+    #lyrics_panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+    .lrc-line { color: rgba(255,255,255,0.25); font-size: 12px; font-weight: 500; margin: 6px 0; text-align: center; transition: all 0.3s; }
+    .lrc-line.active { color: #fff; font-size: 15px; font-weight: 800; transform: scale(1.04); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
   </style>
 </head>
 <body>
 
-<div id="countdown_overlay">
-  <span id="countdown_num">3</span>
-</div>
-
-<!-- FEVER TIME UI -->
-<div id="fever_overlay"></div>
-<div id="fever_banner">FEVER TIME!</div>
-<div id="fever_hud">
-  <div id="fever_label">FEVER TIME</div>
-  <div id="fever_bar_bg"><div id="fever_bar_fill"></div></div>
-  <div id="fever_erros">ERROS: 0 / 3</div>
-  <div id="fever_mult">2x PONTOS</div>
-</div>
-
-<div id="hud_wrapper">
-  <div id="hud_top_right" class="hud-panel">
-    <div class="score-box"><span class="score-label">SCORE</span><span id="pontos_txt">0</span></div>
-    <div class="music-player">
-      <div class="song-info"><div class="album-art">♪</div><div class="song-details"><div class="song-title" id="song_title">Nenhuma música</div><div class="song-artist" id="song_artist">Selecione um arquivo MP3</div></div></div>
-
-      <div class="hud-controls-row">
-        <div><span style="font-weight: bold;">MODO:</span>
-          <select id="game_mode">
-            <option value="auto" selected>Auto-Geração</option>
-            <option value="play_map">Jogar Mapa Importado</option>
-            <option value="map_record">Criar Mapa (Gravar)</option>
-          </select>
-        </div>
-      </div>
-
-      <input type="file" id="upload_map" accept=".json,.txt">
-      <button id="btn_export_map">EXPORTAR MAPA GRAVADO</button>
-
-      <input type="file" id="upload_mp3" accept="audio/*">
-      <button id="btn_change_track">TROCAR MÚSICA</button>
-      <audio id="player_audio" controls></audio>
-
-      <div class="hud-controls-row">
-        <div><span style="font-weight: bold;">DIFF:</span>
-          <select id="seletor_dificuldade"><option value="easy">Easy</option><option value="normal" selected>Normal</option><option value="hard">Hard</option></select>
-        </div>
-        <div><span style="font-weight: bold;">BPM:</span> <span id="bpm_txt" style="font-weight: bold;">0</span></div>
-      </div>
-      <button id="btn_zen" class="chaos">⚡ CHAOS</button>
-      <div id="zen_desc">modo atual: caótico</div>
-      <button id="btn_mais_opcoes">▼</button>
-    </div>
-  </div>
-
-  <div id="hud_left_container">
-    <div id="hud_engine" class="hud-panel">
-      <div class="engine-title">ENGINE SETTINGS</div>
-      <div class="slider-row"><div class="slider-label"><span>Note Speed (s)</span> <span id="val_speed">2.5</span></div><input
-        type="range" id="engine_speed" min="1.0" max="4.0" step="0.1" value="2.5"></div>
-
-      <div class="slider-row"><div class="slider-label"><span>Audio Latency (ms)</span> <span id="val_latency">0</span></div><input type="range" id="engine_latency" min="-200" max="200" step="5" value="0">
-        <div id="calibration_hint">Ajuste se as notas chegam antes/depois do som</div>
-      </div>
-      <div class="slider-row"><div class="slider-label" style="opacity:0.7;"><span>Spawn Cooldown (ms)</span> <span id="val_interval">350</span></div><input type="range" id="engine_interval" min="100" max="800" step="10" value="350"></div>
-      <div class="slider-row"><div class="slider-label" style="opacity:0.9;"><span>Impact Filter</span> <span id="val_impact">5</span></div><input type="range" id="engine_impact" min="1" max="30" step="1" value="5"></div>
-      <div class="slider-row"><div class="slider-label"><span>Pulse Intensity</span> <span id="val_pulse">0.3</span></div><input type="range" id="engine_pulse" min="0.3" max="1.0" step="0.1" value="0.3"></div>
-
-      <div class="slider-row"><div class="slider-label color-bass"><span>Bass Threshold</span> <span id="val_bass">135</span></div><input type="range" id="engine_bass" min="50" max="220" step="5" value="135"></div>
-      <div class="slider-row"><div class="slider-label color-verde"><span>Verde Threshold</span> <span id="val_verde">70</span></div><input type="range" id="engine_verde" min="30" max="150" step="5" value="70"></div>
-      <div class="slider-row"><div class="slider-label color-vocal"><span>Vocal Threshold</span> <span id="val_vocal">95</span></div><input type="range" id="engine_vocal" min="40" max="180" step="5" value="95"></div>
-      <div class="slider-row"><div class="slider-label color-treble"><span>Treble Threshold</span> <span id="val_treble">50</span></div><input type="range" id="engine_treble" min="20" max="120" step="5" value="50"></div>
-      <div class="toggle-row">
-        <span>Dispersão Espectral (Realista)</span>
-        <input type="checkbox" id="espectral_toggle" checked>
-      </div>
-    </div>
-
-    <div id="hud_keys" class="hud-panel">
-      <div class="key-hint"><input type="text" id="bind_bass" class="key-input color-bass" value="D" maxlength="1" autocomplete="off"><div class="desc">D</div></div>
-      <div class="key-hint"><input type="text" id="bind_verde" class="key-input color-verde" value="F" maxlength="1" autocomplete="off"><div class="desc">F</div></div>
-      <div class="key-hint"><input type="text" id="bind_vocal" class="key-input color-vocal" value="J" maxlength="1" autocomplete="off"><div class="desc">J</div></div>
-      <div class="key-hint"><input type="text" id="bind_agudo" class="key-input color-treble" value="K" maxlength="1" autocomplete="off"><div class="desc">K</div></div>
-    </div>
-
-    <canvas id="spectrum_canvas" width="300" height="38"></canvas>
-    <button id="btn_reset">RESETAR PADRÃO</button>
-  </div>
-</div>
-
+<!-- ══ CANVAS (always behind) ══ -->
 <canvas id="tela_jogo"></canvas>
 
+<!-- ══ COUNTDOWN ══ -->
+<div id="countdown_overlay"><span id="countdown_num">3</span></div>
+
+<!-- ══ LYRICS OVERLAY ══ -->
+<div id="lyrics_canvas_overlay"><div id="lyrics_canvas_line"></div></div>
+
+<!-- ══════════════ HOME SCREEN ══════════════ -->
+<div id="home_screen">
+  <div class="home-logo"><span style="color:#ff66ea">D</span><span style="color:#00ff88">F</span><span style="color:#00ffff">J</span><span style="color:#ffaa00">K</span></div>
+  <div class="home-tagline">Rhythm — React — Feel</div>
+
+  <div class="step-dots">
+    <div class="step-dot active" id="dot0"></div>
+    <div class="step-dot" id="dot1"></div>
+    <div class="step-dot" id="dot2"></div>
+  </div>
+
+  <!-- STEP 1: Modo -->
+  <div class="home-step" id="step_mode">
+    <div class="step-title">Escolha seu modo</div>
+    <div class="mode-cards">
+      <div class="mode-card chaos" onclick="selectMode('chaos')">
+
+        <div class="card-name">CHAOS</div>
+        <div class="card-desc">Mapeamento por tecla. Acerte o tipo certo no ritmo. Pontuação e penalidades.</div>
+      </div>
+      <div class="mode-card zen" onclick="selectMode('zen')">
+
+        <div class="card-name">ZEN</div>
+        <div class="card-desc">Qualquer tecla acerta. Sem penalidades. Apenas sinta a música.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Tipo de Mapa -->
+  <div class="home-step" id="step_maptype" style="display:none">
+    <button class="btn-back" onclick="goStep(1)">← Voltar</button>
+    <div class="step-title">Como jogar?</div>
+    <div class="map-cards">
+      <div class="map-card" onclick="selectMapType('auto')">
+        <div class="map-card-icon">◈</div>
+        <div class="map-card-text">
+          <div class="map-card-name">Auto-Geração</div>
+          <div class="map-card-desc">Notas geradas em tempo real pelo áudio da música</div>
+        </div>
+      </div>
+      <div class="map-card" onclick="selectMapType('map_record')">
+        <div class="map-card-icon">●</div>
+        <div class="map-card-text">
+          <div class="map-card-name">Criar Mapa</div>
+          <div class="map-card-desc">Toque as teclas no ritmo para gravar e exportar um mapa</div>
+        </div>
+      </div>
+      <div class="map-card" onclick="selectMapType('play_map')">
+        <div class="map-card-icon">▣</div>
+        <div class="map-card-text">
+          <div class="map-card-name">Mapa Importado</div>
+          <div class="map-card-desc">Carregue um mapa .json e a música correspondente</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Arquivos -->
+  <div class="home-step" id="step_files" style="display:none">
+    <button class="btn-back" onclick="goStep(2)">← Voltar</button>
+    <div class="step-title" id="step3_title">Selecione a música</div>
+
+    <!-- Mapa JSON (só play_map) -->
+    <div id="map_upload_area" style="display:none">
+      <div class="upload-area" id="map_drop_area">
+        <input type="file" id="upload_map" accept=".json,.txt">
+        <div class="upload-icon">▣</div>
+        <div class="upload-label">Arquivo de Mapa (.json)</div>
+        <div class="upload-hint">Clique ou arraste aqui</div>
+        <div class="file-name" id="map_file_name"></div>
+      </div>
+    </div>
+
+    <!-- Música -->
+    <div class="upload-area" id="mp3_drop_area" style="margin-top:0">
+      <input type="file" id="upload_mp3" accept="audio/*">
+      <div class="upload-icon">♫</div>
+      <div class="upload-label">Arquivo de Música</div>
+      <div class="upload-hint">MP3, WAV, OGG…</div>
+      <div class="file-name" id="mp3_file_name"></div>
+    </div>
+
+    <!-- Dificuldade (só chaos) -->
+    <div id="diff_selector" style="display:none">
+      <div class="inline-options">
+        <div class="inline-opt selected" onclick="selectDiff('easy', this)">EASY</div>
+        <div class="inline-opt selected" onclick="selectDiff('normal', this)" id="diff_normal">NORMAL</div>
+        <div class="inline-opt" onclick="selectDiff('hard', this)">HARD</div>
+      </div>
+    </div>
+
+    <button class="btn-play" id="btn_play_go" disabled>▶ JOGAR</button>
+  </div>
+</div>
+
+<!-- ══════════════ IN-GAME HUD ══════════════ -->
+<div id="game_hud" class="active" style="display:none">
+  <!-- Score centered top -->
+  <div id="score_pill">
+    <div><div class="score-label">SCORE</div><div id="pontos_txt">0</div></div>
+  </div>
+  <span id="bpm_txt" style="display:none">0</span>
+
+  <!-- Song info top left -->
+  <div id="song_strip">
+    <div id="song_strip_title">—</div>
+    <audio id="player_audio" controls style="width:100%;height:36px;opacity:0.85;margin-top:8px;"></audio>
+  </div>
+
+  <!-- Mode badge bottom left -->
+  <div id="mode_badge" class="chaos">CHAOS</div>
+
+  <!-- Back to home -->
+  <button id="btn_home" onclick="voltarHome()">HOME</button>
+
+  <!-- Settings toggle -->
+  <button id="btn_settings_toggle" onclick="toggleSettings()">⚙</button>
+</div>
+
+<!-- ══════════════ SETTINGS PANEL ══════════════ -->
+<div id="settings_panel">
+  <button id="btn_settings_close" onclick="toggleSettings()">✕ FECHAR</button>
+  <div class="settings-section">
+    <div class="settings-section-title">Engine</div>
+    <div class="slider-row">
+      <div class="slider-label"><span>Note Speed (s)</span><span id="val_speed">2.5</span></div>
+      <input type="range" id="engine_speed" min="1.0" max="4.0" step="0.1" value="2.5">
+    </div>
+    <div class="slider-row">
+      <div class="slider-label"><span>Audio Latency (ms)</span><span id="val_latency">0</span></div>
+      <input type="range" id="engine_latency" min="-200" max="200" step="5" value="0">
+      <div id="calibration_hint">Ajuste se as notas chegam antes/depois do som</div>
+    </div>
+    <div class="slider-row">
+      <div class="slider-label" style="opacity:.65"><span>Spawn Cooldown (ms)</span><span id="val_interval">350</span></div>
+      <input type="range" id="engine_interval" min="100" max="800" step="10" value="350">
+    </div>
+    <div class="slider-row">
+      <div class="slider-label"><span>Impact Filter</span><span id="val_impact">5</span></div>
+      <input type="range" id="engine_impact" min="1" max="30" step="1" value="5">
+    </div>
+    <div class="slider-row">
+      <div class="slider-label"><span>Pulse Intensity</span><span id="val_pulse">0.3</span></div>
+      <input type="range" id="engine_pulse" min="0.3" max="1.0" step="0.1" value="0.3">
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Thresholds</div>
+    <div class="slider-row">
+      <div class="slider-label color-bass"><span>Bass</span><span id="val_bass">135</span></div>
+      <input type="range" id="engine_bass" min="50" max="220" step="5" value="135">
+    </div>
+    <div class="slider-row">
+      <div class="slider-label color-verde"><span>Verde</span><span id="val_verde">70</span></div>
+      <input type="range" id="engine_verde" min="30" max="150" step="5" value="70">
+    </div>
+    <div class="slider-row">
+      <div class="slider-label color-vocal"><span>Vocal</span><span id="val_vocal">95</span></div>
+      <input type="range" id="engine_vocal" min="40" max="180" step="5" value="95">
+    </div>
+    <div class="slider-row">
+      <div class="slider-label color-treble"><span>Treble</span><span id="val_treble">50</span></div>
+      <input type="range" id="engine_treble" min="20" max="120" step="5" value="50">
+    </div>
+    <div class="toggle-row">
+      <span>Dispersão Espectral</span>
+      <input type="checkbox" id="espectral_toggle" checked>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Teclas</div>
+    <div class="keybind-row">
+      <div class="key-hint"><input type="text" id="bind_bass"  class="key-input color-bass"   value="D" maxlength="1" autocomplete="off"><div class="key-desc color-bass">D</div></div>
+      <div class="key-hint"><input type="text" id="bind_verde" class="key-input color-verde"  value="F" maxlength="1" autocomplete="off"><div class="key-desc color-verde">F</div></div>
+      <div class="key-hint"><input type="text" id="bind_vocal" class="key-input color-vocal"  value="J" maxlength="1" autocomplete="off"><div class="key-desc color-vocal">J</div></div>
+      <div class="key-hint"><input type="text" id="bind_agudo" class="key-input color-treble" value="K" maxlength="1" autocomplete="off"><div class="key-desc color-treble">K</div></div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Espectro</div>
+    <canvas id="spectrum_canvas" width="260" height="38"></canvas>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Letras</div>
+    <button id="btn_toggle_lyrics">MOSTRAR LETRA</button>
+    <div id="lyrics_panel"></div>
+  </div>
+
+  <div class="settings-section" id="section_export" style="display:none">
+    <div class="settings-section-title">Gravar Mapa</div>
+    <button class="settings-btn export-btn" id="btn_export_map">EXPORTAR MAPA GRAVADO</button>
+  </div>
+
+  <button class="settings-btn" id="btn_reset" style="margin-top:4px">RESETAR PADRÃO</button>
+</div>
+
 <script>
-  const canvas = document.getElementById('tela_jogo');
-  const ctx = canvas.getContext('2d', { alpha: true });
+  // ═══════════════════════════════════════════
+  //  STATE
+  // ═══════════════════════════════════════════
+  let chosenMode    = 'chaos'; // 'chaos' | 'zen'
+  let gameMode      = 'auto';  // 'auto' | 'play_map' | 'map_record'
+  let dificuldade   = 'normal';
+  let currentStep   = 1;
+
+  let mp3File       = null;
+  let mapFile       = null;
+  let currentSongName = 'custom';
+  let currentObjectURL = null;
+  let customMapData = [];
+  let customMapIndex = 0;
+  let recordedMap   = [];
+  let modoZen       = false;
+
+  // ═══════════════════════════════════════════
+  //  DOM refs
+  // ═══════════════════════════════════════════
+  const canvas        = document.getElementById('tela_jogo');
+  const ctx           = canvas.getContext('2d', { alpha: true });
   const spectrumCanvas = document.getElementById('spectrum_canvas');
-  const spectrumCtx = spectrumCanvas.getContext('2d');
+  const spectrumCtx   = spectrumCanvas.getContext('2d');
+  const player_audio  = document.getElementById('player_audio');
   const pontos_txt    = document.getElementById('pontos_txt');
   const bpm_txt       = document.getElementById('bpm_txt');
-  const seletor_dificuldade = document.getElementById('seletor_dificuldade');
-  const player_audio  = document.getElementById('player_audio');
-  const upload        = document.getElementById('upload_mp3');
-  const btn_change_track = document.getElementById('btn_change_track');
-  const btn_reset     = document.getElementById('btn_reset');
-  const btnMaisOpcoes = document.getElementById('btn_mais_opcoes');
-  const hudLeft       = document.getElementById('hud_left_container');
-  const espectralToggle = document.getElementById('espectral_toggle');
+  const countdownOverlay = document.getElementById('countdown_overlay');
+  const countdownNum     = document.getElementById('countdown_num');
+  const lyricsCanvasLine = document.getElementById('lyrics_canvas_line');
+  const btnToggleLyrics  = document.getElementById('btn_toggle_lyrics');
+  const lyricsPanel      = document.getElementById('lyrics_panel');
   const engine_speed    = document.getElementById('engine_speed');
   const engine_latency  = document.getElementById('engine_latency');
   const engine_interval = document.getElementById('engine_interval');
@@ -316,1119 +635,863 @@
   const engine_verde    = document.getElementById('engine_verde');
   const engine_vocal    = document.getElementById('engine_vocal');
   const engine_treble   = document.getElementById('engine_treble');
+  const espectralToggle = document.getElementById('espectral_toggle');
 
-  // Variáveis Mapeamento e Modo de Jogo
-  const ui_game_mode = document.getElementById('game_mode');
-  const ui_upload_map = document.getElementById('upload_map');
-  const ui_btn_export = document.getElementById('btn_export_map');
-  let gameMode = 'auto';
-  let recordedMap = [];
-  let customMapData = [];
-  let customMapIndex = 0;
-  let currentSongName = "custom";
+  // ═══════════════════════════════════════════
+  //  HOME NAVIGATION
+  // ═══════════════════════════════════════════
+  function goStep(n) {
+    currentStep = n;
+    document.getElementById('step_mode').style.display    = n===1 ? '' : 'none';
+    document.getElementById('step_maptype').style.display = n===2 ? '' : 'none';
+    document.getElementById('step_files').style.display   = n===3 ? '' : 'none';
+    ['dot0','dot1','dot2'].forEach((id,i) => {
+      document.getElementById(id).classList.toggle('active', i < n);
+    });
+  }
 
-  ui_game_mode.addEventListener('change', (e) => {
-    gameMode = e.target.value;
-    ui_upload_map.style.display = (gameMode === 'play_map') ? 'block' : 'none';
-    ui_btn_export.style.display = (gameMode === 'map_record') ? 'block' : 'none';
-    resetarJogo();
+  function selectMode(mode) {
+    chosenMode = mode;
+    modoZen = (mode === 'zen');
+    goStep(2);
+  }
+
+  function selectMapType(type) {
+    gameMode = type;
+
+    // Update step 3 UI
+    const mapArea  = document.getElementById('map_upload_area');
+    const diffSel  = document.getElementById('diff_selector');
+    const title    = document.getElementById('step3_title');
+    const expSec   = document.getElementById('section_export');
+
+    mapArea.style.display  = type === 'play_map'    ? 'block' : 'none';
+    document.getElementById('mp3_drop_area').style.marginTop = type === 'play_map' ? '12px' : '0';
+    expSec.style.display   = type === 'map_record'  ? '' : 'none';
+    diffSel.style.display  = chosenMode === 'chaos' ? '' : 'none';
+
+    if (type === 'play_map')    title.textContent = 'Carregue o mapa e a música';
+    else if (type === 'map_record') title.textContent = 'Selecione a música para gravar';
+    else title.textContent = 'Selecione a música';
+
+    // Reset file selections
+    mp3File = null; mapFile = null;
+    document.getElementById('mp3_file_name').textContent = '';
+    document.getElementById('map_file_name').textContent = '';
+    document.getElementById('mp3_drop_area').classList.remove('done');
+    document.getElementById('map_drop_area').classList.remove('done');
+    document.getElementById('btn_play_go').disabled = true;
+
+    goStep(3);
+  }
+
+  function selectDiff(d, el) {
+    dificuldade = d;
+    document.querySelectorAll('.inline-opt').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    if (d==='easy')   { engine_interval.value=500; engine_impact.value=8; }
+    if (d==='normal') { engine_interval.value=350; engine_impact.value=5; }
+    if (d==='hard')   { engine_interval.value=200; engine_impact.value=3; }
+    atualizarEngine();
+  }
+
+  function checkCanPlay() {
+    const needMap = gameMode === 'play_map';
+    const ready = mp3File && (!needMap || mapFile);
+    document.getElementById('btn_play_go').disabled = !ready;
+  }
+
+  // File inputs — reset value on click so same file can be re-selected after HOME
+  document.getElementById('upload_mp3').addEventListener('click', function() { this.value = ''; });
+  document.getElementById('upload_mp3').addEventListener('change', function() {
+    if (!this.files[0]) return;
+    mp3File = this.files[0];
+    currentSongName = mp3File.name.replace(/\.[^/.]+$/, '');
+    document.getElementById('mp3_file_name').textContent = mp3File.name;
+    document.getElementById('mp3_drop_area').classList.add('done');
+    checkCanPlay();
   });
 
-  ui_upload_map.addEventListener('change', function() {
-    const file = this.files[0];
-    if (!file) return;
+  document.getElementById('upload_map').addEventListener('click', function() { this.value = ''; });
+  document.getElementById('upload_map').addEventListener('change', function() {
+    if (!this.files[0]) return;
+    mapFile = this.files[0];
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = e => {
       try {
         customMapData = JSON.parse(e.target.result);
         customMapData.sort((a,b) => a.time - b.time);
         customMapIndex = 0;
-        alert("Mapa carregado com sucesso! " + customMapData.length + " notas.\nAgora carregue a música.");
-      } catch(err) {
-        alert("Erro ao ler o arquivo de mapa. Certifique-se que é um JSON válido.");
-      }
+        document.getElementById('map_file_name').textContent = mapFile.name + ' — ' + customMapData.length + ' notas';
+        document.getElementById('map_drop_area').classList.add('done');
+        checkCanPlay();
+      } catch { alert('JSON inválido!'); }
     };
-    reader.readAsText(file);
+    reader.readAsText(mapFile);
   });
 
-  ui_btn_export.addEventListener('click', () => {
-    if (recordedMap.length === 0) {
-      alert("Nenhuma nota gravada! Jogue a música e aperte qualquer tecla no ritmo para gravar.");
-      return;
-    }
-    recordedMap.sort((a,b) => a.time - b.time);
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(recordedMap));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", currentSongName + "_mapa.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-  });
+  // Play button
+  document.getElementById('btn_play_go').addEventListener('click', iniciarJogo);
 
-  let key_bass = 'd', key_verde = 'f', key_vocal = 'j', key_agudo = 'k';
-  let tecla_d_pressionada = false, tecla_f_pressionada = false,
-    tecla_j_pressionada = false, tecla_k_pressionada = false;
-  let pontos = 0, combo = 0;
-  const linha_acerto_x = 380;
-  let spawn_bloqueado = false;
-  let countdown_ativo = false;
-  const countdownOverlay = document.getElementById('countdown_overlay');
-  const countdownNum     = document.getElementById('countdown_num');
+  async function iniciarJogo() {
+    // Load mp3 — set src before revoking old URL to avoid gaps
+    const oldURL = currentObjectURL;
+    currentObjectURL = URL.createObjectURL(mp3File);
+    player_audio.src = currentObjectURL;
+    if (oldURL) URL.revokeObjectURL(oldURL);
 
-  // ── FEVER TIME ─────────────────────────────────────────────────────────────
-  const FEVER_COMBO_TRIGGER  = 150;   // ativa a cada N combos
-  const FEVER_DURACAO_NOTAS  = 35;    // mínimo de notas no fever
-  const FEVER_MAX_ERROS      = 3;     // erros para sair do fever
-  const FEVER_MULT_PONTOS    = 2;     // multiplicador de pontos
+    // Setup audio nodes once. Do NOT resume the context yet — keep it suspended
+    // during the countdown so no audio leaks through before GO!
+    if (!audio_setup_feito) setupAudioNodes();
+    // Ensure context is suspended while we're in the countdown
+    if (audio_context && audio_context.state === 'running') audio_context.suspend();
 
-  let feverAtivo          = false;
-  let feverComboInicio    = 0;   // combo em que o fever foi ativado
-  let feverNotasContadas  = 0;   // notas acertadas/erradas desde o início do fever
-  let feverErros          = 0;
-  let feverFlashAlpha     = 0;   // flash de borda vermelho na tela
+    // Update mode badge
+    const badge = document.getElementById('mode_badge');
+    badge.textContent = modoZen ? 'ZEN' : 'CHAOS';
+    badge.className = 'chaos'; // reset
+    badge.classList.add(modoZen ? 'zen' : 'chaos');
 
-  const feverOverlay  = document.getElementById('fever_overlay');
-  const feverBanner   = document.getElementById('fever_banner');
-  const feverHud      = document.getElementById('fever_hud');
-  const feverBarFill  = document.getElementById('fever_bar_fill');
-  const feverErrosEl  = document.getElementById('fever_erros');
+    const btnPlay = document.getElementById('btn_play_go');
+    btnPlay.classList.remove('chaos-btn','zen-btn');
+    btnPlay.classList.add(modoZen ? 'zen-btn' : 'chaos-btn');
 
-  function ativarFever() {
-    feverAtivo         = true;
-    feverNotasContadas = 0;
-    feverErros         = 0;
-    feverFlashAlpha    = 1.0;
+    // Update song strip
+    document.getElementById('song_strip_title').textContent = currentSongName;
 
-    feverOverlay.classList.add('active');
-    feverHud.classList.add('active');
+    // Apply diff to play button styling on home
+    btnPlay.classList.remove('chaos-btn','zen-btn');
+    btnPlay.classList.add(modoZen ? 'zen-btn' : 'chaos-btn');
 
-    // Banner de entrada
-    feverBanner.classList.add('show');
-    setTimeout(() => { feverBanner.classList.remove('show'); }, 1800);
+    resetarJogo();
+    buscarLetraDaMusica(currentSongName);
 
-    atualizarFeverHUD();
-    oceanPulse = Math.min(oceanPulse + 1.8, 2.4);
-  }
+    // Hide home, show game
+    const home = document.getElementById('home_screen');
+    home.classList.add('fade-out');
+    setTimeout(() => { home.style.display = 'none'; }, 450);
+    document.getElementById('game_hud').style.display = 'block';
+    document.getElementById('section_export').style.display = gameMode === 'map_record' ? '' : 'none';
 
-  function desativarFever(motivo) {
-    feverAtivo = false;
-    feverOverlay.classList.remove('active');
-    feverHud.classList.remove('active');
-
-    // Mensagem de saída
-    const msg = motivo === 'erros' ? 'FEVER ENCERRADO' : 'FEVER COMPLETO!';
-    const cor  = motivo === 'erros' ? '#ff4466' : '#ffaa00';
-    textos_feedback.push({
-      texto: msg, x: linha_acerto_x + 60, y: canvas.height / 2 - 60,
-      alpha: 1.5, cor: cor, tipo: 'milestone'
+    iniciarCountdown(() => {
+      // Resume context right before playing — not a moment sooner
+      if (audio_context && audio_context.state === 'suspended') audio_context.resume();
+      player_audio.play().then(() => {
+        window.songStartTime = audio_context.currentTime - player_audio.currentTime;
+      }).catch(()=>{});
     });
   }
 
-  function atualizarFeverHUD() {
-    const progresso = Math.max(0, 1 - feverNotasContadas / FEVER_DURACAO_NOTAS);
-    feverBarFill.style.width = (progresso * 100) + '%';
-    feverErrosEl.textContent = `ERROS: ${feverErros} / ${FEVER_MAX_ERROS}`;
+  function voltarHome() {
+    player_audio.pause();
+    if (audio_context && audio_context.state !== 'suspended') audio_context.suspend();
+    player_audio.src = '';
+    if (currentObjectURL) { URL.revokeObjectURL(currentObjectURL); currentObjectURL = null; }
+    mp3File = null;
+    resetarJogo();
+    closeSidePanel();
+
+    const home = document.getElementById('home_screen');
+    home.style.display = '';
+    home.style.opacity = '1';
+    home.classList.remove('fade-out');
+    document.getElementById('game_hud').style.display = 'none';
+    hideLyricsOnCanvas();
+    goStep(1);
   }
 
-  function verificarAtivacaoFever() {
-    // Ativa a cada múltiplo exato de FEVER_COMBO_TRIGGER
-    if (!feverAtivo && combo > 0 && combo % FEVER_COMBO_TRIGGER === 0) {
-      ativarFever();
-    }
+  function toggleSettings() {
+    document.getElementById('settings_panel').classList.toggle('open');
+  }
+  function closeSidePanel() {
+    document.getElementById('settings_panel').classList.remove('open');
   }
 
-  function registrarNotaFever(acertou) {
-    if (!feverAtivo) return;
-    feverNotasContadas++;
-
-    if (!acertou) {
-      feverErros++;
-      if (feverErros >= FEVER_MAX_ERROS) {
-        desativarFever('erros');
-        return;
-      }
-    }
-
-    // Encerra normalmente após o mínimo de notas (só se já tiver passado o mínimo)
-    if (feverNotasContadas >= FEVER_DURACAO_NOTAS) {
-      desativarFever('completo');
-      return;
-    }
-
-    atualizarFeverHUD();
+  // ═══════════════════════════════════════════
+  //  PLAY BUTTON STYLING (sync to mode)
+  // ═══════════════════════════════════════════
+  function applyPlayBtnStyle() {
+    const btn = document.getElementById('btn_play_go');
+    btn.classList.remove('chaos-btn','zen-btn');
+    btn.classList.add(chosenMode === 'zen' ? 'zen-btn' : 'chaos-btn');
   }
-  // ───────────────────────────────────────────────────────────────────────────
+  // Called when step 3 shows
+  const origSelectMapType = selectMapType;
 
-  window.songStartTime = undefined;
+  // ═══════════════════════════════════════════
+  //  LYRICS
+  // ═══════════════════════════════════════════
+  let lyricsVisible = false;
+  let parsedLyrics = [];
+  let currentLineIndex = -1;
+  // Canvas lyrics state — driven purely by the active line index, no timers
+  let lyricsCanvasActiveIdx = -1;
 
-  function iniciarCountdown(callback) {
-    spawn_bloqueado = true;
-    countdown_ativo = true;
-    countdownOverlay.classList.add('visible');
-    const passos = [
-      { texto: '3', cor: '#ff4466', sombra: 'rgba(255,40,80,0.85)'  },
-      { texto: '2', cor: '#ffaa00', sombra: 'rgba(255,160,0,0.85)'  },
-      { texto: '1', cor: '#00ffcc', sombra: 'rgba(0,255,180,0.85)'  },
-      { texto: 'GO!', cor: '#ffffff', sombra: 'rgba(100,200,255,0.9)' },
-    ];
-    let idx = 0;
-
-    function mostrarPasso() {
-      if (idx >= passos.length) {
-        countdownOverlay.classList.remove('visible');
-        setTimeout(() => {
-          spawn_bloqueado = false;
-          countdown_ativo = false;
-          countdownNum.style.fontSize = '0px';
-          if (callback) callback();
-        }, 260);
-        return;
-      }
-      const p = passos[idx++];
-      countdownNum.style.color      = p.cor;
-      countdownNum.style.textShadow = `0 0 60px ${p.sombra}, 0 0 120px ${p.sombra}`;
-      countdownNum.textContent      = p.texto;
-      countdownNum.style.opacity  = '0';
-      countdownNum.style.fontSize = '40px';
+  function showLyricsOnCanvas(text) {
+    if (!text) { hideLyricsOnCanvas(); return; }
+    if (lyricsCanvasLine.textContent !== text) {
+      // Text changed: quick out → swap → in
+      lyricsCanvasLine.classList.remove('show');
+      // Use rAF to let the browser paint the opacity:0 state before swapping text
       requestAnimationFrame(() => {
+        lyricsCanvasLine.textContent = text;
         requestAnimationFrame(() => {
-          countdownNum.style.transition = 'font-size 0.22s cubic-bezier(0.15,1.4,0.5,1), opacity 0.14s ease-out';
-          countdownNum.style.fontSize   = p.texto === 'GO!' ? '130px' : '180px';
-          countdownNum.style.opacity    = '1';
+          lyricsCanvasLine.classList.add('show');
         });
       });
-      const dur = p.texto === 'GO!' ? 700 : 900;
-      setTimeout(() => {
-        countdownNum.style.transition = 'opacity 0.28s ease-in, font-size 0.28s ease-in';
-        countdownNum.style.opacity    = '0';
-        countdownNum.style.fontSize   = p.texto === 'GO!' ? '200px' : '240px';
-        setTimeout(mostrarPasso, 300);
-      }, dur);
+    } else if (!lyricsCanvasLine.classList.contains('show')) {
+      lyricsCanvasLine.classList.add('show');
     }
-    mostrarPasso();
+  }
+  function hideLyricsOnCanvas() {
+    lyricsCanvasLine.classList.remove('show');
   }
 
-  const DROP_RATIO       = 0.18;
-  const DROP_RECOVERY_MS = 240;
-  const DROP_LERP_UP     = 0.012;
-  const DROP_LERP_DOWN   = 0.045;
-  let energia_media = 0;
-  let em_drop       = false;
-  let drop_saiu_em  = -Infinity;
+  btnToggleLyrics.addEventListener('click', () => {
+    lyricsVisible = !lyricsVisible;
+    lyricsPanel.style.display = lyricsVisible ? 'block' : 'none';
+    btnToggleLyrics.innerText = lyricsVisible ? 'ESCONDER LETRA' : 'MOSTRAR LETRA';
+  });
 
+  function parseLRC(lrcText) {
+    parsedLyrics = [];
+    lrcText.split('\n').forEach(line => {
+      const m = line.match(/\[(\d+):(\d+\.\d+)\](.*)/);
+      if (m) parsedLyrics.push({ time: parseInt(m[1])*60+parseFloat(m[2]), text: m[3].trim() });
+    });
+  }
+
+  function renderLyricsPanel(plain=null, art='', mus='') {
+    if (parsedLyrics.length > 0) {
+      lyricsPanel.innerHTML = parsedLyrics.map((l,i) => `<div id="lrc-line-${i}" class="lrc-line">${l.text||'—'}</div>`).join('');
+    } else if (plain) {
+      lyricsPanel.innerHTML = `<strong>${art} - ${mus}</strong><br><br><span style="color:#aaa;font-size:10px;">(sem sincronia)</span><br><br>${plain.replace(/\n/g,'<br>')}`;
+    } else {
+      lyricsPanel.innerHTML = 'Letra não encontrada.';
+    }
+  }
+
+  function updateLyricsSync(t) {
+    if (!parsedLyrics.length) return;
+
+    // Binary search: last line whose .time <= t
+    let lo = 0, hi = parsedLyrics.length - 1, ni = -1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      if (parsedLyrics[mid].time <= t) { ni = mid; lo = mid + 1; }
+      else hi = mid - 1;
+    }
+
+    // Sidebar panel highlight (only on change)
+    if (ni !== currentLineIndex) {
+      if (currentLineIndex !== -1) {
+        const old = document.getElementById(`lrc-line-${currentLineIndex}`);
+        if (old) old.classList.remove('active');
+      }
+      currentLineIndex = ni;
+      if (ni !== -1) {
+        const el = document.getElementById(`lrc-line-${ni}`);
+        if (el) {
+          el.classList.add('active');
+          if (lyricsVisible) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+
+    // Canvas overlay — always re-evaluate each frame (no caching that breaks updates)
+    if (ni === -1) { hideLyricsOnCanvas(); return; }
+
+    const line = parsedLyrics[ni];
+    // Line stays visible until the next line's timestamp (exact — no extra padding)
+    const nextTime = parsedLyrics[ni + 1] ? parsedLyrics[ni + 1].time : line.time + 8;
+
+    if (t < nextTime && line.text) {
+      showLyricsOnCanvas(line.text);
+    } else {
+      hideLyricsOnCanvas();
+    }
+  }
+
+  async function buscarLetraDaMusica(nome) {
+    btnToggleLyrics.style.display = 'block';
+    lyricsPanel.innerHTML = "<div style='color:#00ffff;padding:10px;font-size:11px;'>Buscando letra…</div>";
+    const partes = nome.split('-');
+    if (partes.length < 2) { lyricsPanel.innerHTML = 'Renomeie: <b>Artista - Música.mp3</b>'; return; }
+    const art = partes[0].trim(), mus = partes[1].trim();
+    try {
+      let r = await fetch(`https://lrclib.net/api/get?artist_name=${encodeURIComponent(art)}&track_name=${encodeURIComponent(mus)}`);
+      if (r.ok) {
+        const d = await r.json();
+        if (d.syncedLyrics) { parseLRC(d.syncedLyrics); renderLyricsPanel(); return; }
+        if (d.plainLyrics)  { renderLyricsPanel(d.plainLyrics, art, mus); return; }
+      }
+      let r2 = await fetch(`https://lrclib.net/api/get?artist_name=${encodeURIComponent(mus)}&track_name=${encodeURIComponent(art)}`);
+      if (r2.ok) {
+        const d2 = await r2.json();
+        if (d2.syncedLyrics) { parseLRC(d2.syncedLyrics); renderLyricsPanel(); return; }
+        if (d2.plainLyrics)  { renderLyricsPanel(d2.plainLyrics, mus, art); return; }
+      }
+      lyricsPanel.innerHTML = 'Letra não encontrada.';
+    } catch { lyricsPanel.innerHTML = 'Erro de conexão.'; }
+  }
+
+  // ═══════════════════════════════════════════
+  //  ENGINE VARS
+  // ═══════════════════════════════════════════
+  let key_bass='d', key_verde='f', key_vocal='j', key_agudo='k';
+  let tecla_d=false, tecla_f=false, tecla_j=false, tecla_k=false;
+  let pontos=0, combo=0;
+  const linha_acerto_x = 380;
+  let spawn_bloqueado=false, countdown_ativo=false;
+  let tempo_aviso=2.5, latencia_ms=0;
+  let intervalo_minimo=0.350, limiar_impacto=5, pulse_intensity=0.3;
+  let limiar_bass=135, limiar_verde=70, limiar_vocal=95, limiar_treble=50;
+  let dispersaoEspectralEnabled=true;
+  let waveTime=0, bassEnergy=0, vocalEnergy=0, trebleEnergy=0;
+  let ultimoSpawnWave=0, oceanPulse=0, waveSpawnAccumulator=0;
+  let breakingWaves=[], particulas=[], poolParticulas=[], efeitosEspectrais=[];
+  const MAX_PARTICULAS=180;
+  let inimigos=[], textos_feedback=[];
+  let y_alvo=0, y_atual=0, w_alvo=60, w_atual=60, h_alvo=60, h_atual=60, r_alvo=30, r_atual=30;
+  let pistas_y=[], pistas_zen_y=[];
+  let audio_context, analyser_spawn, analyser_visual, data_array_spawn, data_array_visual;
+  let audio_setup_feito=false;
+  let bpm_historico=[], kick_times=[], ultimo_kick_tempo=0;
+  let ultimo_media_kick=0, ultimo_media_vocal=0, ultimo_media_agudo=0, ultimo_media_green=0;
+  let ultimo_tempo_spawn=0, last_beat_pulse=0.18;
+  let proximaNotaCor='#ffffff';
+  let num_pistas_alvo=6, num_pistas_atual=6;
+  const ZEN_LERP=0.04;
+  window.songStartTime=undefined;
+
+  const DROP_RATIO=0.18, DROP_RECOVERY_MS=240, DROP_LERP_UP=0.012, DROP_LERP_DOWN=0.045;
+  let energia_media=0, em_drop=false, drop_saiu_em=-Infinity;
+
+  // ═══════════════════════════════════════════
+  //  ENGINE
+  // ═══════════════════════════════════════════
   function calcularEnergiaRMS(arr) {
-    let sum = 0;
-    for (let i = 0; i < arr.length; i++) sum += (arr[i] / 255) * (arr[i] / 255);
-    return Math.sqrt(sum / arr.length);
+    let s=0; for(let i=0;i<arr.length;i++) s+=(arr[i]/255)**2; return Math.sqrt(s/arr.length);
   }
-
   function atualizarDropDetector(agora) {
     if (!data_array_spawn) return;
-    const e = calcularEnergiaRMS(data_array_spawn);
-    if (e > energia_media) { energia_media += (e - energia_media) * DROP_LERP_UP; }
-    else { energia_media += (e - energia_media) * DROP_LERP_DOWN; }
-    energia_media = Math.max(energia_media, 0.04);
-    const era_drop = em_drop;
-    em_drop = (e < energia_media * DROP_RATIO);
-    if (era_drop && !em_drop) drop_saiu_em = agora;
+    const e=calcularEnergiaRMS(data_array_spawn);
+    energia_media += (e>energia_media?DROP_LERP_UP:DROP_LERP_DOWN)*(e-energia_media);
+    energia_media=Math.max(energia_media,0.04);
+    const era=em_drop; em_drop=(e<energia_media*DROP_RATIO);
+    if(era&&!em_drop) drop_saiu_em=agora;
   }
-
   function spawnPermitido(agora) {
-    if (spawn_bloqueado) return false;
-    if (em_drop) return false;
-    if (agora - drop_saiu_em < DROP_RECOVERY_MS) return false;
+    if(spawn_bloqueado||em_drop) return false;
+    if(agora-drop_saiu_em<DROP_RECOVERY_MS) return false;
     return true;
   }
-
-  let tempo_aviso = 2.5;
-  let latencia_ms = 0;
   function janelaAcertoPx() {
-    const dist = canvas.width - linha_acerto_x;
-    const pps  = dist / tempo_aviso;
-    return { perfect: pps * 0.035, nice: pps * 0.070, ok: pps * 0.120, miss: pps * 0.180 };
+    const pps=(canvas.width-linha_acerto_x)/tempo_aviso;
+    return {perfect:pps*0.035,nice:pps*0.070,ok:pps*0.120,miss:pps*0.180};
   }
-
-  function notaXEmTempo(ini, tAtual) {
-    const tempoFaltando = ini.tAlvo - tAtual;
-    const progresso = 1.0 - (tempoFaltando / tempo_aviso);
-    return ini.x_inicial + (linha_acerto_x - ini.x_inicial) * progresso;
+  function notaXEmTempo(ini,t) {
+    const p=1-(ini.tAlvo-t)/tempo_aviso;
+    return ini.x_inicial+(linha_acerto_x-ini.x_inicial)*p;
   }
-
-  let pistas_y = [], pistas_zen_y = [];
-  let inimigos = [], textos_feedback = [], efeitosEspectrais = [];
-  let y_alvo = 0, y_atual = 0;
-  let w_alvo = 60, w_atual = 60, h_alvo = 60, h_atual = 60, r_alvo = 30, r_atual = 30;
-  let audio_context, analyser_spawn, analyser_visual;
-  let data_array_spawn, data_array_visual;
-  let audio_setup_feito = false;
-  let bpm_historico = [], kick_times = [], ultimo_kick_tempo = 0;
-  let ultimo_media_kick = 0, ultimo_media_vocal = 0, ultimo_media_agudo = 0, ultimo_media_green = 0;
-  let ultimo_tempo_spawn = 0;
-  let last_beat_pulse = 0.18;
-
-  let intervalo_minimo  = 0.350;
-  let limiar_impacto    = 5;
-  let pulse_intensity   = 0.3;
-  let limiar_bass = 135, limiar_verde = 70, limiar_vocal = 95, limiar_treble = 50;
-  let dificuldade = 'normal';
-  let dispersaoEspectralEnabled = true;
-
-  let waveTime = 0, bassEnergy = 0, vocalEnergy = 0, trebleEnergy = 0;
-  let ultimoSpawnWave = 0, oceanPulse = 0, waveSpawnAccumulator = 0;
-  let breakingWaves = [];
-  let particulas = [], poolParticulas = [];
-  const MAX_PARTICULAS_VISIVEIS = 180;
-
-  let currentObjectURL = null;
-  let proximaNotaCor = "#ffffff";
-  let modoZen = false;
-  let zen_particulas = 1.0, zen_ondas = 1.0, zen_espectral = 1.0, zen_pulse = 1.0, zen_breakwaves = 1.0;
-  const ZEN_LERP = 0.04;
-  const NUM_PISTAS_ZEN = 3, NUM_PISTAS_CHAOS = 6;
-  let num_pistas_alvo = NUM_PISTAS_CHAOS, num_pistas_atual = NUM_PISTAS_CHAOS;
-  const btnZen  = document.getElementById('btn_zen');
-  const zenDesc = document.getElementById('zen_desc');
-
-  btnZen.addEventListener('click', () => {
-    modoZen = !modoZen;
-    if (modoZen) {
-      btnZen.textContent = '🌿 ZEN'; btnZen.classList.remove('chaos');
-      zenDesc.textContent = 'modo atual: zen (limpo)';
-      num_pistas_alvo = NUM_PISTAS_ZEN;
-    } else {
-      btnZen.textContent = '⚡ CHAOS'; btnZen.classList.add('chaos');
-      zenDesc.textContent = 'modo atual: caótico';
-      num_pistas_alvo = NUM_PISTAS_CHAOS;
-    }
-  });
-
-  btnMaisOpcoes.addEventListener('click', () => {
-    hudLeft.classList.toggle('open');
-    btnMaisOpcoes.innerText = hudLeft.classList.contains('open') ? '▲' : '▼';
-  });
-
-  espectralToggle.addEventListener('change', () => { dispersaoEspectralEnabled = espectralToggle.checked; });
-
-  function setupKeybind(id, defaultKey, callback) {
-    const el = document.getElementById(id);
-    el.addEventListener('focus', () => { el.value = ''; });
-    el.addEventListener('input', (e) => {
-      let val = e.target.value.toLowerCase();
-      if (val && val.trim() !== '') { el.value = val.toUpperCase(); callback(val); el.blur(); }
-      else { el.value = defaultKey.toUpperCase(); callback(defaultKey); el.blur(); }
-    });
-    el.addEventListener('blur', () => { if (el.value === '') { el.value = defaultKey.toUpperCase(); callback(defaultKey); } });
-  }
-
-  setupKeybind('bind_bass',  'd', v => key_bass  = v);
-  setupKeybind('bind_verde', 'f', v => key_verde  = v);
-  setupKeybind('bind_vocal', 'j', v => key_vocal  = v);
-  setupKeybind('bind_agudo', 'k', v => key_agudo  = v);
-
   function getPistaY(idx) {
-    const yZ = pistas_zen_y[idx] !== undefined ? pistas_zen_y[idx] : pistas_y[idx];
-    return yZ + (pistas_y[idx] - yZ) * zen_ondas;
+    const py=pistas_y[idx]||0, pzy=pistas_zen_y[idx]||py;
+    const zenAmt=modoZen?(1-num_pistas_atual/6):0;
+    return py+(pzy-py)*zenAmt;
   }
 
-  function loopGrafico() {
-    requestAnimationFrame(loopGrafico);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    waveTime += 0.016;
+  function atualizarEngine() {
+    tempo_aviso=parseFloat(engine_speed.value); document.getElementById('val_speed').innerText=tempo_aviso.toFixed(1);
+    latencia_ms=parseInt(engine_latency.value); document.getElementById('val_latency').innerText=latencia_ms;
+    if(window.audio_delay_node) window.audio_delay_node.delayTime.value=Math.max(0,tempo_aviso+latencia_ms/1000);
+    intervalo_minimo=parseInt(engine_interval.value)/1000; document.getElementById('val_interval').innerText=engine_interval.value;
+    limiar_impacto=parseInt(engine_impact.value); document.getElementById('val_impact').innerText=limiar_impacto;
+    pulse_intensity=parseFloat(engine_pulse.value); document.getElementById('val_pulse').innerText=pulse_intensity.toFixed(1);
+    limiar_bass=parseInt(engine_bass.value);    document.getElementById('val_bass').innerText=limiar_bass;
+    limiar_verde=parseInt(engine_verde.value);  document.getElementById('val_verde').innerText=limiar_verde;
+    limiar_vocal=parseInt(engine_vocal.value);  document.getElementById('val_vocal').innerText=limiar_vocal;
+    limiar_treble=parseInt(engine_treble.value);document.getElementById('val_treble').innerText=limiar_treble;
+  }
+  [engine_speed,engine_latency,engine_interval,engine_impact,engine_pulse,engine_bass,engine_verde,engine_vocal,engine_treble].forEach(el=>el.addEventListener('input',()=>{atualizarEngine();if(el===engine_speed)calcularPistas();}));
+  espectralToggle.addEventListener('change',()=>{dispersaoEspectralEnabled=espectralToggle.checked;});
 
-    const zen_alvo = modoZen ? 0.0 : 1.0;
-    zen_particulas += (zen_alvo - zen_particulas) * ZEN_LERP;
-    zen_ondas      += (zen_alvo - zen_ondas)      * ZEN_LERP;
-    zen_espectral  += (zen_alvo - zen_espectral)  * ZEN_LERP;
-    zen_pulse      += (zen_alvo - zen_pulse)       * ZEN_LERP;
-    zen_breakwaves += (zen_alvo - zen_breakwaves)  * ZEN_LERP;
-    num_pistas_atual += (num_pistas_alvo - num_pistas_atual) * ZEN_LERP;
-    const num_pistas = Math.round(num_pistas_atual);
-    oceanPulse *= 0.985;
-    waveSpawnAccumulator += 0.02 + oceanPulse * 0.0025;
-    waveSpawnAccumulator = Math.min(waveSpawnAccumulator, 1.5);
+  document.getElementById('btn_reset').addEventListener('click',()=>{
+    engine_speed.value=2.5;engine_latency.value=0;engine_interval.value=350;engine_impact.value=5;engine_pulse.value=0.3;
+    engine_bass.value=135;engine_verde.value=70;engine_vocal.value=95;engine_treble.value=50;
+    espectralToggle.checked=true;dispersaoEspectralEnabled=true;atualizarEngine();
+  });
 
-    const agora = performance.now();
-    const ultima = breakingWaves[breakingWaves.length - 1];
-    const distOk = !ultima || ultima.progress > (155 + Math.random() * 115);
-    const cdOk   = agora - ultimoSpawnWave > (880 + (1 - zen_breakwaves) * 8000);
-    if (waveSpawnAccumulator >= 1 && cdOk && distOk && breakingWaves.length < Math.ceil(13 * zen_breakwaves + 1)) {
-      ultimoSpawnWave = agora;
-      waveSpawnAccumulator = 0;
-      let cor = "#ffffff", pow = 0.65;
-      if (feverAtivo)             { cor = "#ff2244"; pow = 2.2; } // ondas vermelhas no fever
-      else if (oceanPulse > 1.55) { cor = "#ff00ea"; pow = 1.85; }
-      else if (oceanPulse > 0.85) { cor = "#00ffff"; pow = 1.25; }
-      else if (oceanPulse > 0.32) { cor = "#ffaa00"; pow = 0.85; }
-      spawnWave(pow, cor);
+  document.getElementById('btn_export_map').addEventListener('click',()=>{
+    if(!recordedMap.length){alert('Nenhuma nota gravada!');return;}
+    recordedMap.sort((a,b)=>a.time-b.time);
+    const a=document.createElement('a');
+    a.href='data:text/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(recordedMap));
+    a.download=currentSongName+'_mapa.json';
+    document.body.appendChild(a);a.click();a.remove();
+  });
+
+  function setupKeybind(id,def,cb){
+    const el=document.getElementById(id);
+    el.addEventListener('focus',()=>{el.value='';});
+    el.addEventListener('input',e=>{const v=e.target.value.toLowerCase();if(v.trim()){el.value=v.toUpperCase();cb(v);el.blur();}else{el.value=def.toUpperCase();cb(def);el.blur();}});
+    el.addEventListener('blur',()=>{if(!el.value){el.value=def.toUpperCase();cb(def);}});
+  }
+  setupKeybind('bind_bass','d',v=>key_bass=v);
+  setupKeybind('bind_verde','f',v=>key_verde=v);
+  setupKeybind('bind_vocal','j',v=>key_vocal=v);
+  setupKeybind('bind_agudo','k',v=>key_agudo=v);
+
+  // ═══════════════════════════════════════════
+  //  AUDIO SETUP
+  // ═══════════════════════════════════════════
+  function setupAudioNodes() {
+    if(audio_setup_feito) return;
+    const AC=window.AudioContext||window.webkitAudioContext;
+    audio_context=new AC({latencyHint:'interactive'});
+    const src=audio_context.createMediaElementSource(player_audio);
+    analyser_spawn=audio_context.createAnalyser();analyser_spawn.fftSize=256;analyser_spawn.smoothingTimeConstant=0.40;
+    data_array_spawn=new Uint8Array(analyser_spawn.frequencyBinCount);
+    const delay=audio_context.createDelay(10.0);
+    delay.delayTime.value=parseFloat(engine_speed.value)+parseInt(engine_latency.value)/1000;
+    window.audio_delay_node=delay;
+    analyser_visual=audio_context.createAnalyser();analyser_visual.fftSize=256;analyser_visual.smoothingTimeConstant=0.65;
+    data_array_visual=new Uint8Array(analyser_visual.frequencyBinCount);
+    src.connect(analyser_spawn);src.connect(delay);delay.connect(analyser_visual);analyser_visual.connect(audio_context.destination);
+    audio_setup_feito=true;
+  }
+  player_audio.addEventListener('pause',()=>{if(audio_context)audio_context.suspend();});
+  player_audio.addEventListener('play', ()=>{if(audio_context)audio_context.resume();});
+
+  // ═══════════════════════════════════════════
+  //  GAME RESET
+  // ═══════════════════════════════════════════
+  function resetarJogo() {
+    inimigos=[];textos_feedback=[];pontos=0;combo=0;pontos_txt.innerText=0;
+    ultimo_tempo_spawn=0;bpm_historico=[];kick_times=[];last_beat_pulse=0.18;
+    bpm_txt.innerText='0';breakingWaves=[];oceanPulse=0;waveSpawnAccumulator=0;
+    particulas=[];poolParticulas=[];efeitosEspectrais=[];
+    ultimo_media_kick=0;ultimo_media_vocal=0;ultimo_media_agudo=0;ultimo_media_green=0;
+    proximaNotaCor='#ffffff';energia_media=0;em_drop=false;drop_saiu_em=-Infinity;
+    recordedMap=[];customMapIndex=0;
+    parsedLyrics=[];currentLineIndex=-1;lyricsVisible=false;
+    lyricsPanel.style.display='none';btnToggleLyrics.style.display='none';
+    btnToggleLyrics.innerText='MOSTRAR LETRA';hideLyricsOnCanvas();lyricsCanvasActiveIdx=-1;
+    num_pistas_alvo = modoZen ? 3 : 6;
+    num_pistas_atual = modoZen ? 3 : 6;
+  }
+
+  // ═══════════════════════════════════════════
+  //  COUNTDOWN
+  // ═══════════════════════════════════════════
+  function iniciarCountdown(cb) {
+    spawn_bloqueado=true;countdown_ativo=true;countdownOverlay.classList.add('visible');
+    const passos=[{t:'3',c:'#ff4466',s:'rgba(255,40,80,0.85)'},{t:'2',c:'#ffaa00',s:'rgba(255,160,0,0.85)'},{t:'1',c:'#00ffcc',s:'rgba(0,255,180,0.85)'},{t:'GO!',c:'#ffffff',s:'rgba(100,200,255,0.9)'}];
+    let idx=0;
+    function step(){
+      if(idx>=passos.length){countdownOverlay.classList.remove('visible');setTimeout(()=>{spawn_bloqueado=false;countdown_ativo=false;countdownNum.style.fontSize='0px';if(cb)cb();},260);return;}
+      const p=passos[idx++];
+      countdownNum.style.color=p.c;countdownNum.style.textShadow=`0 0 60px ${p.s},0 0 120px ${p.s}`;
+      countdownNum.textContent=p.t;countdownNum.style.opacity='0';countdownNum.style.fontSize='40px';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        countdownNum.style.transition='font-size 0.22s cubic-bezier(0.15,1.4,0.5,1),opacity 0.14s ease-out';
+        countdownNum.style.fontSize=p.t==='GO!'?'130px':'180px';countdownNum.style.opacity='1';
+      }));
+      const dur=p.t==='GO!'?700:900;
+      setTimeout(()=>{countdownNum.style.transition='opacity 0.28s ease-in,font-size 0.28s ease-in';countdownNum.style.opacity='0';countdownNum.style.fontSize=p.t==='GO!'?'200px':'240px';setTimeout(step,300);},dur);
     }
+    step();
+  }
 
-    if (audio_setup_feito) {
-      analyser_visual.getByteFrequencyData(data_array_visual);
-      updateAudioReactive();
-      const lim = Math.ceil(MAX_PARTICULAS_VISIVEIS * zen_particulas);
-      if (particulas.length < lim && Math.random() < (0.16 + oceanPulse * 0.35) * zen_particulas) criarParticula();
-      if (oceanPulse > 0.6 && Math.random() < 0.28 * zen_particulas) criarParticula();
-    }
+  // ═══════════════════════════════════════════
+  //  INPUT
+  // ═══════════════════════════════════════════
+  window.addEventListener('keydown',e=>{
+    if(document.activeElement.tagName==='INPUT'&&document.activeElement.type==='text') return;
+    if(e.repeat||/^F\d+$/.test(e.key)||e.ctrlKey||e.altKey||e.metaKey) return;
+    // Only respond in-game
+    if(document.getElementById('home_screen').style.display==='') return;
 
-    drawSand();
-    ctx.save();
-    ctx.globalAlpha = 0.15 + zen_ondas * 0.85; drawWaveReativo(); ctx.restore(); ctx.globalAlpha = 1;
-    drawFoam();
-    if (particulas.length > 0) {
-      ctx.save(); ctx.globalCompositeOperation = "screen"; ctx.globalAlpha = zen_particulas;
-      desenharParticulas(); ctx.restore();
-    }
-    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-    if (zen_espectral > 0.01) {
-      ctx.save(); ctx.globalAlpha = zen_espectral; desenharEfeitosEspectrais(); ctx.restore(); ctx.globalAlpha = 1;
-    }
-
-    // ── FEVER: flash de borda na tela ──────────────────────────────────────
-    if (feverAtivo || feverFlashAlpha > 0.01) {
-      if (!feverAtivo) feverFlashAlpha *= 0.88;
-      else feverFlashAlpha = Math.min(1, feverFlashAlpha + 0.08);
-
-      const pulso = feverAtivo ? (0.25 + Math.abs(Math.sin(Date.now() / 200)) * 0.35) : feverFlashAlpha * 0.4;
-      const bw = 14;
-      ctx.save();
-      ctx.globalAlpha = pulso;
-      ctx.strokeStyle = '#ff2244';
-      ctx.lineWidth = bw * 2;
-      ctx.strokeRect(0, 0, canvas.width, canvas.height);
-      ctx.restore();
-      ctx.globalAlpha = 1;
-    }
-    // ───────────────────────────────────────────────────────────────────────
-
-    if (!audio_setup_feito) return;
-
-    const tocando = !player_audio.paused && player_audio.currentTime > 0 && !player_audio.ended;
-    let tAudio = 0;
-    if (tocando) {
-      if (window.songStartTime === undefined || Math.abs((audio_context.currentTime - window.songStartTime) - player_audio.currentTime) > 0.1) {
-        window.songStartTime = audio_context.currentTime - player_audio.currentTime;
+    if(gameMode==='map_record'){
+      if(audio_setup_feito&&!spawn_bloqueado&&player_audio.currentTime>0){
+        const t=window.songStartTime!==undefined?(audio_context.currentTime-window.songStartTime):player_audio.currentTime;
+        recordedMap.push({time:t});
+        textos_feedback.push({texto:'REC',x:linha_acerto_x,y:y_atual-20+Math.random()*40,alpha:1,cor:'#ff0055',tipo:'acerto'});
+        oceanPulse=Math.min(oceanPulse+0.4,2.4);
       }
-      tAudio = audio_context.currentTime - window.songStartTime;
-    } else {
-      window.songStartTime = undefined;
+      return;
     }
+    if(modoZen){checarAcertoZen();return;}
+    const t=e.key.toLowerCase();const tipos=[];
+    if(t===key_bass&&!tecla_d){tecla_d=true;tipos.push('bass');}
+    if(t===key_verde&&!tecla_f){tecla_f=true;tipos.push('verde');}
+    if(t===key_vocal&&!tecla_j){tecla_j=true;tipos.push('vocal');}
+    if(t===key_agudo&&!tecla_k){tecla_k=true;tipos.push('agudo');}
+    if(tipos.length) checarAcertoMultiplo(tipos);
+  });
+  window.addEventListener('keyup',e=>{
+    if(modoZen) return;
+    const t=e.key.toLowerCase();
+    if(t===key_bass)tecla_d=false;if(t===key_verde)tecla_f=false;
+    if(t===key_vocal)tecla_j=false;if(t===key_agudo)tecla_k=false;
+  });
 
-    analyser_spawn.getByteFrequencyData(data_array_spawn);
-    atualizarDropDetector(agora);
-    desenharEspectro();
-
-    if (em_drop && gameMode === 'auto') {
-      spectrumCtx.save();
-      spectrumCtx.fillStyle = 'rgba(255,30,60,0.18)';
-      spectrumCtx.fillRect(0, 0, spectrumCanvas.width, spectrumCanvas.height);
-      spectrumCtx.fillStyle = 'rgba(255,80,80,0.75)';
-      spectrumCtx.font = 'bold 10px monospace';
-      spectrumCtx.fillText('DROP', 6, 13);
-      spectrumCtx.restore();
+  function checarAcertoZen(){
+    textos_feedback.push({texto:'TIRO',x:linha_acerto_x,y:y_atual,alpha:1,cor:'#00ffaa',tipo:'tiro'});
+    if(!audio_setup_feito) return;
+    const tInput=(window.songStartTime!==undefined?(audio_context.currentTime-window.songStartTime):player_audio.currentTime)+(latencia_ms/1000);
+    const janela=janelaAcertoPx();
+    let alvo=null,distMin=9999,idx=-1;
+    for(let i=0;i<inimigos.length;i++){const d=Math.abs(notaXEmTempo(inimigos[i],tInput)-linha_acerto_x);if(d<distMin){distMin=d;alvo=inimigos[i];idx=i;}}
+    if(alvo&&distMin<=janela.ok){
+      combo++;
+      if(combo>0&&combo%75===0) textos_feedback.push({texto:`${combo} COMBO!`,x:linha_acerto_x+92,y:y_atual-92,alpha:1.3,cor:'#00ffaa',tipo:'milestone'});
+      const bon=Math.floor(combo/5);let msg,cor;
+      if(distMin<=janela.perfect){msg='PERFECT';cor='#00ffcc';pontos+=100+bon*10;}
+      else if(distMin<=janela.nice){msg='NICE';cor='#aaffcc';pontos+=50+bon*5;}
+      else{msg='OK';cor='#66ffaa';pontos+=10+bon*2;}
+      pontos_txt.innerText=pontos;
+      textos_feedback.push({texto:msg,x:linha_acerto_x+48,y:getPistaY(alvo.pista)-24,alpha:1,cor,tipo:'acerto'});
+      criarEfeitoEspectral(linha_acerto_x,getPistaY(alvo.pista));
+      oceanPulse=Math.min(oceanPulse+0.35,2.4);inimigos.splice(idx,1);
     }
-
-    let mk = 0;
-    for (let i = 1;  i <= 5;  i++) mk += data_array_spawn[i];
-    mk /= 5;
-    let sg = 0; for (let i = 14; i < 42;  i++) sg += data_array_spawn[i];
-    const mg = sg / 28;
-    let sv = 0;
-    for (let i = 10; i < 28;  i++) sv += data_array_spawn[i]; const mv = sv / 18;
-    let sa = 0; for (let i = 48; i < 88;  i++) sa += data_array_spawn[i];
-    const ma = sa / 40;
-
-    const dk = mk - ultimo_media_kick;
-    const dv = mv - ultimo_media_vocal;
-    const da = ma - ultimo_media_agudo;
-    const dg = mg - ultimo_media_green;
-
-    ultimo_media_kick  = mk; ultimo_media_vocal  = mv;
-    ultimo_media_agudo = ma; ultimo_media_green   = mg;
-
-    const pode = tocando && (isNaN(player_audio.duration) || (player_audio.duration - player_audio.currentTime > 2.5));
-
-    if (gameMode === 'auto') {
-      let energia_total_espectro = 0;
-      for(let i = 0; i < data_array_spawn.length; i++) energia_total_espectro += data_array_spawn[i];
-      const volume_medio = energia_total_espectro / data_array_spawn.length;
-      const silencio_absoluto = volume_medio < 3.5;
-
-      if (pode && spawnPermitido(agora) && !silencio_absoluto && tAudio - ultimo_tempo_spawn > intervalo_minimo) {
-        const qb = mk > limiar_bass  && dk > limiar_impacto;
-        const qv = mg > limiar_verde && dg > limiar_impacto * 0.82;
-        const ql = mv > limiar_vocal && dv > limiar_impacto;
-        const qa = ma > limiar_treble && da > limiar_impacto && dificuldade !== 'easy';
-
-        if (qb || qv || ql || qa) {
-          const maxS = Math.max(qb?dk:-1, qv?dg:-1, ql?dv:-1, qa?da:-1);
-          let tipo = null;
-          if      (maxS === (qb?dk:-1)) tipo = 'bass';
-          else if (maxS === (qv?dg:-1)) tipo = 'verde';
-          else if (maxS === (ql?dv:-1)) tipo = 'vocal';
-          else if (maxS === (qa?da:-1)) tipo = 'agudo';
-
-          if (tipo) {
-            if      (tipo === 'bass')  oceanPulse += 0.42;
-            else if (tipo === 'verde') oceanPulse += 0.19;
-            else if (tipo === 'vocal') oceanPulse += 0.21;
-            else                       oceanPulse += 0.11;
-            oceanPulse = Math.min(oceanPulse, 2.4);
-            if (tipo === 'bass') estimarBpm(tAudio);
-
-            inimigos.push({
-              tipo,
-              pista: Math.floor(Math.random() * num_pistas),
-              x_inicial: canvas.width + 45,
-              tAlvo: tAudio + tempo_aviso
-            });
-            ultimo_tempo_spawn = tAudio;
-          }
-        }
+  }
+  function checarAcertoMultiplo(tipos){
+    textos_feedback.push({texto:'TIRO',x:linha_acerto_x,y:y_atual,alpha:1,cor:'#ffffff',tipo:'tiro'});
+    if(!audio_setup_feito) return;
+    const tInput=(window.songStartTime!==undefined?(audio_context.currentTime-window.songStartTime):player_audio.currentTime)+(latencia_ms/1000);
+    const janela=janelaAcertoPx();
+    let alvo=null,distMin=9999,idx=-1;
+    for(let i=0;i<inimigos.length;i++){const d=Math.abs(notaXEmTempo(inimigos[i],tInput)-linha_acerto_x);if(d<distMin){distMin=d;alvo=inimigos[i];idx=i;}}
+    if(alvo&&distMin<=janela.ok){
+      if(!tipos.includes(alvo.tipo)){
+        textos_feedback.push({texto:'WRONG',x:linha_acerto_x+48,y:getPistaY(alvo.pista)-24,alpha:1,cor:'#ff0055',tipo:'acerto'});
+        combo=0;pontos=Math.max(0,pontos-20);inimigos.splice(idx,1);pontos_txt.innerText=pontos;return;
       }
-    } else if (gameMode === 'play_map') {
-      if (pode && !spawn_bloqueado && customMapData) {
-        while (customMapIndex < customMapData.length) {
-          let note = customMapData[customMapIndex];
-          if (tAudio >= note.time - tempo_aviso) {
-            let tipoAleatorio = 'bass';
-            const maxS = Math.max(dk, dg, dv, da);
-            if (maxS === dg && dg > 0) tipoAleatorio = 'verde';
-            else if (maxS === dv && dv > 0) tipoAleatorio = 'vocal';
-            else if (maxS === da && da > 0) tipoAleatorio = 'agudo';
-
-            inimigos.push({
-              tipo: tipoAleatorio,
-              pista: Math.floor(Math.random() * num_pistas),
-              x_inicial: canvas.width + 45,
-              tAlvo: note.time
-            });
-
-            if      (tipoAleatorio === 'bass')  oceanPulse += 0.42;
-            else if (tipoAleatorio === 'verde') oceanPulse += 0.19;
-            else if (tipoAleatorio === 'vocal') oceanPulse += 0.21;
-            else                                oceanPulse += 0.11;
-            oceanPulse = Math.min(oceanPulse, 2.4);
-
-            customMapIndex++;
-          } else {
-            break;
-          }
-        }
-      }
-    }
-
-    const janela = janelaAcertoPx();
-    let distMin = 99999, achou = false, tipoAlvo = null;
-    for (let i = inimigos.length - 1; i >= 0; i--) {
-      const ini = inimigos[i];
-      ini.x = notaXEmTempo(ini, tAudio);
-
-      if (ini.x < linha_acerto_x - janela.miss) {
-        textos_feedback.push({ texto: "MISS", x: linha_acerto_x+48, y: getPistaY(ini.pista)-18, alpha:1, cor:"#ff0055", tipo:"acerto" });
-        combo = 0;
-        pontos = Math.max(0, pontos - 15);
-        pontos_txt.innerText = pontos;
-        registrarNotaFever(false);  // conta miss no fever
-        inimigos.splice(i, 1); continue;
-      }
-      const d = Math.abs(ini.x - linha_acerto_x);
-      if (d < distMin) { distMin = d;
-        y_alvo = getPistaY(ini.pista); tipoAlvo = ini.tipo; achou = true; }
-    }
-
-    if (!achou) { y_alvo = canvas.height / 2;
-      tipoAlvo = 'neutro'; }
-
-    // Durante fever, a cor alvo é sempre vermelha
-    if (feverAtivo) {
-      proximaNotaCor = "#ff2244";
-    } else {
-      if      (tipoAlvo === 'bass')  proximaNotaCor = "#ff00ea";
-      else if (tipoAlvo === 'verde') proximaNotaCor = "#00ff88";
-      else if (tipoAlvo === 'vocal') proximaNotaCor = "#00ffff";
-      else if (tipoAlvo === 'agudo') proximaNotaCor = "#ffaa00";
-      else                           proximaNotaCor = "#ffffff";
-    }
-
-    if      (tipoAlvo === 'bass')  { w_alvo=88;  h_alvo=88;  r_alvo=44; }
-    else if (tipoAlvo === 'verde') { w_alvo=56;  h_alvo=56;  r_alvo=17; }
-    else if (tipoAlvo === 'vocal') { w_alvo=34;  h_alvo=148; r_alvo=16; }
-    else if (tipoAlvo === 'agudo') { w_alvo=68;  h_alvo=68;  r_alvo=14; }
-    else                           { w_alvo=48;  h_alvo=48;  r_alvo=24; }
-
-    y_atual += (y_alvo - y_atual) * 0.35;
-    w_atual += (w_alvo - w_atual) * 0.31;
-    h_atual += (h_alvo - h_atual) * 0.31;
-    r_atual += (r_alvo - r_atual) * 0.31;
-
-    ctx.strokeStyle = `rgba(0,255,255,${modoZen ? 0.018 : 0.026})`; ctx.lineWidth = 1;
-    for (let i = 0; i < num_pistas; i++) {
-      ctx.beginPath(); ctx.moveTo(linha_acerto_x, getPistaY(i)); ctx.lineTo(canvas.width, getPistaY(i));
-      ctx.stroke();
-    }
-
-    const beatRaw = Math.min(1, Math.max(0.15, Math.max(dk/14.5, dv/12.5, da/10.5) * 1.12 * 0.74 + last_beat_pulse * 0.74));
-    last_beat_pulse = beatRaw;
-    const beat = 0.15 + (beatRaw - 0.15) * zen_pulse;
-
-    for (let i = 0; i < inimigos.length; i++) {
-      const ini = inimigos[i];
-      let wd, hd, rd, rc, gc, bc, fmt = 'rect';
-      if (!feverAtivo) {
-        // Cores normais
-        if      (ini.tipo === 'bass')  { wd=68; hd=68; rd=34; rc=255; gc=0;   bc=234; }
-        else if (ini.tipo === 'verde') { wd=46; hd=46; rd=11; rc=0;   gc=255; bc=136; fmt='triangulo'; }
-        else if (ini.tipo === 'vocal') { wd=19; hd=96; rd=9;  rc=0;   gc=255; bc=255; }
-        else if (ini.tipo === 'agudo') { wd=48; hd=48; rd=7;  rc=255; gc=170; bc=0; }
-      } else {
-        // FEVER: tudo vermelho, mantém tamanho/formato original
-        if      (ini.tipo === 'bass')  { wd=68; hd=68; rd=34; rc=255; gc=34;  bc=68; }
-        else if (ini.tipo === 'verde') { wd=46; hd=46; rd=11; rc=255; gc=34;  bc=68; fmt='triangulo'; }
-        else if (ini.tipo === 'vocal') { wd=19; hd=96; rd=9;  rc=255; gc=34;  bc=68; }
-        else if (ini.tipo === 'agudo') { wd=48; hd=48; rd=7;  rc=255; gc=34;  bc=68; }
-      }
-      desenharNotaPadraoOtimizado(ini.x, getPistaY(ini.pista), wd, hd, rd, rc, gc, bc, beat, fmt);
-    }
-
-    // Combo display
-    if (combo > 0) {
-      const cx = linha_acerto_x + 78, cy = y_atual - 68;
-      let cc;
-      if (feverAtivo)          cc = "#ff2244";
-      else if (combo >= 30)    cc = "#ff00ff";
-      else if (combo >= 20)    cc = "#aa00ff";
-      else if (combo >= 10)    cc = "#00ffff";
-      else                     cc = "#ffff00";
-      ctx.shadowBlur = 15; ctx.shadowColor = cc; ctx.fillStyle = cc;
-      ctx.font = `bold ${21 + Math.min(combo * 0.38, 17)}px 'Segoe UI', sans-serif`;
-      ctx.fillText(`${combo}`, cx, cy); ctx.shadowBlur = 0;
-    }
-
-    const resp = Math.sin(Date.now() / 148) * 3.8;
-    const ws = w_atual + 11 + resp, hs = h_atual + 11 + resp;
-
-    ctx.strokeStyle = "rgba(255,255,255,0.9)";
-    ctx.lineWidth = 4.5;
-    ctx.shadowBlur = 4; ctx.shadowColor = "#ffffff";
-    ctx.beginPath(); ctx.moveTo(linha_acerto_x, 0); ctx.lineTo(linha_acerto_x, y_atual - hs/2); ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(linha_acerto_x, y_atual + hs/2); ctx.lineTo(linha_acerto_x, canvas.height); ctx.stroke();
-
-    ctx.shadowBlur = 12; ctx.shadowColor = proximaNotaCor; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3.5;
-    if (tipoAlvo === 'verde') { ctx.lineJoin="miter"; desenharTrianguloArredondado(ctx, linha_acerto_x, y_atual, ws); ctx.stroke(); }
-    else { ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(linha_acerto_x-ws/2, y_atual-hs/2, ws, hs, r_atual+5); else ctx.arc(linha_acerto_x, y_atual, ws/2, 0, Math.PI*2); ctx.stroke();
-    }
-
-    ctx.shadowBlur = 5; ctx.strokeStyle = proximaNotaCor; ctx.lineWidth = 1.8;
-    if (tipoAlvo === 'verde') { ctx.lineJoin="miter";
-      desenharTrianguloArredondado(ctx, linha_acerto_x, y_atual, ws); ctx.stroke(); }
-    else { ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(linha_acerto_x-ws/2, y_atual-hs/2, ws, hs, r_atual+5);
-    else ctx.arc(linha_acerto_x, y_atual, ws/2, 0, Math.PI*2); ctx.stroke(); }
-    ctx.shadowBlur = 0;
-
-    if (em_drop && gameMode === 'auto') {
-      ctx.save();
-      ctx.globalAlpha = 0.22;
-      ctx.fillStyle = '#ff0033';
-      ctx.fillRect(linha_acerto_x + 10, canvas.height - 30, 80, 18);
-      ctx.globalAlpha = 0.8;
-      ctx.fillStyle = '#ff6688';
-      ctx.font = 'bold 11px monospace';
-      ctx.fillText('⬇ DROP', linha_acerto_x + 14, canvas.height - 16);
-      ctx.restore();
-    }
-
-    if (gameMode === 'map_record') {
-      ctx.save();
-      ctx.globalAlpha = 0.8;
-      ctx.fillStyle = '#ff0055';
-      ctx.font = 'bold 14px monospace';
-      ctx.fillText('REC 🔴', 20, canvas.height - 20);
-      ctx.restore();
-    }
-
-    // Indicador 2x no canvas durante fever
-    if (feverAtivo) {
-      ctx.save();
-      ctx.globalAlpha = 0.75 + Math.sin(Date.now() / 130) * 0.25;
-      ctx.fillStyle = '#ff8800';
-      ctx.font = 'bold 16px monospace';
-      ctx.fillText('2x', linha_acerto_x + 14, canvas.height - 16);
-      ctx.restore();
-    }
-
-    for (let i = textos_feedback.length - 1; i >= 0; i--) {
-      const t = textos_feedback[i];
-      if (t.tipo === "milestone") {
-        t.y -= 0.75; t.alpha -= 0.014;
-        ctx.shadowBlur=16; ctx.shadowColor=t.cor;
-        ctx.fillStyle=t.cor; ctx.globalAlpha=Math.max(0,t.alpha);
-        ctx.font="bold 25px 'Segoe UI', sans-serif"; ctx.fillText(t.texto, t.x, t.y);
-      } else if (t.tipo === "acerto") {
-        t.y -= 1.4; t.alpha -= 0.028;
-        ctx.shadowBlur=0; ctx.fillStyle=t.cor; ctx.globalAlpha=Math.max(0,t.alpha);
-        ctx.font="bold 19px 'Segoe UI', sans-serif"; ctx.fillText(t.texto, t.x+24, t.y);
-      } else if (t.tipo === "tiro") {
-        t.x += 52; t.alpha -= 0.085;
-        ctx.shadowBlur=9; ctx.shadowColor=t.cor; ctx.fillStyle=t.cor; ctx.globalAlpha=Math.max(0,t.alpha);
-        ctx.fillRect(t.x, t.y-1.8, 65, 3.2);
-      }
-      ctx.globalAlpha = 1; ctx.shadowBlur = 0;
-      if (t.alpha <= 0) textos_feedback.splice(i, 1);
+      combo++;
+      if(combo>0&&combo%75===0) textos_feedback.push({texto:`${combo} COMBO!`,x:linha_acerto_x+92,y:y_atual-92,alpha:1.3,cor:'#ffdd00',tipo:'milestone'});
+      const bon=Math.floor(combo/5);let msg,cor;
+      if(distMin<=janela.perfect){msg='PERFECT';cor='#00ffcc';pontos+=100+bon*10;}
+      else if(distMin<=janela.nice){msg='NICE';cor='#ffff00';pontos+=50+bon*5;}
+      else{msg='OK';cor='#ff00ea';pontos+=10+bon*2;}
+      pontos_txt.innerText=pontos;
+      textos_feedback.push({texto:msg,x:linha_acerto_x+48,y:getPistaY(alvo.pista)-24,alpha:1,cor,tipo:'acerto'});
+      criarEfeitoEspectral(linha_acerto_x,getPistaY(alvo.pista));inimigos.splice(idx,1);
     }
   }
 
-  function desenharTrianguloArredondado(ctx, cx, cy, size) {
-    const h = size * 0.866;
-    ctx.beginPath(); ctx.moveTo(cx, cy - h/2); ctx.lineTo(cx + size/2, cy + h/2); ctx.lineTo(cx - size/2, cy + h/2); ctx.closePath();
+  // ═══════════════════════════════════════════
+  //  VISUAL / RENDER
+  // ═══════════════════════════════════════════
+  function redimensionar(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;calcularPistas();}
+  window.addEventListener('resize',redimensionar);
+  function calcularPistas(){
+    pistas_y=[];for(let i=1;i<=6;i++) pistas_y.push((canvas.height/7)*i);
+    pistas_zen_y=[];for(let i=1;i<=3;i++) pistas_zen_y.push((canvas.height/4)*i);
+    y_alvo=canvas.height/2;if(y_atual===0)y_atual=y_alvo;
   }
+  redimensionar();
 
-  function desenharNotaPadraoOtimizado(x, y, w, h, radius, r, g, b, pulse=0, formato='rect') {
-    const eff = pulse * pulse_intensity, scale = 1 + eff * 0.48;
-    const pw = w * scale, ph = h * scale;
-    const cor = `rgb(${r},${g},${b})`;
-    ctx.shadowColor = cor;
-    ctx.shadowBlur = 16 + eff * 20; ctx.strokeStyle = cor; ctx.lineWidth = 3 + eff * 3;
-    if (formato === 'triangulo') {
-      ctx.lineJoin = "round"; desenharTrianguloArredondado(ctx, x, y, Math.max(pw,ph) * 0.88);
-      ctx.stroke();
-      ctx.fillStyle = "rgba(0,0,0,0.62)"; ctx.fill();
-      ctx.fillStyle = `rgba(${r},${g},${b},${0.24 + eff * 0.32})`; ctx.fill();
-    } else {
-      ctx.beginPath();
-      const sr = Math.min(radius*scale, pw/2, ph/2);
-      if (ctx.roundRect) ctx.roundRect(x-pw/2, y-ph/2, pw, ph, Math.max(0,sr)); else ctx.arc(x, y, pw/2, 0, Math.PI*2);
-      ctx.stroke(); ctx.fillStyle = "rgba(0,0,0,0.58)"; ctx.fill();
-      ctx.fillStyle = `rgba(${r},${g},${b},${0.18 + eff * 0.28})`; ctx.fill();
-    }
-    ctx.shadowBlur = 0;
-  }
+  function getBassFrequency(){if(!data_array_visual)return 0;let s=0;for(let i=1;i<=5;i++)s+=data_array_visual[i];return s/(5*255);}
+  function getMidFrequency(){if(!data_array_visual)return 0;let s=0;for(let i=10;i<28;i++)s+=data_array_visual[i];return s/(18*255);}
+  function getHighFrequency(){if(!data_array_visual)return 0;let s=0;for(let i=48;i<88;i++)s+=data_array_visual[i];return s/(40*255);}
+  function updateAudioReactive(){bassEnergy=getBassFrequency()*33;vocalEnergy=getMidFrequency()*7.2;trebleEnergy=getHighFrequency()*2.6;}
 
-  function criarEfeitoEspectral(x, y) {
-    if (!dispersaoEspectralEnabled) return;
-    efeitosEspectrais.push({ x, y, alpha: 1.0, vida: 0, vidaMax: 28 });
+  function drawSand(){
+    const gr=ctx.createLinearGradient(0,0,canvas.width,0);
+    gr.addColorStop(0,'#020202');gr.addColorStop(0.4,'#050505');gr.addColorStop(0.7,'#0a0a0a');gr.addColorStop(1,'#10131a');
+    ctx.fillStyle=gr;ctx.fillRect(0,0,canvas.width,canvas.height);
   }
-
-  function desenharEfeitosEspectrais() {
-    for (let i = efeitosEspectrais.length - 1; i >= 0; i--) {
-      const e = efeitosEspectrais[i];
-      e.vida++; e.alpha = 1 - e.vida / e.vidaMax;
-      if (e.vida > e.vidaMax) { efeitosEspectrais.splice(i, 1); continue;
-      }
-      const p = e.vida / e.vidaMax, comp = 380 + p * 80;
-      // Durante fever, espectral é avermelhado
-      const esp = feverAtivo
-        ? [{cor:"#ff0000",ab:8},{cor:"#ff2200",ab:11},{cor:"#ff4400",ab:14},{cor:"#ff6600",ab:17},{cor:"#ff8800",ab:20},{cor:"#ffaa00",ab:24},{cor:"#ffcc00",ab:28}]
-        : [{cor:"#ff0000",ab:8},{cor:"#ff5500",ab:11},{cor:"#ffaa00",ab:14},{cor:"#ffff00",ab:17},{cor:"#00ff88",ab:20},{cor:"#00aaff",ab:24},{cor:"#aa00ff",ab:28}];
-      ctx.save(); ctx.globalAlpha = e.alpha * 0.9;
-      for (const s of esp) {
-        const ab = s.ab * p;
-        const gr = ctx.createLinearGradient(e.x, e.y, e.x - comp, e.y);
-        gr.addColorStop(0, s.cor); gr.addColorStop(0.25, s.cor); gr.addColorStop(1, "rgba(255,255,255,0)");
-        ctx.fillStyle = gr; ctx.beginPath();
-        ctx.moveTo(e.x, e.y);
-        ctx.lineTo(e.x-comp, e.y-ab); ctx.lineTo(e.x-comp, e.y+ab); ctx.closePath(); ctx.fill();
-        ctx.strokeStyle=s.cor; ctx.lineWidth=1.8; ctx.shadowBlur=16; ctx.shadowColor=s.cor;
-        ctx.beginPath(); ctx.moveTo(e.x,e.y); ctx.lineTo(e.x-comp, e.y-ab); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(e.x,e.y);
-        ctx.lineTo(e.x-comp, e.y+ab); ctx.stroke();
-      }
-      ctx.restore();
-    }
-  }
-
-  function criarParticula() {
-    if (particulas.length > MAX_PARTICULAS_VISIVEIS) return;
-    let r, g, b, speedMult=1.0, sizeBase=Math.random()*1.05+0.5, lifeMult=1.0, isStrong=false;
-    if (feverAtivo) {
-      // Partículas vermelhas no fever
-      isStrong=true; sizeBase += 1.2;
-      speedMult=2.2; lifeMult=0.6;
-      r=255; g=Math.floor(Math.random()*80); b=Math.floor(Math.random()*80);
-    } else if (oceanPulse > 0.32) {
-      isStrong=true; sizeBase+=oceanPulse*0.7;
-      speedMult=1.7+oceanPulse*0.42; lifeMult=0.68;
-      if (bassEnergy>vocalEnergy*1.65&&bassEnergy>trebleEnergy*1.65){r=255;g=0;b=234;}
-      else if (vocalEnergy>trebleEnergy*1.0){r=0;g=255;b=255;}
-      else{r=255;g=170;b=0;}
-    } else { r=170;g=220;b=255;
-      sizeBase*=0.78; speedMult=0.58; }
-    let p = poolParticulas.length > 0 ? poolParticulas.pop() : {};
-    p.active=true; p.x=canvas.width+6; p.y=Math.random()*canvas.height;
-    p.tamanho=sizeBase;
-    p.velX=(Math.random()*1.25+0.48)*speedMult; p.velY=(Math.random()-0.5)*0.75;
-    p.vida=0; p.vidaMaxima=(110+Math.random()*150)*lifeMult; p.faseSeno=Math.random()*Math.PI*2;
-    p.r=r; p.g=g; p.b=b; p.isStrong=isStrong; p.isExplosion=false;
-    particulas.push(p);
-  }
-
-  function desenharParticulas() {
-    for (let i = particulas.length - 1; i >= 0; i--) {
-      const p = particulas[i];
-      if (!p.active) { particulas.splice(i,1); poolParticulas.push(p); continue; }
-      p.vida++;
-      if (p.isExplosion) { p.x+=p.velX; p.y+=p.velY; p.velX*=0.84; p.velY*=0.84;
-        p.tamanho*=0.92; }
-      else { p.x-=p.velX; p.y+=p.velY+Math.sin(waveTime*3+p.faseSeno)*0.32;
-      }
-      if (p.vida >= p.vidaMaxima || p.x < -10) { p.active=false; particulas.splice(i,1); poolParticulas.push(p); continue;
-      }
-      const alphaSin = Math.sin((p.vida/p.vidaMaxima)*Math.PI);
-      ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alphaSin*(p.isStrong?0.8:0.4)})`;
-      ctx.fillRect(p.x-p.tamanho/2, p.y-p.tamanho/2, p.tamanho, p.tamanho);
-    }
-  }
-
-  function getBassFrequency()  { if (!data_array_visual) return 0; let s=0; for(let i=1;i<=5;i++) s+=data_array_visual[i]; return s/(5*255);
-  }
-  function getMidFrequency()   { if (!data_array_visual) return 0; let s=0; for(let i=10;i<28;i++) s+=data_array_visual[i]; return s/(18*255);
-  }
-  function getHighFrequency()  { if (!data_array_visual) return 0; let s=0; for(let i=48;i<88;i++) s+=data_array_visual[i]; return s/(40*255);
-  }
-
-  function updateAudioReactive() {
-    bassEnergy   = getBassFrequency() * 33;
-    vocalEnergy  = getMidFrequency()  * 7.2;
-    trebleEnergy = getHighFrequency() * 2.6;
-  }
-
-  function drawSand() {
-    const gr = ctx.createLinearGradient(0,0,canvas.width,0);
-    gr.addColorStop(0,"#020202"); gr.addColorStop(0.4,"#050505"); gr.addColorStop(0.7,"#0a0a0a"); gr.addColorStop(1,"#10131a");
-    ctx.fillStyle=gr; ctx.fillRect(0,0,canvas.width,canvas.height);
-  }
-
-  function drawWaveReativo() {
-    const numWaves=11, spacing=172, speed=76;
-    let r=100, g=180, b=255;
-    if (feverAtivo) { r=255; g=34; b=68; } // ondas vermelhas no fever
-    else {
-      const m = proximaNotaCor.match(/\w\w/g);
-      if (m) { r=parseInt(m[0],16); g=parseInt(m[1],16); b=parseInt(m[2],16); }
-    }
-    for (let i=numWaves; i>=0; i--) {
-      let off = ((i*spacing)-(waveTime*speed)) % (numWaves*spacing);
-      if (off < 0) off += numWaves*spacing;
-      const prog=off/(numWaves*spacing), alpha=Math.sin(prog*Math.PI)*0.17;
-      if (alpha<=0.01) continue;
-      ctx.beginPath(); ctx.moveTo(canvas.width,-16);
-      for (let y=-22; y<=canvas.height+22; y+=9) {
+  function drawWaveReativo(){
+    const nW=11,sp=172,spd=76,m=proximaNotaCor.match(/\w\w/g);
+    let r=100,g=180,b=255;
+    if(m){r=parseInt(m[0],16);g=parseInt(m[1],16);b=parseInt(m[2],16);}
+    for(let i=nW;i>=0;i--){
+      let off=((i*sp)-(waveTime*spd))%(nW*sp);if(off<0)off+=nW*sp;
+      const prog=off/(nW*sp),alpha=Math.sin(prog*Math.PI)*0.17;if(alpha<=0.01)continue;
+      ctx.beginPath();ctx.moveTo(canvas.width,-16);
+      for(let y=-22;y<=canvas.height+22;y+=9){
         const base=(canvas.width*0.35)+Math.sin(y*0.0022)*112;
         const d1=Math.sin((y*0.003)+(i*2.3)+(waveTime*0.27))*46;
         const d2=Math.cos((y*0.01)-(i*1.1)+(waveTime*0.52))*17;
         const au=Math.sin(y*0.01+i)*(bassEnergy*1.2+vocalEnergy*0.38);
-        ctx.lineTo(base+off+d1+d2+au, y);
+        ctx.lineTo(base+off+d1+d2+au,y);
       }
-      ctx.lineTo(canvas.width,canvas.height); ctx.closePath();
+      ctx.lineTo(canvas.width,canvas.height);ctx.closePath();
       const gr=ctx.createLinearGradient(canvas.width*0.2,0,canvas.width,0);
-      gr.addColorStop(0,"rgba(0,0,0,0)");
+      gr.addColorStop(0,'rgba(0,0,0,0)');
       gr.addColorStop(0.3,`rgba(${Math.floor(r*0.35)},${Math.floor(g*0.45)},${Math.floor(b*0.7)},${alpha*0.18})`);
       gr.addColorStop(1,`rgba(${r},${g},${b},${alpha*0.85})`);
-      ctx.fillStyle=gr; ctx.fill();
-    }
-    ctx.globalAlpha=0.96;
+      ctx.fillStyle=gr;ctx.fill();
+    }ctx.globalAlpha=0.96;
   }
-
-  function spawnWave(power=1, color="#fff") {
-    breakingWaves.push({ x:canvas.width+85, speed:2.35+Math.random()*1.35, amplitude:36+Math.random()*52+power*20, life:0, maxLife:5.2+Math.random()*3.3, timeOffset:0, alpha:1, progress:0, color });
+  function spawnWave(pow=1,color='#fff'){
+    breakingWaves.push({x:canvas.width+85,speed:2.35+Math.random()*1.35,amplitude:36+Math.random()*52+pow*20,life:0,maxLife:5.2+Math.random()*3.3,timeOffset:0,alpha:1,progress:0,color});
   }
-
-  function drawFoam() {
-    for (let i=breakingWaves.length-1; i>=0; i--) {
-      const w=breakingWaves[i];
-      w.timeOffset+=0.019*w.speed; w.life+=0.028; w.x-=w.speed; w.alpha*=0.993;
-      w.progress=(canvas.width+85)-w.x;
-      if (w.life>=w.maxLife||w.alpha<=0.016) breakingWaves.splice(i,1);
+  function drawFoam(){
+    for(let i=breakingWaves.length-1;i>=0;i--){
+      const w=breakingWaves[i];w.timeOffset+=0.019*w.speed;w.life+=0.028;w.x-=w.speed;w.alpha*=0.993;
+      w.progress=(canvas.width+85)-w.x;if(w.life>=w.maxLife||w.alpha<=0.016)breakingWaves.splice(i,1);
     }
   }
-
-  function atualizarEngine() {
-    tempo_aviso = parseFloat(engine_speed.value);
-    document.getElementById('val_speed').innerText = tempo_aviso.toFixed(1);
-    latencia_ms = parseInt(engine_latency.value);
-    document.getElementById('val_latency').innerText = latencia_ms;
-
-    if (window.audio_delay_node) {
-      let delayTotal = tempo_aviso + (latencia_ms / 1000);
-      window.audio_delay_node.delayTime.value = Math.max(0, delayTotal);
+  function criarParticula(){
+    if(particulas.length>MAX_PARTICULAS)return;
+    let r,g,b,sm=1,sb=Math.random()*1.05+0.5,lm=1,iS=false;
+    if(oceanPulse>0.32){iS=true;sb+=oceanPulse*0.7;sm=1.7+oceanPulse*0.42;lm=0.68;
+      if(bassEnergy>vocalEnergy*1.65&&bassEnergy>trebleEnergy*1.65){r=255;g=0;b=234;}
+      else if(vocalEnergy>trebleEnergy){r=0;g=255;b=255;}else{r=255;g=170;b=0;}
+    }else{r=170;g=220;b=255;sb*=0.78;sm=0.58;}
+    let p=poolParticulas.length>0?poolParticulas.pop():{};
+    p.active=true;p.x=canvas.width+6;p.y=Math.random()*canvas.height;p.tamanho=sb;
+    p.velX=(Math.random()*1.25+0.48)*sm;p.velY=(Math.random()-0.5)*0.75;
+    p.vida=0;p.vidaMaxima=(110+Math.random()*150)*lm;p.faseSeno=Math.random()*Math.PI*2;
+    p.r=r;p.g=g;p.b=b;p.isStrong=iS;p.isExplosion=false;particulas.push(p);
+  }
+  function desenharParticulas(){
+    for(let i=particulas.length-1;i>=0;i--){
+      const p=particulas[i];if(!p.active){particulas.splice(i,1);poolParticulas.push(p);continue;}
+      p.vida++;p.x-=p.velX;p.y+=p.velY+Math.sin(waveTime*3+p.faseSeno)*0.32;
+      if(p.vida>=p.vidaMaxima||p.x<-10){p.active=false;particulas.splice(i,1);poolParticulas.push(p);continue;}
+      const a=Math.sin((p.vida/p.vidaMaxima)*Math.PI);
+      ctx.fillStyle=`rgba(${p.r},${p.g},${p.b},${a*(p.isStrong?0.8:0.4)})`;
+      ctx.fillRect(p.x-p.tamanho/2,p.y-p.tamanho/2,p.tamanho,p.tamanho);
     }
-
-    intervalo_minimo = parseInt(engine_interval.value) / 1000;
-    document.getElementById('val_interval').innerText = engine_interval.value;
-    limiar_impacto = parseInt(engine_impact.value);
-    document.getElementById('val_impact').innerText = limiar_impacto;
-    pulse_intensity = parseFloat(engine_pulse.value);
-    document.getElementById('val_pulse').innerText = pulse_intensity.toFixed(1);
-    limiar_bass   = parseInt(engine_bass.value);   document.getElementById('val_bass').innerText   = limiar_bass;
-    limiar_verde  = parseInt(engine_verde.value);  document.getElementById('val_verde').innerText  = limiar_verde;
-    limiar_vocal  = parseInt(engine_vocal.value);  document.getElementById('val_vocal').innerText  = limiar_vocal;
-    limiar_treble = parseInt(engine_treble.value);
-    document.getElementById('val_treble').innerText = limiar_treble;
   }
-
-  engine_speed.addEventListener('input',    () => { atualizarEngine(); calcularPistas(); });
-  engine_latency.addEventListener('input',  atualizarEngine);
-  engine_interval.addEventListener('input', atualizarEngine);
-  engine_impact.addEventListener('input',   atualizarEngine);
-  engine_pulse.addEventListener('input',    atualizarEngine);
-  engine_bass.addEventListener('input',     atualizarEngine);
-  engine_verde.addEventListener('input',    atualizarEngine);
-  engine_vocal.addEventListener('input',    atualizarEngine);
-  engine_treble.addEventListener('input',   atualizarEngine);
-
-  btn_reset.addEventListener('click', () => {
-    engine_speed.value=2.5; engine_latency.value=0; engine_interval.value=350;
-    engine_impact.value=5; engine_pulse.value=0.3; engine_bass.value=135;
-    engine_verde.value=70; engine_vocal.value=95; engine_treble.value=50;
-    seletor_dificuldade.value='normal'; dificuldade='normal';
-    espectralToggle.checked=true; dispersaoEspectralEnabled=true;
-    atualizarEngine();
-  });
-
-  seletor_dificuldade.addEventListener('change', e => {
-    dificuldade = e.target.value;
-    if (dificuldade==='easy')   { engine_interval.value=500; engine_impact.value=8; }
-    if (dificuldade==='normal') { engine_interval.value=350; engine_impact.value=5; }
-    if (dificuldade==='hard')   { engine_interval.value=200; engine_impact.value=3; }
-    atualizarEngine();
-  });
-
-  function redimensionar() { canvas.width=window.innerWidth; canvas.height=window.innerHeight; calcularPistas(); }
-  window.addEventListener('resize', redimensionar);
-
-  function calcularPistas() {
-    pistas_y=[];
-    for (let i=1; i<=6; i++) pistas_y.push((canvas.height/7)*i);
-    pistas_zen_y=[];
-    for (let i=1; i<=3; i++) pistas_zen_y.push((canvas.height/4)*i);
-    y_alvo=canvas.height/2;
-    if (y_atual===0) y_atual=y_alvo;
+  function criarEfeitoEspectral(x,y){
+    if(!dispersaoEspectralEnabled)return;efeitosEspectrais.push({x,y,alpha:1,vida:0,vidaMax:28});
   }
-  redimensionar();
-
-  window.addEventListener('keydown', e => {
-    if (document.activeElement.tagName==='INPUT' && document.activeElement.type==='text') return;
-    if (e.repeat) return;
-    if (/^F\d+$/.test(e.key) || e.ctrlKey || e.altKey || e.metaKey) return;
-
-    if (gameMode === 'map_record') {
-      if (audio_setup_feito && !spawn_bloqueado && player_audio.currentTime > 0) {
-        const tAtual = window.songStartTime !== undefined ? (audio_context.currentTime - window.songStartTime) : player_audio.currentTime;
-        recordedMap.push({ time: tAtual });
-        textos_feedback.push({ texto:"REC", x:linha_acerto_x, y:y_atual - 20 + Math.random()*40, alpha:1, cor:"#ff0055", tipo:"acerto" });
-        oceanPulse = Math.min(oceanPulse + 0.4, 2.4);
+  function desenharEfeitosEspectrais(){
+    for(let i=efeitosEspectrais.length-1;i>=0;i--){
+      const e=efeitosEspectrais[i];e.vida++;e.alpha=1-e.vida/e.vidaMax;
+      if(e.vida>e.vidaMax){efeitosEspectrais.splice(i,1);continue;}
+      const p=e.vida/e.vidaMax,comp=380+p*80;
+      const esp=[{cor:'#ff0000',ab:8},{cor:'#ff5500',ab:11},{cor:'#ffaa00',ab:14},{cor:'#ffff00',ab:17},{cor:'#00ff88',ab:20},{cor:'#00aaff',ab:24},{cor:'#aa00ff',ab:28}];
+      ctx.save();ctx.globalAlpha=e.alpha*0.9;
+      for(const s of esp){
+        const ab=s.ab*p,gr=ctx.createLinearGradient(e.x,e.y,e.x-comp,e.y);
+        gr.addColorStop(0,s.cor);gr.addColorStop(0.25,s.cor);gr.addColorStop(1,'rgba(255,255,255,0)');
+        ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(e.x,e.y);ctx.lineTo(e.x-comp,e.y-ab);ctx.lineTo(e.x-comp,e.y+ab);ctx.closePath();ctx.fill();
+        ctx.strokeStyle=s.cor;ctx.lineWidth=1.8;ctx.shadowBlur=16;ctx.shadowColor=s.cor;
+        ctx.beginPath();ctx.moveTo(e.x,e.y);ctx.lineTo(e.x-comp,e.y-ab);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(e.x,e.y);ctx.lineTo(e.x-comp,e.y+ab);ctx.stroke();
+      }ctx.restore();
+    }
+  }
+  function desenharTrianguloArredondado(c,cx,cy,size){
+    const h=size*0.866;c.beginPath();c.moveTo(cx,cy-h/2);c.lineTo(cx+size/2,cy+h/2);c.lineTo(cx-size/2,cy+h/2);c.closePath();
+  }
+  function desenharNota(x,y,w,h,rad,r,g,b,pulse=0,fmt='rect'){
+    const eff=pulse*pulse_intensity,sc=1+eff*0.48,pw=w*sc,ph=h*sc,cor=`rgb(${r},${g},${b})`;
+    ctx.shadowColor=cor;ctx.shadowBlur=16+eff*20;ctx.strokeStyle=cor;ctx.lineWidth=3+eff*3;
+    if(fmt==='triangulo'){
+      ctx.lineJoin='round';desenharTrianguloArredondado(ctx,x,y,Math.max(pw,ph)*0.88);ctx.stroke();
+      ctx.fillStyle='rgba(0,0,0,0.62)';ctx.fill();ctx.fillStyle=`rgba(${r},${g},${b},${0.24+eff*0.32})`;ctx.fill();
+    }else{
+      const sr=Math.min(rad*sc,pw/2,ph/2);ctx.beginPath();
+      if(ctx.roundRect)ctx.roundRect(x-pw/2,y-ph/2,pw,ph,Math.max(0,sr));else ctx.arc(x,y,pw/2,0,Math.PI*2);
+      ctx.stroke();ctx.fillStyle='rgba(0,0,0,0.58)';ctx.fill();ctx.fillStyle=`rgba(${r},${g},${b},${0.18+eff*0.28})`;ctx.fill();
+    }ctx.shadowBlur=0;
+  }
+  function desenharEspectro(){
+    if(!analyser_visual||!data_array_visual||!document.getElementById('settings_panel').classList.contains('open'))return;
+    spectrumCtx.fillStyle='rgba(5,10,20,0.8)';spectrumCtx.fillRect(0,0,spectrumCanvas.width,spectrumCanvas.height);
+    const bw=(spectrumCanvas.width/data_array_visual.length)*1.7;let xx=0;
+    for(let i=0;i<data_array_visual.length;i++){
+      const bh=(data_array_visual[i]/255)*spectrumCanvas.height*0.9;
+      spectrumCtx.fillStyle=`hsla(${180+i*1.35},100%,63%,0.8)`;
+      spectrumCtx.fillRect(xx,spectrumCanvas.height-bh,bw,bh);xx+=bw+1;
+    }
+  }
+  function estimarBpm(t){
+    kick_times.push(t);if(kick_times.length>14)kick_times.shift();
+    if(kick_times.length>=5){
+      let ints=[];for(let i=1;i<kick_times.length;i++){const d=kick_times[i]-kick_times[i-1];if(d>0.25&&d<0.9)ints.push(d);}
+      if(ints.length>=4){const avg=ints.reduce((a,b)=>a+b,0)/ints.length,bpm=60/avg;
+        if(bpm>=70&&bpm<=200){bpm_historico.push(bpm);if(bpm_historico.length>10)bpm_historico.shift();
+          bpm_txt.innerText=Math.round(bpm_historico.reduce((a,b)=>a+b,0)/bpm_historico.length);}
       }
-      return;
-    }
-
-    const t = e.key.toLowerCase();
-    const tipos = [];
-    if (t===key_bass  && !tecla_d_pressionada) { tecla_d_pressionada=true; tipos.push('bass'); }
-    if (t===key_verde && !tecla_f_pressionada) { tecla_f_pressionada=true; tipos.push('verde'); }
-    if (t===key_vocal && !tecla_j_pressionada) { tecla_j_pressionada=true; tipos.push('vocal'); }
-    if (t===key_agudo && !tecla_k_pressionada) { tecla_k_pressionada=true; tipos.push('agudo'); }
-
-    if (tipos.length > 0) {
-      checarAcertoMultiplo(tipos);
-    }
-  });
-
-  window.addEventListener('keyup', e => {
-    const t = e.key.toLowerCase();
-    if (t===key_bass)  tecla_d_pressionada=false;
-    if (t===key_verde) tecla_f_pressionada=false;
-    if (t===key_vocal) tecla_j_pressionada=false;
-    if (t===key_agudo) tecla_k_pressionada=false;
-  });
-
-  function setupAudioNodes() {
-    if (audio_setup_feito) return;
-    const AC = window.AudioContext || window.webkitAudioContext;
-    audio_context = new AC({ latencyHint: 'interactive' });
-
-    const source = audio_context.createMediaElementSource(player_audio);
-
-    analyser_spawn = audio_context.createAnalyser();
-    analyser_spawn.fftSize = 256;
-    analyser_spawn.smoothingTimeConstant = 0.40;
-    data_array_spawn = new Uint8Array(analyser_spawn.frequencyBinCount);
-
-    const delay_node = audio_context.createDelay(10.0);
-    delay_node.delayTime.value = parseFloat(engine_speed.value) + (parseInt(engine_latency.value) / 1000);
-    window.audio_delay_node = delay_node;
-
-    analyser_visual = audio_context.createAnalyser();
-    analyser_visual.fftSize = 256;
-    analyser_visual.smoothingTimeConstant = 0.65;
-    data_array_visual = new Uint8Array(analyser_visual.frequencyBinCount);
-
-    source.connect(analyser_spawn);
-    source.connect(delay_node);
-    delay_node.connect(analyser_visual);
-    analyser_visual.connect(audio_context.destination);
-
-    audio_setup_feito = true;
+    }ultimo_kick_tempo=t;
   }
 
-  function resetarJogo() {
-    inimigos=[]; textos_feedback=[]; pontos=0; combo=0; pontos_txt.innerText=pontos;
-    ultimo_tempo_spawn=0; bpm_historico=[]; kick_times=[]; last_beat_pulse=0.18;
-    bpm_txt.innerText="0"; breakingWaves=[]; oceanPulse=0;
-    waveSpawnAccumulator=0;
-    particulas=[]; poolParticulas=[]; efeitosEspectrais=[];
-    ultimo_media_kick=0; ultimo_media_vocal=0; ultimo_media_agudo=0; ultimo_media_green=0;
-    proximaNotaCor="#ffffff";
-    energia_media=0; em_drop=false; drop_saiu_em=-Infinity;
-    recordedMap = [];
-    customMapIndex = 0;
-    // Reset fever
-    feverAtivo = false; feverComboInicio = 0; feverNotasContadas = 0;
-    feverErros = 0; feverFlashAlpha = 0;
-    feverOverlay.classList.remove('active');
-    feverHud.classList.remove('active');
-    feverBanner.classList.remove('show');
-  }
-
-  function pararMusicaImediatamente() {
-    player_audio.pause();
-    player_audio.removeAttribute('src');
-    player_audio.load();
-    if (currentObjectURL) {
-      URL.revokeObjectURL(currentObjectURL);
-      currentObjectURL = null;
+  // ═══════════════════════════════════════════
+  //  MAIN LOOP
+  // ═══════════════════════════════════════════
+  function loopGrafico(){
+    requestAnimationFrame(loopGrafico);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    waveTime+=0.016;
+    num_pistas_atual+=(num_pistas_alvo-num_pistas_atual)*ZEN_LERP;
+    const numP=Math.round(num_pistas_atual);
+    oceanPulse*=0.985;
+    waveSpawnAccumulator+=0.02+oceanPulse*0.0025;
+    waveSpawnAccumulator=Math.min(waveSpawnAccumulator,1.5);
+    const agora=performance.now();
+    const ultima=breakingWaves[breakingWaves.length-1];
+    const distOk=!ultima||ultima.progress>(155+Math.random()*115);
+    const cdOk=agora-ultimoSpawnWave>880;
+    if(waveSpawnAccumulator>=1&&cdOk&&distOk&&breakingWaves.length<14){
+      ultimoSpawnWave=agora;waveSpawnAccumulator=0;
+      let cor='#ffffff',pow=0.65;
+      if(oceanPulse>1.55){cor='#ff00ea';pow=1.85;}else if(oceanPulse>0.85){cor='#00ffff';pow=1.25;}else if(oceanPulse>0.32){cor='#ffaa00';pow=0.85;}
+      spawnWave(pow,cor);
     }
-  }
+    if(audio_setup_feito){
+      analyser_visual.getByteFrequencyData(data_array_visual);updateAudioReactive();
+      if(particulas.length<MAX_PARTICULAS&&Math.random()<(0.16+oceanPulse*0.35))criarParticula();
+      if(oceanPulse>0.6&&Math.random()<0.28)criarParticula();
+    }
+    drawSand();
+    ctx.save();ctx.globalAlpha=1;drawWaveReativo();ctx.restore();ctx.globalAlpha=1;
+    drawFoam();
+    if(particulas.length>0){ctx.save();ctx.globalCompositeOperation='screen';desenharParticulas();ctx.restore();}
+    ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
+    desenharEfeitosEspectrais();
 
-  upload.addEventListener('change', function() {
-    const file = this.files[0];
-    if (!file) return;
-    currentSongName = file.name.replace(/\.[^/.]+$/, '');
-    pararMusicaImediatamente();
-    resetarJogo();
-    currentObjectURL = URL.createObjectURL(file);
-    player_audio.src = currentObjectURL;
-    document.getElementById('song_title').innerText = currentSongName;
-    document.getElementById('song_artist').innerText = "Preparando...";
-    upload.style.display = 'none';
-    btn_change_track.style.display = 'block';
+    // Only game logic if in-game
+    if(!audio_setup_feito||document.getElementById('home_screen').style.display==='') return;
 
-    if (!audio_setup_feito) setupAudioNodes();
-    if (audio_context && audio_context.state === 'suspended') audio_context.resume();
+    const tocando=!player_audio.paused&&player_audio.currentTime>0&&!player_audio.ended;
+    let tAudio=0;
+    if(tocando){
+      if(window.songStartTime===undefined||Math.abs((audio_context.currentTime-window.songStartTime)-player_audio.currentTime)>0.1)
+        window.songStartTime=audio_context.currentTime-player_audio.currentTime;
+      tAudio=audio_context.currentTime-window.songStartTime;
+      // Lyrics must track what the user *hears*, not the raw file position.
+      // The delay_node offsets audio by (note_speed + latency_ms). Subtract it.
+      const delayTotal = window.audio_delay_node ? window.audio_delay_node.delayTime.value : 0;
+      updateLyricsSync(Math.max(0, player_audio.currentTime - delayTotal));
+    }else window.songStartTime=undefined;
 
-    iniciarCountdown(() => {
-      document.getElementById('song_artist').innerText = (gameMode === 'map_record') ? "GRAVANDO..." : "Engine Sincronizada";
-      player_audio.play().then(() => {
-        window.songStartTime = audio_context.currentTime - player_audio.currentTime;
-      }).catch(() => {});
-    });
-  });
+    analyser_spawn.getByteFrequencyData(data_array_spawn);atualizarDropDetector(agora);desenharEspectro();
 
-  player_audio.addEventListener('pause', () => { if (audio_context) audio_context.suspend(); });
-  player_audio.addEventListener('play',  () => { if (audio_context) audio_context.resume(); });
+    if(em_drop&&gameMode==='auto'){
+      spectrumCtx.save();spectrumCtx.fillStyle='rgba(255,30,60,0.18)';spectrumCtx.fillRect(0,0,spectrumCanvas.width,spectrumCanvas.height);
+      spectrumCtx.fillStyle='rgba(255,80,80,0.75)';spectrumCtx.font='bold 10px monospace';spectrumCtx.fillText('DROP',6,13);spectrumCtx.restore();
+    }
 
-  btn_change_track.addEventListener('click', function() {
-    pararMusicaImediatamente();
-    resetarJogo();
-    countdownOverlay.classList.remove('visible');
-    spawn_bloqueado = false; countdown_ativo = false;
-    currentSongName = "custom";
-    document.getElementById('song_title').innerText  = "Nenhuma música";
-    document.getElementById('song_artist').innerText = "Selecione um arquivo";
-    upload.value = "";
-    upload.style.display = 'block';
-    btn_change_track.style.display = 'none';
-  });
+    let mk=0;for(let i=1;i<=5;i++)mk+=data_array_spawn[i];mk/=5;
+    let sg=0;for(let i=14;i<42;i++)sg+=data_array_spawn[i];const mg=sg/28;
+    let sv=0;for(let i=10;i<28;i++)sv+=data_array_spawn[i];const mv=sv/18;
+    let sa=0;for(let i=48;i<88;i++)sa+=data_array_spawn[i];const ma=sa/40;
+    const dk=mk-ultimo_media_kick,dv=mv-ultimo_media_vocal,da=ma-ultimo_media_agudo,dg=mg-ultimo_media_green;
+    ultimo_media_kick=mk;ultimo_media_vocal=mv;ultimo_media_agudo=ma;ultimo_media_green=mg;
 
-  function estimarBpm(t) {
-    kick_times.push(t); if (kick_times.length > 14) kick_times.shift();
-    if (kick_times.length >= 5) {
-      let ints = [];
-      for (let i=1; i<kick_times.length; i++) { const d=kick_times[i]-kick_times[i-1]; if (d>0.25&&d<0.9) ints.push(d); }
-      if (ints.length >= 4) {
-        const avg = ints.reduce((a,b)=>a+b,0)/ints.length, bpm=60/avg;
-        if (bpm>=70&&bpm<=200) {
-          bpm_historico.push(bpm); if (bpm_historico.length>10) bpm_historico.shift();
-          bpm_txt.innerText = Math.round(bpm_historico.reduce((a,b)=>a+b,0)/bpm_historico.length);
+    const pode=tocando&&(isNaN(player_audio.duration)||(player_audio.duration-player_audio.currentTime>2.5));
+
+    if(gameMode==='auto'){
+      let etot=0;for(let i=0;i<data_array_spawn.length;i++)etot+=data_array_spawn[i];
+      if(pode&&spawnPermitido(agora)&&etot/data_array_spawn.length>=3.5&&tAudio-ultimo_tempo_spawn>intervalo_minimo){
+        const qb=mk>limiar_bass&&dk>limiar_impacto;const qv=mg>limiar_verde&&dg>limiar_impacto*0.82;
+        const ql=mv>limiar_vocal&&dv>limiar_impacto;const qa=ma>limiar_treble&&da>limiar_impacto&&dificuldade!=='easy';
+        if(qb||qv||ql||qa){
+          const maxS=Math.max(qb?dk:-1,qv?dg:-1,ql?dv:-1,qa?da:-1);
+          let tipo=null;
+          if(maxS===(qb?dk:-1))tipo='bass';else if(maxS===(qv?dg:-1))tipo='verde';else if(maxS===(ql?dv:-1))tipo='vocal';else if(maxS===(qa?da:-1))tipo='agudo';
+          if(tipo){
+            if(tipo==='bass')oceanPulse+=0.42;else if(tipo==='verde')oceanPulse+=0.19;else if(tipo==='vocal')oceanPulse+=0.21;else oceanPulse+=0.11;
+            oceanPulse=Math.min(oceanPulse,2.4);if(tipo==='bass')estimarBpm(tAudio);
+            inimigos.push({tipo,pista:Math.floor(Math.random()*numP),x_inicial:canvas.width+45,tAlvo:tAudio+tempo_aviso});
+            ultimo_tempo_spawn=tAudio;
+          }
+        }
+      }
+    }else if(gameMode==='play_map'){
+      if(pode&&!spawn_bloqueado){
+        while(customMapIndex<customMapData.length){
+          const note=customMapData[customMapIndex];
+          if(tAudio>=note.time-tempo_aviso){
+            const maxS=Math.max(dk,dg,dv,da);let tipo='bass';
+            if(maxS===dg&&dg>0)tipo='verde';else if(maxS===dv&&dv>0)tipo='vocal';else if(maxS===da&&da>0)tipo='agudo';
+            inimigos.push({tipo,pista:Math.floor(Math.random()*numP),x_inicial:canvas.width+45,tAlvo:note.time});
+            if(tipo==='bass')oceanPulse+=0.42;else if(tipo==='verde')oceanPulse+=0.19;else if(tipo==='vocal')oceanPulse+=0.21;else oceanPulse+=0.11;
+            oceanPulse=Math.min(oceanPulse,2.4);customMapIndex++;
+          }else break;
         }
       }
     }
-    ultimo_kick_tempo = t;
-  }
 
-  function checarAcertoMultiplo(tipos_aceitos) {
-    textos_feedback.push({ texto:"TIRO", x:linha_acerto_x, y:y_atual, alpha:1, cor:"#ffffff", tipo:"tiro" });
-    if (!audio_setup_feito) return;
-    const tInput = (window.songStartTime !== undefined ? (audio_context.currentTime - window.songStartTime) : player_audio.currentTime) + (latencia_ms / 1000);
-    const janela  = janelaAcertoPx();
-
-    let alvo=null, distMin=9999, idx=-1;
-    for (let i=0; i<inimigos.length; i++) {
-      const xReal = notaXEmTempo(inimigos[i], tInput);
-      const d = Math.abs(xReal - linha_acerto_x);
-      if (d < distMin) { distMin=d; alvo=inimigos[i]; idx=i; }
-    }
-
-    if (alvo && distMin <= janela.ok) {
-      if (!tipos_aceitos.includes(alvo.tipo)) {
-        textos_feedback.push({ texto:"WRONG", x:linha_acerto_x+48, y:getPistaY(alvo.pista)-24, alpha:1, cor:"#ff0055", tipo:"acerto" });
-        combo=0;
-        pontos=Math.max(0,pontos-20);
-        inimigos.splice(idx,1);
-        pontos_txt.innerText=pontos;
-        registrarNotaFever(false); // WRONG conta como erro no fever
-        return;
+    const janela=janelaAcertoPx();let distMin=99999,achou=false,tipoAlvo=null;
+    for(let i=inimigos.length-1;i>=0;i--){
+      const ini=inimigos[i];ini.x=notaXEmTempo(ini,tAudio);
+      if(ini.x<linha_acerto_x-janela.miss){
+        if(!modoZen){textos_feedback.push({texto:'MISS',x:linha_acerto_x+48,y:getPistaY(ini.pista)-18,alpha:1,cor:'#ff0055',tipo:'acerto'});combo=0;pontos=Math.max(0,pontos-15);pontos_txt.innerText=pontos;}
+        inimigos.splice(i,1);continue;
       }
+      const d=Math.abs(ini.x-linha_acerto_x);if(d<distMin){distMin=d;y_alvo=getPistaY(ini.pista);tipoAlvo=ini.tipo;achou=true;}
+    }
+    if(!achou){y_alvo=canvas.height/2;tipoAlvo='neutro';}
+    if(tipoAlvo==='bass')proximaNotaCor='#ff00ea';else if(tipoAlvo==='verde')proximaNotaCor='#00ff88';else if(tipoAlvo==='vocal')proximaNotaCor='#00ffff';else if(tipoAlvo==='agudo')proximaNotaCor='#ffaa00';else proximaNotaCor='#ffffff';
+    if(tipoAlvo==='bass'){w_alvo=88;h_alvo=88;r_alvo=44;}else if(tipoAlvo==='verde'){w_alvo=56;h_alvo=56;r_alvo=17;}else if(tipoAlvo==='vocal'){w_alvo=34;h_alvo=148;r_alvo=16;}else if(tipoAlvo==='agudo'){w_alvo=68;h_alvo=68;r_alvo=14;}else{w_alvo=48;h_alvo=48;r_alvo=24;}
+    y_atual+=(y_alvo-y_atual)*0.35;w_atual+=(w_alvo-w_atual)*0.31;h_atual+=(h_alvo-h_atual)*0.31;r_atual+=(r_alvo-r_atual)*0.31;
 
-      combo++;
-      verificarAtivacaoFever(); // Checa se ativou fever neste combo
+    ctx.strokeStyle='rgba(0,255,255,0.026)';ctx.lineWidth=1;
+    for(let i=0;i<numP;i++){ctx.beginPath();ctx.moveTo(linha_acerto_x,getPistaY(i));ctx.lineTo(canvas.width,getPistaY(i));ctx.stroke();}
 
-      if (combo>0 && combo%75===0)
-        textos_feedback.push({ texto:`${combo} COMBO!`, x:linha_acerto_x+92, y:y_atual-92, alpha:1.3, cor:"#ffdd00", tipo:"milestone" });
+    const beatRaw=Math.min(1,Math.max(0.15,Math.max(dk/14.5,dv/12.5,da/10.5)*1.12*0.74+last_beat_pulse*0.74));
+    last_beat_pulse=beatRaw;
+    for(let i=0;i<inimigos.length;i++){
+      const ini=inimigos[i];let wd,hd,rd,r,g,b,fmt='rect';
+      if(ini.tipo==='bass'){wd=68;hd=68;rd=34;r=255;g=0;b=234;}
+      else if(ini.tipo==='verde'){wd=46;hd=46;rd=11;r=0;g=255;b=136;fmt='triangulo';}
+      else if(ini.tipo==='vocal'){wd=19;hd=96;rd=9;r=0;g=255;b=255;}
+      else{wd=48;hd=48;rd=7;r=255;g=170;b=0;}
+      desenharNota(ini.x,getPistaY(ini.pista),wd,hd,rd,r,g,b,beatRaw,fmt);
+    }
 
-      const bonus = Math.floor(combo/5);
-      let pontoBase, msg, corMsg;
-      if      (distMin <= janela.perfect) { msg="PERFECT"; corMsg="#00ffcc"; pontoBase=100+bonus*10; }
-      else if (distMin <= janela.nice)    { msg="NICE";    corMsg="#ffff00"; pontoBase=50+bonus*5;   }
-      else                                { msg="OK";      corMsg="#ff00ea"; pontoBase=10+bonus*2;   }
+    if(combo>0){
+      const cx=linha_acerto_x+78,cy=y_atual-68;
+      const cc=combo>=30?'#ff00ff':combo>=20?'#aa00ff':combo>=10?'#00ffff':'#ffff00';
+      ctx.shadowBlur=15;ctx.shadowColor=cc;ctx.fillStyle=cc;
+      ctx.font=`bold ${21+Math.min(combo*0.38,17)}px 'Bebas Neue', sans-serif`;
+      ctx.fillText(`${combo}`,cx,cy);ctx.shadowBlur=0;
+    }
 
-      // Multiplicador de fever
-      const mult = feverAtivo ? FEVER_MULT_PONTOS : 1;
-      pontos += pontoBase * mult;
+    const resp=Math.sin(Date.now()/148)*3.8,ws=w_atual+11+resp,hs=h_atual+11+resp;
+    ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=4.5;ctx.shadowBlur=4;ctx.shadowColor='#ffffff';
+    ctx.beginPath();ctx.moveTo(linha_acerto_x,0);ctx.lineTo(linha_acerto_x,y_atual-hs/2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(linha_acerto_x,y_atual+hs/2);ctx.lineTo(linha_acerto_x,canvas.height);ctx.stroke();
+    ctx.shadowBlur=12;ctx.shadowColor=proximaNotaCor;ctx.strokeStyle='#ffffff';ctx.lineWidth=3.5;
+    if(tipoAlvo==='verde'){ctx.lineJoin='miter';desenharTrianguloArredondado(ctx,linha_acerto_x,y_atual,ws);ctx.stroke();}
+    else{ctx.beginPath();if(ctx.roundRect)ctx.roundRect(linha_acerto_x-ws/2,y_atual-hs/2,ws,hs,r_atual+5);else ctx.arc(linha_acerto_x,y_atual,ws/2,0,Math.PI*2);ctx.stroke();}
+    ctx.shadowBlur=5;ctx.strokeStyle=proximaNotaCor;ctx.lineWidth=1.8;
+    if(tipoAlvo==='verde'){ctx.lineJoin='miter';desenharTrianguloArredondado(ctx,linha_acerto_x,y_atual,ws);ctx.stroke();}
+    else{ctx.beginPath();if(ctx.roundRect)ctx.roundRect(linha_acerto_x-ws/2,y_atual-hs/2,ws,hs,r_atual+5);else ctx.arc(linha_acerto_x,y_atual,ws/2,0,Math.PI*2);ctx.stroke();}
+    ctx.shadowBlur=0;
 
-      if (feverAtivo) {
-        // Mostra o valor multiplicado em laranja
-        textos_feedback.push({ texto:`+${pontoBase * mult}`, x:linha_acerto_x+48, y:getPistaY(alvo.pista)-50, alpha:1.2, cor:"#ff8800", tipo:"acerto" });
-        corMsg = "#ff6644"; // feedback em laranja-vermelho no fever
-        registrarNotaFever(true);
-      }
+    if(gameMode==='map_record'){ctx.save();ctx.globalAlpha=0.8;ctx.fillStyle='#ff0055';ctx.font='bold 13px monospace';ctx.fillText('REC',linha_acerto_x+10,canvas.height-16);ctx.restore();}
 
-      pontos_txt.innerText = pontos;
-      textos_feedback.push({ texto: feverAtivo ? `🔥${msg}` : msg, x:linha_acerto_x+48, y:getPistaY(alvo.pista)-24, alpha:1, cor:corMsg, tipo:"acerto" });
-      criarEfeitoEspectral(linha_acerto_x, getPistaY(alvo.pista));
-      inimigos.splice(idx, 1);
+    for(let i=textos_feedback.length-1;i>=0;i--){
+      const t=textos_feedback[i];
+      if(t.tipo==='milestone'){t.y-=0.75;t.alpha-=0.014;ctx.shadowBlur=16;ctx.shadowColor=t.cor;ctx.fillStyle=t.cor;ctx.globalAlpha=Math.max(0,t.alpha);ctx.font="bold 25px 'Bebas Neue',sans-serif";ctx.fillText(t.texto,t.x,t.y);}
+      else if(t.tipo==='acerto'){t.y-=1.4;t.alpha-=0.028;ctx.shadowBlur=0;ctx.fillStyle=t.cor;ctx.globalAlpha=Math.max(0,t.alpha);ctx.font="bold 19px 'DM Sans',sans-serif";ctx.fillText(t.texto,t.x+24,t.y);}
+      else if(t.tipo==='tiro'){t.x+=52;t.alpha-=0.085;ctx.shadowBlur=9;ctx.shadowColor=t.cor;ctx.fillStyle=t.cor;ctx.globalAlpha=Math.max(0,t.alpha);ctx.fillRect(t.x,t.y-1.8,65,3.2);}
+      ctx.globalAlpha=1;ctx.shadowBlur=0;if(t.alpha<=0)textos_feedback.splice(i,1);
     }
   }
 
-  function desenharEspectro() {
-    if (!analyser_visual||!data_array_visual||!hudLeft.classList.contains('open')) return;
-    spectrumCtx.fillStyle="rgba(5,10,20,0.8)"; spectrumCtx.fillRect(0,0,spectrumCanvas.width,spectrumCanvas.height);
-    const bw=(spectrumCanvas.width/data_array_visual.length)*1.7; let xx=0;
-    for (let i=0; i<data_array_visual.length; i++) {
-      const bh=(data_array_visual[i]/255)*spectrumCanvas.height*0.9;
-      const hue = feverAtivo ? (0 + i * 0.4) : (180+i*1.35); // espectro vermelho no fever
-      spectrumCtx.fillStyle=`hsla(${hue},100%,63%,0.8)`;
-      spectrumCtx.fillRect(xx, spectrumCanvas.height-bh, bw, bh); xx+=bw+1;
-    }
+  // Apply play button style when step 3 is reached
+  const origSelectMapTypeFn = window.selectMapType;
+  // Patch play button after step change
+  function patchPlayBtn(){
+    const btn=document.getElementById('btn_play_go');
+    btn.classList.remove('chaos-btn','zen-btn');
+    btn.classList.add(chosenMode==='zen'?'zen-btn':'chaos-btn');
   }
+  // Override selectMapType to also patch
+  const _orig = selectMapType;
+  window.selectMapType = function(type){
+    _orig(type);
+    patchPlayBtn();
+  };
+  // Also call on initial step 3 show
+  document.getElementById('btn_play_go').classList.add('chaos-btn');
 
-  function initEverything() {
-    calcularPistas();
-    document.getElementById('val_latency').innerText = "0";
-    loopGrafico();
-  }
-  initEverything();
+  // Init normal diff selection visual
+  document.querySelector('.inline-opt[onclick*="normal"]').classList.add('selected');
+  document.querySelector('.inline-opt[onclick*="easy"]').classList.remove('selected');
+
+  calcularPistas();
+  atualizarEngine();
+  loopGrafico();
 </script>
 </body>
 </html>
